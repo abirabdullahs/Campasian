@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane style="-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.abir.demo.controllers.SignupController">
+
+    <center>
+        <HBox alignment="CENTER" spacing="50" style="-fx-padding: 40 70 40 70;" BorderPane.alignment="CENTER">
+         <AnchorPane prefHeight="722.0" prefWidth="458.0" style="-fx-background-color: rgb(255,255,255);">
+            <children>
+               <ImageView fitHeight="460.0" fitWidth="469.0" layoutY="-23.0" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../images/socialMedia.jpeg" />
+                  </image>
+               </ImageView>
+                <Label layoutX="102.0" layoutY="486.0" style="-fx-font-size: 42px; -fx-font-family: 'Poppins', 'Segoe UI', sans-serif; -fx-font-weight: bold; -fx-text-fill: linear-gradient(to right, #6366f1, #8b5cf6, #ec4899); -fx-letter-spacing: 2px;" text="Campasian" textAlignment="CENTER" />
+
+            </children>
+         </AnchorPane>
+
+            <!-- Left Side - Branding -->
+            <StackPane>
+                <Pane maxHeight="550" maxWidth="450" pickOnBounds="false" />
+            </StackPane>
+
+            <!-- Right Side - Signup Form -->
+            <VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 24; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 24; -fx-border-width: 1.5; -fx-padding: 42 45 40 45; -fx-min-width: 440;">
+
+                <VBox alignment="CENTER" spacing="8">
+                    <Text style="-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);                                  -fx-font-family: 'Poppins ExtraBold', 'Segoe UI Black'; -fx-font-size: 38px;" text="Create Account" textAlignment="CENTER" />
+                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 14px;" text="Start your campus journey today 🚀" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" text="Full Name" />
+                    <TextField fx:id="fullNameField" promptText="Enter your full name" style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a;                                        -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 10;                                        -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1.5;                                       -fx-padding: 12 16; -fx-font-size: 14px;                                       -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 5, 0.0, 0, 1);" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" text="University Email" />
+                    <TextField fx:id="emailField" promptText="you@university.edu" style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a;                                        -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 10;                                        -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1.5;                                       -fx-padding: 12 16; -fx-font-size: 14px;                                       -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 5, 0.0, 0, 1);" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" text="Password" />
+                    <PasswordField fx:id="passwordField" promptText="Min. 8 characters" style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a;                                            -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 10;                                            -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1.5;                                           -fx-padding: 12 16; -fx-font-size: 14px;                                           -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 5, 0.0, 0, 1);" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label style="-fx-text-fill: #1e293b; -fx-font-size: 13px; -fx-font-weight: 600;" text="Confirm Password" />
+                    <PasswordField fx:id="confirmPasswordField" promptText="Re-enter password" style="-fx-background-color: #f8fafc; -fx-text-fill: #0f172a;                                            -fx-prompt-text-fill: #94a3b8; -fx-background-radius: 10;                                            -fx-border-radius: 10; -fx-border-color: #e2e8f0; -fx-border-width: 1.5;                                           -fx-padding: 12 16; -fx-font-size: 14px;                                           -fx-effect: innershadow(gaussian, rgba(0,0,0,0.05), 5, 0.0, 0, 1);" />
+                </VBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 4 0 0 0;">
+                    <CheckBox fx:id="termsCheck" style="-fx-text-fill: #475569; -fx-font-size: 12px;" text="I agree to the Terms of Service and Privacy Policy" />
+                </HBox>
+
+                <Button fx:id="signupButton" maxWidth="Infinity" onAction="#handleSignup" style="-fx-background-color: linear-gradient(to right, #6366f1, #8b5cf6, #ec4899);                                -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 14 0;                                 -fx-font-size: 16px; -fx-font-weight: bold;                                -fx-effect: dropshadow(gaussian, rgba(139,92,246,0.4), 15, 0.4, 0, 4);                                -fx-cursor: hand;" text="Create My Account" />
+
+                <HBox alignment="CENTER" spacing="8" style="-fx-padding: 6 0 0 0;">
+                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 13px;" text="Already have an account?" />
+                    <Hyperlink onAction="#handleBackToLogin" style="-fx-text-fill: #8b5cf6; -fx-underline: true; -fx-border-width: 0;                                        -fx-font-size: 13px; -fx-font-weight: 600;" text="Sign In" />
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

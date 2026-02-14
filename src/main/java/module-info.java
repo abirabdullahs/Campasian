@@ -10,7 +10,9 @@ module com.abir.demo {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires kotlin.stdlib;
 
+    opens com.abir.demo.controllers to javafx.fxml;  // 👈 plural, matches your folder
     opens com.abir.demo to javafx.fxml;
     exports com.abir.demo;
 }

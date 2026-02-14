@@ -37,6 +37,7 @@ javafx {
 
 dependencies {
     implementation("org.controlsfx:controlsfx:11.2.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
     implementation("com.dlsc.formsfx:formsfx-core:11.6.0") {
         exclude(group = "org.openjfx")
     }
@@ -54,6 +55,11 @@ dependencies {
     }
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+
+    implementation("org.postgresql:postgresql:42.7.3")
+
+    implementation("org.flywaydb:flyway-core:10.7.1")
+    implementation("org.postgresql:postgresql:42.7.3")
 }
 
 tasks.withType<Test> {
