@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.abir.demo.controllers.ClubsController"
+            style="-fx-background-color: linear-gradient(135deg, #0f172a 0%, #111827 30%, #0b1225 100%);">
+
+    <!-- Top Navigation -->
+    <top>
+        <HBox spacing="15" style="-fx-padding: 15 20; -fx-background-color: rgba(15,23,42,0.9);"
+              alignment="CENTER_LEFT">
+            <Label text="Campasian" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Separator orientation="VERTICAL"/>
+            <Button text="🏠 Feed" onAction="#goToDashboard" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="👤 Profile" onAction="#goToProfile" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="👥 Browse" onAction="#goToBrowseUsers" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="🎉 Events" onAction="#goToEvents" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="🎓 Clubs" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="💬 Messages" onAction="#goToMessages" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🚪 Logout" onAction="#logout" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+        </HBox>
+    </top>
+
+    <!-- Clubs Content -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+            <Label text="University Clubs &amp; Groups" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+            <!-- Create Club Form -->
+            <VBox spacing="10" style="-fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 10;
+                                      -fx-background-color: rgba(255,255,255,0.05); -fx-padding: 15;">
+                <Label text="Create New Club" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <TextField fx:id="clubNameField" promptText="Club Name"
+                          style="-fx-control-inner-background: rgba(255,255,255,0.1); -fx-text-fill: white;"/>
+                <TextArea fx:id="clubDescriptionArea" promptText="Club Description" wrapText="true" prefRowCount="3"
+                         style="-fx-control-inner-background: rgba(255,255,255,0.1); -fx-text-fill: white;"/>
+                <TextField fx:id="clubCategoryField" promptText="Category (e.g., Technology, Arts, Sports)"
+                          style="-fx-control-inner-background: rgba(255,255,255,0.1); -fx-text-fill: white;"/>
+                <Button fx:id="createClubButton" text="Create Club"/>
+            </VBox>
+
+            <!-- Clubs List -->
+            <Label text="Available Clubs" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <ScrollPane style="-fx-background: transparent; -fx-control-inner-background: transparent;">
+                <VBox fx:id="clubsVBox" spacing="10" style="-fx-padding: 10;"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

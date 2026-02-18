@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.abir.demo.controllers.DashboardController"
+            style="-fx-background-color: linear-gradient(135deg, #0f172a 0%, #111827 30%, #0b1225 100%);">
+
+    <!-- Top Navigation Bar -->
+    <top>
+        <HBox spacing="15" style="-fx-padding: 15 20; -fx-background-color: rgba(15,23,42,0.9);"
+              alignment="CENTER_LEFT">
+            <Label text="Campasian" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            <Separator orientation="VERTICAL"/>
+            <Button text="🏠 Feed" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="👤 Profile" onAction="#goToProfile" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="👥 Browse" onAction="#goToBrowseUsers" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="🎉 Events" onAction="#goToEvents" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="🎓 Clubs" onAction="#goToClubs" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Button text="💬 Messages" onAction="#goToMessages" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🚪 Logout" onAction="#logout" style="-fx-text-fill: white; -fx-background-color: transparent;"/>
+        </HBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 20;">
+            <!-- Welcome Label -->
+            <Label fx:id="welcomeLabel" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+
+            <!-- Post Creation Area -->
+            <VBox spacing="10" style="-fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 15; 
+                                      -fx-background-color: rgba(255,255,255,0.05); -fx-padding: 15;">
+                <Label text="Share something with your campus" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px;"/>
+                <TextArea fx:id="postContentArea" wrapText="true" prefRowCount="4" 
+                         style="-fx-control-inner-background: rgba(255,255,255,0.1); -fx-text-fill: white;"/>
+                <Button fx:id="postButton" text="Post Now"/>
+            </VBox>
+
+            <!-- Feed Section -->
+            <Label text="Your Feed" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+            
+            <ScrollPane fx:id="feedScrollPane" style="-fx-background: transparent; -fx-control-inner-background: transparent;">
+                <VBox fx:id="feedVBox" spacing="15" style="-fx-padding: 10;"/>
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

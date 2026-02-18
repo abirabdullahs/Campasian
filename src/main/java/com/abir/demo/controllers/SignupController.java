@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import com.abir.demo.utils.SceneManager;
 
 import java.io.IOException;
 
@@ -33,18 +34,22 @@ public class SignupController {
             showAlert("Passwords do not match.");
             return;
         }
-        showAlert("Account created (demo). You can now log in.");
+        
+        try {
+            // After successful signup, go to dashboard
+            SceneManager.switchScene("dashboard.fxml");
+        } catch (IOException e) {
+            showAlert("Failed to load dashboard!");
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void handleBackToLogin(ActionEvent event) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
-            Stage stage = (Stage) ((Control) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Login - Campasian");
-            stage.show();
+            SceneManager.switchScene("Login.fxml");
         } catch (IOException e) {
+            showAlert("Failed to load login page!");
             e.printStackTrace();
         }
     }

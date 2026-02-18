@@ -5,6 +5,9 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.animation.*;
 import javafx.util.Duration;
+import com.abir.demo.utils.SceneManager;
+
+import java.io.IOException;
 
 public class LoginController {
     
@@ -72,8 +75,23 @@ public class LoginController {
         // Success animation
         successAnimation();
         
-        // Show success message
-        showAlert("Success", "Login successful! Welcome to Campasian!");
+        // Navigate to Dashboard
+        try {
+            SceneManager.switchScene("dashboard.fxml");
+        } catch (IOException e) {
+            showAlert("Error", "Failed to load dashboard!");
+            e.printStackTrace();
+        }
+    }
+    
+    @FXML
+    private void goToSignup() {
+        try {
+            SceneManager.switchScene("Signup.fxml");
+        } catch (IOException e) {
+            showAlert("Error", "Failed to load signup page!");
+            e.printStackTrace();
+        }
     }
     
     private void shakeAnimation(Button button) {
