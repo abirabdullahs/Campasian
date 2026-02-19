@@ -21,8 +21,12 @@ public final class UniversityService {
 
     public static List<String> loadUniversities() {
         if (universities != null) return universities;
-        try (var reader = new InputStreamReader(
-                UniversityService.class.getResourceAsStream(RESOURCE), StandardCharsets.UTF_8)) {
+        var stream = UniversityService.class.getResourceAsStream(RESOURCE);
+        if (stream == null) {
+            universities = List.of("AIUB", "NSU", "BRAC", "DU", "BUET");
+            return universities;
+        }
+        try (var reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
             JsonArray arr = new Gson().fromJson(reader, JsonArray.class);
             List<String> list = new ArrayList<>();
             for (var e : arr) {
@@ -33,7 +37,7 @@ public final class UniversityService {
             }
             universities = Collections.unmodifiableList(list);
             return universities;
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException e) {
             universities = List.of("AIUB", "NSU", "BRAC", "DU", "BUET");
             return universities;
         }

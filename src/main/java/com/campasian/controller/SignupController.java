@@ -5,6 +5,7 @@ import com.campasian.service.ApiException;
 import com.campasian.service.UniversityService;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
@@ -34,6 +35,7 @@ public class SignupController implements Initializable {
     @FXML private Label errorLabel;
 
     private AuthService authService;
+    private String lastFilterQuery = null;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -44,7 +46,15 @@ public class SignupController implements Initializable {
         universityCombo.setEditable(true);
         universityCombo.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
             String q = newVal != null ? newVal.trim().toLowerCase() : "";
-            filtered.setPredicate(s -> q.isEmpty() || (s != null && s.toLowerCase().contains(q)));
+            if (q.equals(lastFilterQuery)) return;
+            lastFilterQuery = q;
+            Platform.runLater(() -> {
+                try {
+                    filtered.setPredicate(s -> q.isEmpty() || (s != null && s.toLowerCase().contains(q)));
+                } finally {
+                    lastFilterQuery = q;
+                }
+            });
         });
 
         // Real-time password match validation

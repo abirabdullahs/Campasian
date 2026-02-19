@@ -15,7 +15,7 @@
 <GridPane xmlns:fx="http://javafx.com/fxml"
           fx:controller="com.campasian.controller.SignupController"
           styleClass="root"
-          stylesheets="@../styles/style.css"
+          stylesheets="@../styles/app.css"
           minWidth="900" minHeight="600"
           prefWidth="1200" prefHeight="700"
           maxWidth="Infinity" maxHeight="Infinity">
@@ -30,8 +30,8 @@
     <!-- Left: Branding panel -->
     <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
         <VBox spacing="8">
-            <Label text="Welcome to Campasian" styleClass="hero-title"/>
-            <Label text="Join your university community today." styleClass="hero-subtitle"/>
+            <Label text="Campasian" styleClass="hero-title"/>
+            <Label text="Your Campus, Your Connections" styleClass="hero-subtitle"/>
         </VBox>
         <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
             <Label text="[Illustration]"/>
