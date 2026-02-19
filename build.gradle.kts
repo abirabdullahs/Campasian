@@ -30,12 +30,6 @@ application {
     mainClass.set("com.campasian.CampasianApplication")
 }
 
-// Override main class: gradlew run "-PmainClass=com.campasian.database.ConnectionTest"
-tasks.named<JavaExec>("run") {
-    if (project.hasProperty("mainClass")) {
-        mainClass.set(project.property("mainClass") as String)
-    }
-}
 
 javafx {
     version = "21.0.6"
@@ -63,10 +57,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 
-    implementation("org.postgresql:postgresql:42.7.3")
-    implementation("org.flywaydb:flyway-core:10.7.1")
-    implementation("org.postgresql:postgresql:42.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
     implementation("com.google.code.gson:gson:2.10.1")
 }
 

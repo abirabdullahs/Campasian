@@ -5,22 +5,47 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml"
-           fx:controller="com.campasian.controller.LoginController"
-           styleClass="root"
-           stylesheets="/styles/app.css">
-    <VBox alignment="CENTER" spacing="24.0" styleClass="content-card">
-        <padding>
-            <Insets bottom="8.0" left="0.0" right="0.0" top="0.0"/>
-        </padding>
-        <Label text="Campasian" styleClass="brand-title"/>
-        <TextField fx:id="emailField" promptText="Email"/>
-        <PasswordField fx:id="passwordField" promptText="Password"/>
-        <Label fx:id="errorLabel" styleClass="error-label" managed="false"/>
-        <Button text="Login" onAction="#onLoginClick" styleClass="btn-primary"/>
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.campasian.controller.LoginController"
+          styleClass="root"
+          stylesheets="/styles/style.css"
+          minWidth="900" minHeight="600"
+          prefWidth="1200" prefHeight="700"
+          maxWidth="Infinity" maxHeight="Infinity">
+    <columnConstraints>
+        <ColumnConstraints percentWidth="45" halignment="CENTER"/>
+        <ColumnConstraints percentWidth="55" halignment="CENTER"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="ALWAYS"/>
+    </rowConstraints>
+
+    <!-- Left: Branding panel -->
+    <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
+        <VBox spacing="8">
+            <Label text="Welcome to Campasian" styleClass="hero-title"/>
+            <Label text="Connect with your campus community." styleClass="hero-subtitle"/>
+        </VBox>
+        <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
+            <Label text="[Illustration]"/>
+        </VBox>
+    </VBox>
+
+    <!-- Right: Form panel -->
+    <VBox styleClass="form-panel" alignment="CENTER" spacing="20" GridPane.columnIndex="1">
+        <VBox spacing="4">
+            <Label text="Sign in" styleClass="form-title"/>
+            <Label text="Enter your credentials to continue." styleClass="form-subtitle"/>
+        </VBox>
+        <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
+        <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
+        <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
+        <Button text="Sign in" onAction="#onLoginClick" styleClass="btn-primary" prefWidth="320"/>
         <Button text="Don't have an account? Sign up" onAction="#onSignupLinkClick" styleClass="btn-link"/>
     </VBox>
-</StackPane>
+</GridPane>

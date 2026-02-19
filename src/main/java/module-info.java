@@ -1,12 +1,9 @@
 module com.campasian {
-    requires java.sql;
     requires java.net.http;
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
     requires com.google.gson;
-    requires org.postgresql.jdbc;
-    requires flyway.core;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;

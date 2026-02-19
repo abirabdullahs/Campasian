@@ -1,0 +1,135 @@
+/* Campasian - Shadcn-inspired minimalistic theme */
+/* White/Light Gray background, Dark Indigo/Black accents */
+
+.root {
+    -fx-font-family: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #fafafa;
+}
+
+/* Side panel - branding/illustration area */
+.side-panel {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 0;
+    -fx-padding: 48 40;
+}
+
+.hero-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.hero-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: #94a3b8;
+    -fx-padding: 8 0 0 0;
+}
+
+.illustration-placeholder {
+    -fx-background-color: rgba(255,255,255,0.06);
+    -fx-background-radius: 8px;
+    -fx-min-width: 200px;
+    -fx-min-height: 200px;
+    -fx-alignment: center;
+}
+
+.illustration-placeholder .label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+/* Form panel */
+.form-panel {
+    -fx-background-color: #ffffff;
+    -fx-padding: 48 56;
+    -fx-spacing: 20;
+}
+
+.form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.form-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748b;
+}
+
+/* Inputs - Shadcn style: 8px radius, subtle borders */
+.text-field, .password-field, .combo-box {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 10 14;
+    -fx-font-size: 14px;
+    -fx-pref-height: 40px;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.2), 4, 0, 0, 0);
+}
+
+.text-field.error, .password-field.error {
+    -fx-border-color: #ef4444;
+}
+
+.combo-box:focused {
+    -fx-border-color: #3b82f6;
+}
+
+.combo-box .list-cell {
+    -fx-padding: 8 14;
+}
+
+/* Primary button */
+.btn-primary {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 24;
+    -fx-cursor: hand;
+    -fx-pref-height: 40px;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #1e293b;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #334155;
+}
+
+/* Link button */
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3b82f6;
+    -fx-font-size: 14px;
+    -fx-underline: true;
+    -fx-cursor: hand;
+    -fx-padding: 8 0;
+}
+
+.btn-link:hover {
+    -fx-text-fill: #2563eb;
+}
+
+/* Error label */
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+/* Welcome / Home */
+.welcome-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}

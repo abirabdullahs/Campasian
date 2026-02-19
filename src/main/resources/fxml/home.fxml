@@ -8,7 +8,7 @@
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.campasian.controller.HomeController"
            styleClass="root"
-           stylesheets="/styles/app.css">
+           stylesheets="/styles/style.css">
     <VBox alignment="CENTER" spacing="16.0" styleClass="content-card">
         <padding>
             <Insets bottom="0.0" left="0.0" right="0.0" top="0.0"/>

@@ -4,7 +4,7 @@ import com.campasian.model.User;
 import com.google.gson.JsonObject;
 
 /**
- * Handles authentication: signup, login, and EIN-to-university mapping.
+ * Handles authentication via Supabase REST API.
  */
 public final class AuthService {
 
@@ -18,35 +18,14 @@ public final class AuthService {
     }
 
     /**
-     * Maps EIN prefix to university name. Extend as needed for real EIN schemes.
-     */
-    public String resolveUniversityByEin(String ein) {
-        if (ein == null || ein.isBlank()) return "";
-        String prefix = ein.trim().substring(0, Math.min(3, ein.trim().length()));
-        return switch (prefix) {
-            case "101" -> "AIUB";
-            case "102" -> "BUET";
-            case "103" -> "DU";
-            case "104" -> "NSU";
-            case "105" -> "BRAC";
-            case "106" -> "EWU";
-            case "107" -> "IUB";
-            case "108" -> "SUB";
-            default -> "Unknown University";
-        };
-    }
-
-    /**
      * Registers a new user via Supabase Auth (HTTPS /auth/v1/signup).
      */
-    public void signup(String fullName, String email, String einNumber, String department,
-                       String password) throws ApiException {
-        String universityName = resolveUniversityByEin(einNumber);
-
+    public void signup(String fullName, String email, String universityName, String number,
+                       String department, String password) throws ApiException {
         JsonObject meta = new JsonObject();
         meta.addProperty("full_name", fullName);
-        meta.addProperty("ein_number", einNumber);
         meta.addProperty("university_name", universityName);
+        meta.addProperty("number", number);
         meta.addProperty("department", department);
         apiService.signUp(email, password, meta);
     }
@@ -58,9 +37,7 @@ public final class AuthService {
         try {
             return apiService.login(email, password);
         } catch (ApiException e) {
-            if (e.isInvalidCredentials()) {
-                return null;
-            }
+            if (e.isInvalidCredentials()) return null;
             throw e;
         }
     }

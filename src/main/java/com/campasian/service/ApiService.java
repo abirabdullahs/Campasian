@@ -171,7 +171,7 @@ public final class ApiService {
         JsonObject meta = asObject(userJson.get("user_metadata"));
         if (meta != null) {
             user.setFullName(asString(meta.get("full_name")));
-            user.setEinNumber(asString(meta.get("ein_number")));
+            user.setEinNumber(asString(meta.get("number")));
             user.setUniversityName(asString(meta.get("university_name")));
             user.setDepartment(asString(meta.get("department")));
         }
