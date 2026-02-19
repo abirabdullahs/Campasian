@@ -2,12 +2,15 @@ package com.campasian.service;
 
 import com.campasian.database.DatabaseManager;
 import com.campasian.model.User;
-import org.mindrot.jbcrypt.BCrypt;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HexFormat;
 
 /**
  * Handles authentication: signup, login, password hashing, and EIN-to-university mapping.
@@ -41,13 +44,27 @@ public final class AuthService {
         };
     }
 
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 not available", e);
+        }
+    }
+
+    private static boolean verifyPassword(String password, String storedHash) {
+        return hashPassword(password).equals(storedHash);
+    }
+
     /**
      * Registers a new user. Validates and hashes password before saving.
      */
     public void signup(String fullName, String email, String einNumber, String department,
                        String password) throws SQLException {
         String universityName = resolveUniversityByEin(einNumber);
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        String hashedPassword = hashPassword(password);
 
         String sql = """
             INSERT INTO users (full_name, email, ein_number, university_name, department, password)
@@ -79,7 +96,7 @@ public final class AuthService {
             if (!rs.next()) return null;
 
             String storedHash = rs.getString("password");
-            if (!BCrypt.checkpw(password, storedHash)) return null;
+            if (!verifyPassword(password, storedHash)) return null;
 
             User user = new User();
             user.setId(rs.getInt("id"));

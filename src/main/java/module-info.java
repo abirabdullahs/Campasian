@@ -6,7 +6,6 @@ module com.campasian {
     requires com.google.gson;
     requires org.postgresql.jdbc;
     requires flyway.core;
-    requires jbcrypt;
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
