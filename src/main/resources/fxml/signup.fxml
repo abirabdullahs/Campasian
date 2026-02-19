@@ -15,7 +15,7 @@
 <GridPane xmlns:fx="http://javafx.com/fxml"
           fx:controller="com.campasian.controller.SignupController"
           styleClass="root"
-          stylesheets="/styles/style.css"
+          stylesheets="@../styles/style.css"
           minWidth="900" minHeight="600"
           prefWidth="1200" prefHeight="700"
           maxWidth="Infinity" maxHeight="Infinity">

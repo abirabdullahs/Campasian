@@ -3,14 +3,12 @@ package com.campasian.view;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 /**
  * Centralized navigation. Loads FXML from resources/fxml/, handles scene transitions.
- * Responsive to stage size (full screen).
  */
 public final class SceneManager {
 
@@ -34,10 +32,6 @@ public final class SceneManager {
                 primaryStage.setScene(scene);
             } else {
                 scene.setRoot(root);
-            }
-            if (root instanceof Region r) {
-                r.prefWidthProperty().bind(primaryStage.widthProperty());
-                r.prefHeightProperty().bind(primaryStage.heightProperty());
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML: " + fxmlPath, e);

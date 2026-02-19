@@ -7,7 +7,7 @@ import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
@@ -34,20 +34,17 @@ public class SignupController implements Initializable {
     @FXML private Label errorLabel;
 
     private AuthService authService;
-    private ObservableList<String> filteredUniversities;
-    private List<String> allUniversities;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         authService = AuthService.getInstance();
-        allUniversities = UniversityService.loadUniversities();
-        filteredUniversities = FXCollections.observableArrayList(allUniversities);
-        universityCombo.setItems(filteredUniversities);
+        var all = FXCollections.observableArrayList(UniversityService.loadUniversities());
+        var filtered = new FilteredList<>(all, s -> true);
+        universityCombo.setItems(filtered);
         universityCombo.setEditable(true);
-
         universityCombo.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
-            List<String> matches = UniversityService.search(newVal);
-            filteredUniversities.setAll(matches);
+            String q = newVal != null ? newVal.trim().toLowerCase() : "";
+            filtered.setPredicate(s -> q.isEmpty() || (s != null && s.toLowerCase().contains(q)));
         });
 
         // Real-time password match validation

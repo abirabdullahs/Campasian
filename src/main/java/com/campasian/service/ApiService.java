@@ -20,20 +20,23 @@ import java.time.Duration;
  */
 public final class ApiService {
 
-    private static final ApiService INSTANCE = new ApiService();
-
     private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(20);
 
-    private final HttpClient client = HttpClient.newBuilder()
-        .connectTimeout(CONNECT_TIMEOUT)
-        .build();
+    private final HttpClient client;
+
+    private static final ApiService INSTANCE = new ApiService();
+
+    private ApiService() {
+        Duration connectTimeout = Duration.ofSeconds(10);
+        this.client = HttpClient.newBuilder()
+            .connectTimeout(connectTimeout)
+            .build();
+    }
     private final Gson gson = new Gson();
 
     private volatile String accessToken;
     private volatile String refreshToken;
-
-    private ApiService() {}
 
     public static ApiService getInstance() {
         return INSTANCE;
