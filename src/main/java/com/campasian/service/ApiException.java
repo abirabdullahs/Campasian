@@ -48,6 +48,14 @@ public final class ApiException extends Exception {
         return containsIgnoreCase(desc, "already registered") || containsIgnoreCase(desc, "user already registered");
     }
 
+    public boolean isEmailNotConfirmed() {
+        String msg = getMessage();
+        String desc = errorDescription != null ? errorDescription : msg;
+        return containsIgnoreCase(msg, "email not confirmed")
+            || containsIgnoreCase(desc, "email not confirmed")
+            || containsIgnoreCase(msg, "email_not_confirmed");
+    }
+
     private static boolean containsIgnoreCase(String haystack, String needle) {
         if (haystack == null || needle == null) return false;
         return haystack.toLowerCase().contains(needle.toLowerCase());

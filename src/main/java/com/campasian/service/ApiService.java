@@ -46,7 +46,11 @@ public final class ApiService {
         return refreshToken;
     }
 
-    public void signUp(String email, String password, JsonObject userMetadata) throws ApiException {
+    /**
+     * Signs up a user via Supabase Auth. Also sends user_metadata for backup.
+     * Returns the full response including the created user (with id).
+     */
+    public JsonObject signUp(String email, String password, JsonObject userMetadata) throws ApiException {
         JsonObject payload = new JsonObject();
         payload.addProperty("email", email);
         payload.addProperty("password", password);
@@ -56,6 +60,84 @@ public final class ApiService {
 
         JsonObject root = postJson(authUrl("/signup"), payload);
         storeTokensIfPresent(root);
+        return root;
+    }
+
+    /**
+     * Inserts profile data into the public.profiles table via Supabase REST.
+     * Column names must match the table schema: id, full_name, university_name, ein_number, department.
+     */
+    public void createProfile(String userId, String fullName, String universityName, String einNumber,
+                              String department) throws ApiException {
+        JsonObject body = new JsonObject();
+        body.addProperty("id", userId);
+        body.addProperty("full_name", fullName != null ? fullName : "");
+        body.addProperty("university_name", universityName != null ? universityName : "");
+        body.addProperty("ein_number", einNumber != null ? einNumber : "");
+        body.addProperty("department", department != null ? department : "");
+
+        String url = restUrl("/profiles");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(url, body, token);
+    }
+
+    private static String restUrl(String path) throws ApiException {
+        String base;
+        try {
+            base = SupabaseConfig.getSupabaseUrl();
+        } catch (IllegalStateException e) {
+            throw new ApiException(-1, e.getMessage(), null, e.getMessage(), null);
+        }
+        return base + "/rest/v1" + (path.startsWith("/") ? path : "/" + path);
+    }
+
+    private void postJsonWithAuth(String url, JsonObject payload, String bearerToken) throws ApiException {
+        String anonKey;
+        try {
+            anonKey = SupabaseConfig.getAnonKey();
+        } catch (IllegalStateException e) {
+            throw new ApiException(-1, e.getMessage(), null, e.getMessage(), null);
+        }
+
+        String body = gson.toJson(payload);
+        var builder = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .timeout(REQUEST_TIMEOUT)
+            .header("apikey", anonKey)
+            .header("Authorization", "Bearer " + bearerToken)
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .header("Prefer", "return=minimal")
+            .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
+
+        HttpRequest request = builder.build();
+
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            throw new ApiException(-1, "Network/API request failed: " + e.getMessage(), null, e.getMessage(), null);
+        }
+
+        int status = response.statusCode();
+        if (status >= 200 && status < 300) return;
+
+        String responseBody = response.body();
+        String message = "HTTP " + status;
+        if (responseBody != null && !responseBody.isBlank()) {
+            try {
+                JsonElement parsed = JsonParser.parseString(responseBody);
+                JsonObject obj = parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+                if (obj != null) {
+                    String msg = asString(obj.get("message"));
+                    if (msg != null && !msg.isBlank()) message = msg;
+                }
+            } catch (Exception ignored) {}
+        }
+        throw new ApiException(status, message, null, message, responseBody);
     }
 
     public User login(String email, String password) throws ApiException {
@@ -170,7 +252,7 @@ public final class ApiService {
         JsonObject meta = asObject(userJson.get("user_metadata"));
         if (meta != null) {
             user.setFullName(asString(meta.get("full_name")));
-            user.setEinNumber(asString(meta.get("number")));
+            user.setEinNumber(firstNonBlank(asString(meta.get("ein_number")), asString(meta.get("number"))));
             user.setUniversityName(asString(meta.get("university_name")));
             user.setDepartment(asString(meta.get("department")));
         }

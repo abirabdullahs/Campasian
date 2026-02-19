@@ -18,16 +18,32 @@ public final class AuthService {
     }
 
     /**
-     * Registers a new user via Supabase Auth (HTTPS /auth/v1/signup).
+     * Registers a new user via Supabase Auth, stores metadata, and inserts profile.
+     * 1. Auth signup with user_metadata (full_name, university_name, ein_number, department)
+     * 2. Insert into public.profiles table for queryable profile data
      */
     public void signup(String fullName, String email, String universityName, String number,
                        String department, String password) throws ApiException {
         JsonObject meta = new JsonObject();
         meta.addProperty("full_name", fullName);
         meta.addProperty("university_name", universityName);
-        meta.addProperty("number", number);
+        meta.addProperty("ein_number", number);
         meta.addProperty("department", department);
-        apiService.signUp(email, password, meta);
+
+        JsonObject response = apiService.signUp(email, password, meta);
+        var userEl = response.get("user");
+        if (userEl != null && userEl.isJsonObject()) {
+            var userJson = userEl.getAsJsonObject();
+            if (userJson.has("id")) {
+                String userId = userJson.get("id").getAsString();
+                try {
+                    apiService.createProfile(userId, fullName, universityName, number, department);
+                } catch (ApiException e) {
+                    // Profile table may not exist or RLS may block; user_metadata is already stored
+                    System.err.println("Profile insert failed (user_metadata is stored): " + e.getMessage());
+                }
+            }
+        }
     }
 
     /**
