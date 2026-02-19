@@ -16,7 +16,7 @@
     </padding>
     <Button fx:id="createPostBtn" text="What's on your mind?" styleClass="create-post-btn" onAction="#onCreatePostClick"/>
     <HBox spacing="8">
-        <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn feed-filter-active" onAction="#onFeedGlobalClick"/>
+        <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn " onAction="#onFeedGlobalClick"/>
         <Button fx:id="feedFollowingBtn" text="Following" styleClass="feed-filter-btn" onAction="#onFeedFollowingClick"/>
     </HBox>
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
