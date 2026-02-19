@@ -2,6 +2,7 @@ package com.campasian.controller;
 
 import com.campasian.model.User;
 import com.campasian.service.AuthService;
+import com.campasian.service.ApiException;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.fxml.FXML;
@@ -9,10 +10,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
-import java.sql.SQLException;
-
 /**
- * Controller for the login view. Verifies credentials against the database
+ * Controller for the login view. Verifies credentials via Supabase REST APIs
  * and delegates navigation to SceneManager.
  */
 public class LoginController {
@@ -43,7 +42,10 @@ public class LoginController {
                 return;
             }
             SceneManager.navigateTo(ViewPaths.HOME_VIEW);
-        } catch (SQLException e) {
+        } catch (ApiException e) {
+            showError("Login failed. " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
             showError("Login failed. Please try again.");
             e.printStackTrace();
         }

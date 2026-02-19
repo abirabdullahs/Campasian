@@ -1,6 +1,7 @@
 package com.campasian.controller;
 
 import com.campasian.service.AuthService;
+import com.campasian.service.ApiException;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.fxml.FXML;
@@ -10,7 +11,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 /**
@@ -114,13 +114,16 @@ public class SignupController implements Initializable {
         }
 
         try {
-            if (authService.emailExists(email)) {
+            authService.signup(fullName, email, einNumber, department, password);
+            SceneManager.navigateTo(ViewPaths.LOGIN_VIEW);
+        } catch (ApiException e) {
+            if (e.isUserAlreadyRegistered()) {
                 showError("This email is already registered.");
                 return;
             }
-            authService.signup(fullName, email, einNumber, department, password);
-            SceneManager.navigateTo(ViewPaths.LOGIN_VIEW);
-        } catch (SQLException e) {
+            showError("Registration failed. " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
             showError("Registration failed. Please try again.");
             e.printStackTrace();
         }

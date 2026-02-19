@@ -65,6 +65,7 @@ dependencies {
 
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("org.flywaydb:flyway-core:10.7.1")
+    implementation("org.postgresql:postgresql:42.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
     implementation("com.google.code.gson:gson:2.10.1")
 }

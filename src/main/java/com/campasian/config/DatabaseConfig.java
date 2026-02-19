@@ -16,8 +16,7 @@ public final class DatabaseConfig {
 
     public static String getJdbcUrl() {
         return String.format(
-            "jdbc:postgresql://%s:%d/%s?ssl=true&sslmode=require",
-            HOST, PORT, DATABASE
+                "jdbc:postgresql://db.ixcmrdmkdlqtnhefjnsx.supabase.co:6543/postgres?sslmode=disable"
         );
     }
 }

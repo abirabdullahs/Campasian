@@ -1,23 +1,15 @@
 package com.campasian.service;
 
-import com.campasian.database.DatabaseManager;
 import com.campasian.model.User;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HexFormat;
+import com.google.gson.JsonObject;
 
 /**
- * Handles authentication: signup, login, password hashing, and EIN-to-university mapping.
+ * Handles authentication: signup, login, and EIN-to-university mapping.
  */
 public final class AuthService {
 
     private static final AuthService INSTANCE = new AuthService();
+    private final ApiService apiService = ApiService.getInstance();
 
     private AuthService() {}
 
@@ -44,84 +36,32 @@ public final class AuthService {
         };
     }
 
-    private static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 not available", e);
-        }
-    }
-
-    private static boolean verifyPassword(String password, String storedHash) {
-        return hashPassword(password).equals(storedHash);
-    }
-
     /**
-     * Registers a new user. Validates and hashes password before saving.
+     * Registers a new user via Supabase Auth (HTTPS /auth/v1/signup).
      */
     public void signup(String fullName, String email, String einNumber, String department,
-                       String password) throws SQLException {
+                       String password) throws ApiException {
         String universityName = resolveUniversityByEin(einNumber);
-        String hashedPassword = hashPassword(password);
 
-        String sql = """
-            INSERT INTO users (full_name, email, ein_number, university_name, department, password)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """;
-
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, fullName);
-            stmt.setString(2, email);
-            stmt.setString(3, einNumber);
-            stmt.setString(4, universityName);
-            stmt.setString(5, department);
-            stmt.setString(6, hashedPassword);
-            stmt.executeUpdate();
-        }
+        JsonObject meta = new JsonObject();
+        meta.addProperty("full_name", fullName);
+        meta.addProperty("ein_number", einNumber);
+        meta.addProperty("university_name", universityName);
+        meta.addProperty("department", department);
+        apiService.signUp(email, password, meta);
     }
 
     /**
-     * Verifies credentials and returns the user if valid.
+     * Verifies credentials via Supabase Auth and returns the user if valid.
      */
-    public User login(String email, String password) throws SQLException {
-        String sql = "SELECT id, full_name, email, ein_number, university_name, department, password, created_at FROM users WHERE email = ?";
-
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (!rs.next()) return null;
-
-            String storedHash = rs.getString("password");
-            if (!verifyPassword(password, storedHash)) return null;
-
-            User user = new User();
-            user.setId(rs.getInt("id"));
-            user.setFullName(rs.getString("full_name"));
-            user.setEmail(rs.getString("email"));
-            user.setEinNumber(rs.getString("ein_number"));
-            user.setUniversityName(rs.getString("university_name"));
-            user.setDepartment(rs.getString("department"));
-            user.setPasswordHash(storedHash);
-            var ts = rs.getTimestamp("created_at");
-            if (ts != null) user.setCreatedAt(ts.toLocalDateTime());
-            return user;
-        }
-    }
-
-    /**
-     * Checks if an email is already registered.
-     */
-    public boolean emailExists(String email) throws SQLException {
-        String sql = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
+    public User login(String email, String password) throws ApiException {
+        try {
+            return apiService.login(email, password);
+        } catch (ApiException e) {
+            if (e.isInvalidCredentials()) {
+                return null;
+            }
+            throw e;
         }
     }
 }

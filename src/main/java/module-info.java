@@ -1,5 +1,6 @@
 module com.campasian {
     requires java.sql;
+    requires java.net.http;
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
