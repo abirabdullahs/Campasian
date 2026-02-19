@@ -20,7 +20,7 @@
             <Insets top="24" right="16" bottom="24" left="24"/>
         </padding>
         <Label text="Campasian" styleClass="sidebar-brand"/>
-        <Button fx:id="feedBtn" text="Feed" styleClass="sidebar-btn sidebar-btn-active" onAction="#onFeedClick"/>
+        <Button fx:id="feedBtn" text="Feed" styleClass="sidebar-btn" onAction="#onFeedClick"/>
         <Button fx:id="communityBtn" text="Community" styleClass="sidebar-btn" onAction="#onCommunityClick"/>
         <Button fx:id="profileBtn" text="Profile" styleClass="sidebar-btn" onAction="#onProfileClick"/>
         <Button fx:id="settingsBtn" text="Settings" styleClass="sidebar-btn" onAction="#onSettingsClick"/>
