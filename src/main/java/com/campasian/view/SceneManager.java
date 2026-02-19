@@ -38,7 +38,8 @@ public final class SceneManager {
         }
         try {
             Parent root = FXMLLoader.load(SceneManager.class.getResource(fxmlPath));
-            primaryStage.setScene(new Scene(root));
+            Scene scene = new Scene(root, 900, 600);
+            primaryStage.setScene(scene);
         } catch (IOException e) {
             throw new RuntimeException("Failed to load FXML: " + fxmlPath, e);
         }

@@ -5,17 +5,21 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.campasian.controller.LoginController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label text="Campasian"/>
-    <TextField fx:id="usernameField" promptText="Username"/>
-    <PasswordField fx:id="passwordField" promptText="Password"/>
-    <Label fx:id="errorLabel" managed="false"/>
-    <Button text="Login" onAction="#onLoginClick"/>
-</VBox>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.campasian.controller.LoginController"
+           styleClass="root"
+           stylesheets="/styles/app.css">
+    <VBox alignment="CENTER" spacing="24.0" styleClass="content-card">
+        <padding>
+            <Insets bottom="8.0" left="0.0" right="0.0" top="0.0"/>
+        </padding>
+        <Label text="Campasian" styleClass="brand-title"/>
+        <TextField fx:id="usernameField" promptText="Username"/>
+        <PasswordField fx:id="passwordField" promptText="Password"/>
+        <Label fx:id="errorLabel" styleClass="error-label" managed="false"/>
+        <Button text="Login" onAction="#onLoginClick" styleClass="btn-primary"/>
+    </VBox>
+</StackPane>

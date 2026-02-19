@@ -2,13 +2,17 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.campasian.controller.HomeController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeLabel" text="Welcome to Campasian"/>
-</VBox>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.campasian.controller.HomeController"
+           styleClass="root"
+           stylesheets="/styles/app.css">
+    <VBox alignment="CENTER" spacing="16.0" styleClass="content-card">
+        <padding>
+            <Insets bottom="0.0" left="0.0" right="0.0" top="0.0"/>
+        </padding>
+        <Label fx:id="welcomeLabel" text="Welcome to Campasian" styleClass="welcome-title"/>
+    </VBox>
+</StackPane>
