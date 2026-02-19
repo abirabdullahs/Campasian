@@ -170,8 +170,8 @@
     -fx-background-color: #f4f4f5;
 }
 
-/* Dashboard - home-view */
-.dashboard-sidebar {
+/* Sidebar - home-view */
+.sidebar {
     -fx-background-color: #ffffff;
     -fx-border-color: #e4e4e7;
     -fx-border-width: 0 1 0 0;
@@ -196,6 +196,12 @@
 
 .sidebar-btn:hover {
     -fx-background-color: #f4f4f5;
+}
+
+.sidebar-btn-active {
+    -fx-background-color: #f4f4f5;
+    -fx-border-color: transparent transparent transparent #18181b;
+    -fx-border-width: 0 0 0 3;
 }
 
 .sidebar-btn-logout {
@@ -279,4 +285,69 @@
     -fx-font-size: 14px;
     -fx-text-fill: #18181b;
     -fx-wrap-text: true;
+}
+
+/* Create Post button - Shadcn input style */
+.create-post-btn {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-text-fill: #71717a;
+    -fx-font-size: 14px;
+    -fx-font-family: "Inter", "Poppins", "Segoe UI", system-ui, sans-serif;
+    -fx-alignment: center-left;
+    -fx-padding: 14 20;
+    -fx-cursor: hand;
+}
+
+.create-post-btn:hover {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #d4d4d8;
+}
+
+/* Post card - subtle shadow */
+.post-card {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.06), 8, 0, 0, 2);
+}
+
+/* Modal */
+.modal-root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Inter", "Poppins", "Segoe UI", system-ui, sans-serif;
+}
+
+.modal-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181b;
+    -fx-padding: 0 0 16 0;
+}
+
+.modal-text-area {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.modal-text-area:focused {
+    -fx-border-color: transparent;
+}
+
+/* Secondary button */
+.btn-secondary {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #18181b;
+    -fx-font-size: 14px;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+    -fx-border-color: #e4e4e7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #f4f4f5;
 }

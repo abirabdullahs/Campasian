@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.PostEditorModalController"
+      styleClass="modal-root"
+      stylesheets="@../styles/app.css"
+      prefWidth="520" prefHeight="420"
+      maxWidth="Infinity" maxHeight="Infinity">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <Label text="Create Project Proposal / Post" styleClass="modal-title"/>
+
+    <TextArea fx:id="contentArea" styleClass="modal-text-area"
+              promptText="Share your proposal or post..."
+              wrapText="true" prefRowCount="10" VBox.vgrow="ALWAYS"/>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancelClick"/>
+        <Button text="Post" styleClass="btn-primary" onAction="#onPostClick"/>
+    </HBox>
+</VBox>
