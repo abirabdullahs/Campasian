@@ -30,6 +30,13 @@ application {
     mainClass.set("com.campasian.CampasianApplication")
 }
 
+// Override main class: gradlew run "-PmainClass=com.campasian.database.ConnectionTest"
+tasks.named<JavaExec>("run") {
+    if (project.hasProperty("mainClass")) {
+        mainClass.set(project.property("mainClass") as String)
+    }
+}
+
 javafx {
     version = "21.0.6"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.web", "javafx.swing", "javafx.media")
