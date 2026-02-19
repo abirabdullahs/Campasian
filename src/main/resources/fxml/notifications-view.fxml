@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.NotificationsController"
+      styleClass="dashboard-main"
+      stylesheets="@../styles/app.css"
+      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Notifications" styleClass="dashboard-title"/>
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+        <VBox fx:id="notificationsVBox" spacing="8" styleClass="feed-container"/>
+    </ScrollPane>
+</VBox>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.FeedController"
+      styleClass="dashboard-main"
+      stylesheets="@../styles/app.css"
+      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Button fx:id="createPostBtn" text="What's on your mind?" styleClass="create-post-btn" onAction="#onCreatePostClick"/>
+    <HBox spacing="8">
+        <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn feed-filter-active" onAction="#onFeedGlobalClick"/>
+        <Button fx:id="feedFollowingBtn" text="Following" styleClass="feed-filter-btn" onAction="#onFeedFollowingClick"/>
+    </HBox>
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+        <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container"/>
+    </ScrollPane>
+</VBox>

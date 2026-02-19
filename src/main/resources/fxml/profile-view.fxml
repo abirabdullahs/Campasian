@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.ProfileController"
+      styleClass="dashboard-main"
+      stylesheets="@../styles/app.css"
+      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Profile" styleClass="dashboard-title"/>
+    <HBox spacing="24" styleClass="profile-stats">
+        <VBox spacing="4" styleClass="profile-stat">
+            <Label fx:id="followersCountLabel" text="0" styleClass="profile-stat-value"/>
+            <Label text="Followers" styleClass="profile-label"/>
+        </VBox>
+        <VBox spacing="4" styleClass="profile-stat">
+            <Label fx:id="followingCountLabel" text="0" styleClass="profile-stat-value"/>
+            <Label text="Following" styleClass="profile-label"/>
+        </VBox>
+    </HBox>
+    <VBox styleClass="profile-card" spacing="16">
+        <Label text="Profile" styleClass="profile-card-title"/>
+        <VBox spacing="16">
+            <VBox spacing="4">
+                <Label text="Full Name" styleClass="profile-label"/>
+                <Label fx:id="fullNameLabel" styleClass="profile-value" text="—"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="University" styleClass="profile-label"/>
+                <Label fx:id="universityLabel" styleClass="profile-value" text="—"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="EIN" styleClass="profile-label"/>
+                <Label fx:id="einLabel" styleClass="profile-value" text="—"/>
+            </VBox>
+        </VBox>
+    </VBox>
+</VBox>
