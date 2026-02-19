@@ -26,6 +26,7 @@ public class LoginController {
     private Label errorLabel;
 
     @FXML
+    @FXML
     protected void onLoginClick() {
         String email = emailField.getText();
         String password = passwordField.getText();
@@ -37,16 +38,21 @@ public class LoginController {
 
         try {
             User user = AuthService.getInstance().login(email, password);
-            if (user == null) {
+            if (user != null) {
+                SceneManager.navigateTo(ViewPaths.HOME_VIEW);
+            } else {
                 showError("Invalid email or password.");
-                return;
             }
-            SceneManager.navigateTo(ViewPaths.HOME_VIEW);
         } catch (ApiException e) {
-            showError("Login failed. " + e.getMessage());
+            // ইমেইল কনফার্মেশন এরর চেক করা হচ্ছে
+            if (e.getMessage().toLowerCase().contains("email not confirmed")) {
+                showError("Please confirm your email or disable 'Confirm Email' in Supabase.");
+            } else {
+                showError("Login failed: " + e.getMessage());
+            }
             e.printStackTrace();
         } catch (Exception e) {
-            showError("Login failed. Please try again.");
+            showError("An unexpected error occurred. Please try again.");
             e.printStackTrace();
         }
     }
