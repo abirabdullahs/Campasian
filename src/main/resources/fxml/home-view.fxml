@@ -27,6 +27,18 @@
         <Button fx:id="notificationsBtn" text="Notifications" styleClass="sidebar-btn" onAction="#onNotificationsClick"/>
         <Button fx:id="settingsBtn" text="Settings" styleClass="sidebar-btn" onAction="#onSettingsClick"/>
         <VBox VBox.vgrow="ALWAYS"/>
+        <!-- User Profile Mini-Card -->
+        <VBox styleClass="sidebar-user-card">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <VBox styleClass="sidebar-user-avatar" alignment="CENTER">
+                    <Label text="U" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 700;"/>
+                </VBox>
+                <VBox spacing="1">
+                    <Label fx:id="userNameLabel" text="User Name" styleClass="sidebar-user-name"/>
+                    <Label text="@student" styleClass="sidebar-user-email"/>
+                </VBox>
+            </HBox>
+        </VBox>
         <Button text="Logout" styleClass="sidebar-btn-logout" onAction="#onLogoutClick"/>
     </VBox>
 

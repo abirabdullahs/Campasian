@@ -11,19 +11,24 @@
       fx:controller="com.campasian.controller.PostEditorModalController"
       styleClass="modal-root"
       stylesheets="@../styles/app.css"
-      prefWidth="520" prefHeight="420"
+      prefWidth="560" prefHeight="480"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
+        <Insets top="28" right="28" bottom="24" left="28"/>
     </padding>
 
-    <Label text="Create Project Proposal / Post" styleClass="modal-title"/>
+    <VBox spacing="4">
+        <Label text="Create Project Proposal / Post" styleClass="modal-title"/>
+        <Label text="Share your thoughts with the community" style="-fx-font-size: 12px; -fx-text-fill: #71717A;"/>
+    </VBox>
 
-    <TextArea fx:id="contentArea" styleClass="modal-text-area"
-              promptText="Share your proposal or post..."
-              wrapText="true" prefRowCount="10" VBox.vgrow="ALWAYS"/>
+    <VBox VBox.vgrow="ALWAYS" spacing="4" style="-fx-padding: 16 0 0 0;">
+        <TextArea fx:id="contentArea" styleClass="modal-text-area"
+                  promptText="Share your proposal or post..."
+                  wrapText="true" prefRowCount="10" VBox.vgrow="ALWAYS"/>
+    </VBox>
 
-    <HBox spacing="12" alignment="CENTER_RIGHT">
+    <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
         <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancelClick"/>
         <Button text="Post" styleClass="btn-primary" onAction="#onPostClick"/>
     </HBox>

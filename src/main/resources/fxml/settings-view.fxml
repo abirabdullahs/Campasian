@@ -13,5 +13,8 @@
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <Label text="Settings" styleClass="dashboard-title"/>
-    <Label text="Coming soon..." styleClass="profile-label"/>
+    <VBox styleClass="profile-card" spacing="16" maxWidth="600">
+        <Label text="Preferences" styleClass="profile-card-title"/>
+        <Label text="More features coming soon. Check back later!" styleClass="profile-label"/>
+    </VBox>
 </VBox>

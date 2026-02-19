@@ -2,9 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.FeedController"
@@ -14,12 +16,47 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Button fx:id="createPostBtn" text="What's on your mind?" styleClass="create-post-btn" onAction="#onCreatePostClick"/>
-    <HBox spacing="8">
-        <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn " onAction="#onFeedGlobalClick"/>
-        <Button fx:id="feedFollowingBtn" text="Following" styleClass="feed-filter-btn" onAction="#onFeedFollowingClick"/>
+    
+    <!-- Main Feed Column -->
+    <HBox spacing="24" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+        <!-- Left: Feed Content -->
+        <VBox spacing="24" HBox.hgrow="ALWAYS" maxWidth="600">
+            <Button fx:id="createPostBtn" text="What's on your mind?" styleClass="create-post-btn" onAction="#onCreatePostClick"/>
+            <HBox spacing="8">
+                <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn " onAction="#onFeedGlobalClick"/>
+                <Button fx:id="feedFollowingBtn" text="Following" styleClass="feed-filter-btn" onAction="#onFeedFollowingClick"/>
+            </HBox>
+            <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+                <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container"/>
+            </ScrollPane>
+        </VBox>
+        
+        <!-- Right: Trending Topics Sidebar -->
+        <VBox styleClass="trending-card" prefWidth="280" minWidth="280" HBox.hgrow="NEVER">
+            <Label text="Trending Topics" styleClass="trending-title"/>
+            <VBox fx:id="trendingVBox" spacing="0" style="-fx-spacing: 0;">
+                <!-- Trending items will be populated here -->
+                <VBox styleClass="trending-item">
+                    <Label text="Campus Life" styleClass="trending-topic-name"/>
+                    <Label text="2.4K posts" styleClass="trending-count"/>
+                </VBox>
+                <VBox styleClass="trending-item">
+                    <Label text="Events" styleClass="trending-topic-name"/>
+                    <Label text="1.8K posts" styleClass="trending-count"/>
+                </VBox>
+                <VBox styleClass="trending-item">
+                    <Label text="Club Updates" styleClass="trending-topic-name"/>
+                    <Label text="1.2K posts" styleClass="trending-count"/>
+                </VBox>
+                <VBox styleClass="trending-item">
+                    <Label text="Opportunities" styleClass="trending-topic-name"/>
+                    <Label text="892 posts" styleClass="trending-count"/>
+                </VBox>
+                <VBox styleClass="trending-item">
+                    <Label text="Study Groups" styleClass="trending-topic-name"/>
+                    <Label text="654 posts" styleClass="trending-count"/>
+                </VBox>
+            </VBox>
+        </VBox>
     </HBox>
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-        <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container"/>
-    </ScrollPane>
 </VBox>

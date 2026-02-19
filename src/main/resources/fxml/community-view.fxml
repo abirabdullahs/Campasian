@@ -13,5 +13,8 @@
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <Label text="Community" styleClass="dashboard-title"/>
-    <Label text="Coming soon..." styleClass="profile-label"/>
+    <VBox styleClass="profile-card" spacing="16" maxWidth="600">
+        <Label text="Join Campus Groups" styleClass="profile-card-title"/>
+        <Label text="Discover and connect with communities on campus. Coming soon!" styleClass="profile-label"/>
+    </VBox>
 </VBox>

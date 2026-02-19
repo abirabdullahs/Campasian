@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Priority?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.NotificationsController"
@@ -14,7 +15,16 @@
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <Label text="Notifications" styleClass="dashboard-title"/>
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+    
+    <!-- Empty State (shown by default) -->
+    <VBox fx:id="emptyStateContainer" styleClass="empty-state-container" VBox.vgrow="ALWAYS">
+        <Label text="🎉" styleClass="empty-state-icon"/>
+        <Label text="All caught up!" styleClass="empty-state-title"/>
+        <Label text="You're all set. No new notifications at the moment." styleClass="empty-state-message"/>
+    </VBox>
+    
+    <!-- Notifications List (hidden by default) -->
+    <ScrollPane fx:id="notificationsScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" visible="false" managed="false">
         <VBox fx:id="notificationsVBox" spacing="8" styleClass="feed-container"/>
     </ScrollPane>
 </VBox>
