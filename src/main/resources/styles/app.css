@@ -67,6 +67,25 @@
     -fx-background-color: #004494;
 }
 
+/* Link-style button */
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #007aff;
+    -fx-font-size: 14px;
+    -fx-underline: true;
+    -fx-cursor: hand;
+    -fx-padding: 8 0;
+}
+
+.btn-link:hover {
+    -fx-text-fill: #0056b3;
+}
+
+/* Read-only / auto-filled field */
+.text-field.readonly-field {
+    -fx-background-color: #e8e8ed;
+}
+
 /* Error label */
 .error-label {
     -fx-text-fill: #ff3b30;

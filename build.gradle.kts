@@ -57,18 +57,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 
     implementation("org.postgresql:postgresql:42.7.3")
-
     implementation("org.flywaydb:flyway-core:10.7.1")
-    implementation("org.postgresql:postgresql:42.7.3")
-
-    // Firebase Admin SDK for Realtime Database
-    implementation("com.google.firebase:firebase-admin:9.2.0")
-    
-    // JSON processing
+    implementation("org.flywaydb:flyway-database-postgresql:10.7.1")
+    implementation("org.mindrot:jbcrypt:0.4")
     implementation("com.google.code.gson:gson:2.10.1")
-    
-    // HTTP Client
-    implementation("com.google.http-client:google-http-client:1.44.1")
 }
 
 tasks.withType<Test> {
