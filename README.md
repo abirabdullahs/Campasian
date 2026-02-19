@@ -484,7 +484,7 @@ of this software and associated documentation files...
 
 ## 👨‍💻 Authors
 
-- **Your Name** - [@Abir Abdullah](https://github.com/abirabdullahs) - Initial work
+-[@Abir Abdullah](https://github.com/abirabdullahs) - Initial work
 
 ---
 
