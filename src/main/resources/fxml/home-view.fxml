@@ -20,9 +20,10 @@
             <Insets top="24" right="16" bottom="24" left="24"/>
         </padding>
         <Label text="Campasian" styleClass="sidebar-brand"/>
-        <Button fx:id="feedBtn" text="Feed" styleClass="sidebar-btn" onAction="#onFeedClick"/>
+        <Button fx:id="feedBtn" text="Feed" styleClass="sidebar-btn sidebar-btn-active" onAction="#onFeedClick"/>
         <Button fx:id="communityBtn" text="Community" styleClass="sidebar-btn" onAction="#onCommunityClick"/>
         <Button fx:id="profileBtn" text="Profile" styleClass="sidebar-btn" onAction="#onProfileClick"/>
+        <Button fx:id="notificationsBtn" text="Notifications" styleClass="sidebar-btn" onAction="#onNotificationsClick"/>
         <Button fx:id="settingsBtn" text="Settings" styleClass="sidebar-btn" onAction="#onSettingsClick"/>
         <VBox VBox.vgrow="ALWAYS"/>
         <Button text="Logout" styleClass="sidebar-btn-logout" onAction="#onLogoutClick"/>
@@ -37,6 +38,10 @@
         <!-- Feed view -->
         <VBox fx:id="feedView" spacing="24" maxWidth="Infinity" maxHeight="Infinity">
             <Button fx:id="createPostBtn" text="What's on your mind?" styleClass="create-post-btn" onAction="#onCreatePostClick"/>
+            <HBox spacing="8">
+                <Button fx:id="feedGlobalBtn" text="Global" styleClass="feed-filter-btn feed-filter-active" onAction="#onFeedGlobalClick"/>
+                <Button fx:id="feedFollowingBtn" text="Following" styleClass="feed-filter-btn" onAction="#onFeedFollowingClick"/>
+            </HBox>
             <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
                 <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container"/>
             </ScrollPane>
@@ -48,9 +53,27 @@
             <Label text="Coming soon..." styleClass="profile-label"/>
         </VBox>
 
+        <!-- Notifications view -->
+        <VBox fx:id="notificationsView" spacing="24" maxWidth="Infinity" maxHeight="Infinity" visible="false" managed="false">
+            <Label text="Notifications" styleClass="dashboard-title"/>
+            <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+                <VBox fx:id="notificationsVBox" spacing="8" styleClass="feed-container"/>
+            </ScrollPane>
+        </VBox>
+
         <!-- Profile view -->
         <VBox fx:id="profileView" spacing="24" maxWidth="Infinity" maxHeight="Infinity" visible="false" managed="false">
             <Label text="Profile" styleClass="dashboard-title"/>
+            <HBox spacing="24" styleClass="profile-stats">
+                <VBox spacing="4" styleClass="profile-stat">
+                    <Label fx:id="followersCountLabel" text="0" styleClass="profile-stat-value"/>
+                    <Label text="Followers" styleClass="profile-label"/>
+                </VBox>
+                <VBox spacing="4" styleClass="profile-stat">
+                    <Label fx:id="followingCountLabel" text="0" styleClass="profile-stat-value"/>
+                    <Label text="Following" styleClass="profile-label"/>
+                </VBox>
+            </HBox>
             <VBox styleClass="profile-card" spacing="16">
                 <Label text="Profile" styleClass="profile-card-title"/>
                 <VBox spacing="16">

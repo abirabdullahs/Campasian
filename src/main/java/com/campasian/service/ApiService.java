@@ -1,6 +1,8 @@
 package com.campasian.service;
 
 import com.campasian.config.SupabaseConfig;
+import com.campasian.model.Comment;
+import com.campasian.model.Notification;
 import com.campasian.model.Post;
 import com.campasian.model.User;
 import com.campasian.model.UserProfile;
@@ -17,7 +19,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Minimal Supabase REST client for authentication.
@@ -174,12 +178,339 @@ public final class ApiService {
     }
 
     /**
-     * Fetches all posts ordered by created_at descending (newest first).
+     * Fetches posts. If followingOnly is true, only posts from users the current user follows.
+     */
+    public List<Post> getFeed(boolean followingOnly) throws ApiException {
+        if (followingOnly && (currentUserId == null || currentUserId.isBlank())) {
+            return Collections.emptyList();
+        }
+        String url;
+        if (followingOnly) {
+            List<String> followingIds = getFollowingIds();
+            if (followingIds.isEmpty()) return Collections.emptyList();
+            url = restUrl("/posts?user_id=in.(" + String.join(",", followingIds) + ")&order=created_at.desc");
+        } else {
+            url = restUrl("/posts?order=created_at.desc");
+        }
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        List<Post> posts = getPostsWithAuth(url, token);
+        enrichPostsWithLikes(posts);
+        return posts;
+    }
+
+    /**
+     * Fetches all posts (global feed). Convenience wrapper for getFeed(false).
      */
     public List<Post> getAllPosts() throws ApiException {
-        String url = restUrl("/posts?order=created_at.desc");
+        return getFeed(false);
+    }
+
+    private List<String> getFollowingIds() throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/follows?follower_id=eq." + currentUserId + "&select=following_id");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
-        return getPostsWithAuth(url, token);
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            var arr = parsed.getAsJsonArray();
+            List<String> ids = new ArrayList<>();
+            for (JsonElement el : arr) {
+                if (el != null && el.isJsonObject()) {
+                    String id = asString(el.getAsJsonObject().get("following_id"));
+                    if (id != null && !id.isBlank()) ids.add(id);
+                }
+            }
+            return ids;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Follows fetch failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    private void enrichPostsWithLikes(List<Post> posts) {
+        if (posts == null || posts.isEmpty()) return;
+        List<String> postIds = new ArrayList<>();
+        for (Post p : posts) {
+            if (p.getId() != null) postIds.add(String.valueOf(p.getId()));
+        }
+        if (postIds.isEmpty()) return;
+        Map<Long, Integer> countByPost = new HashMap<>();
+        Map<Long, Boolean> likedByPost = new HashMap<>();
+        try {
+            String idsParam = String.join(",", postIds);
+            String url = restUrl("/likes?post_id=in.(" + idsParam + ")&select=post_id,user_id");
+            String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+            String body = getRawWithAuth(url, token);
+            if (body != null && !body.isBlank()) {
+                var parsed = JsonParser.parseString(body);
+                if (parsed != null && parsed.isJsonArray()) {
+                    for (JsonElement el : parsed.getAsJsonArray()) {
+                        if (el != null && el.isJsonObject()) {
+                            JsonObject o = el.getAsJsonObject();
+                            Long pid = asLong(o.get("post_id"));
+                            String uid = asString(o.get("user_id"));
+                            if (pid != null) {
+                                countByPost.merge(pid, 1, Integer::sum);
+                                if (currentUserId != null && currentUserId.equals(uid)) {
+                                    likedByPost.put(pid, true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        for (Post p : posts) {
+            Long pid = p.getId();
+            p.setLikeCount(countByPost.getOrDefault(pid, 0));
+            p.setLikedByMe(Boolean.TRUE.equals(likedByPost.get(pid)));
+        }
+    }
+
+    private String getRawWithAuth(String url, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return response.body();
+            }
+            return null;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Request failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Toggles like on a post. If already liked, unlikes; otherwise likes.
+     */
+    public void toggleLike(Long postId) throws ApiException {
+        if (postId == null || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String pid = String.valueOf(postId);
+        String checkUrl = restUrl("/likes?post_id=eq." + pid + "&user_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String body = getRawWithAuth(checkUrl, token);
+        boolean alreadyLiked = false;
+        if (body != null && !body.isBlank()) {
+            try {
+                var parsed = JsonParser.parseString(body);
+                if (parsed != null && parsed.isJsonArray() && parsed.getAsJsonArray().size() > 0) {
+                    alreadyLiked = true;
+                }
+            } catch (Exception ignored) {}
+        }
+        if (alreadyLiked) {
+            deleteWithAuth(restUrl("/likes?post_id=eq." + pid + "&user_id=eq." + currentUserId), token);
+        } else {
+            JsonObject payload = new JsonObject();
+            payload.addProperty("post_id", postId);
+            payload.addProperty("user_id", currentUserId);
+            postJsonWithAuth(restUrl("/likes"), payload, token);
+        }
+    }
+
+    private void deleteWithAuth(String url, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Prefer", "return=minimal")
+                .DELETE()
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new ApiException(response.statusCode(), "Delete failed", null, null, response.body());
+            }
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Delete failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Adds a comment on a post.
+     */
+    public void addComment(Long postId, String text) throws ApiException {
+        if (postId == null || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        UserProfile profile = getProfile(currentUserId);
+        String userName = profile != null && profile.getFullName() != null ? profile.getFullName() : "Anonymous";
+        JsonObject payload = new JsonObject();
+        payload.addProperty("post_id", postId);
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("user_name", userName);
+        payload.addProperty("content", text != null ? text.trim() : "");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/comments"), payload, token);
+    }
+
+    /**
+     * Fetches comments for a post.
+     */
+    public List<Comment> fetchComments(Long postId) throws ApiException {
+        if (postId == null) return Collections.emptyList();
+        String url = restUrl("/comments?post_id=eq." + postId + "&order=created_at.asc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<Comment> comments = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    Comment c = new Comment();
+                    c.setId(asLong(o.get("id")));
+                    c.setPostId(asLong(o.get("post_id")));
+                    c.setUserId(asString(o.get("user_id")));
+                    c.setUserName(asString(o.get("user_name")));
+                    c.setContent(asString(o.get("content")));
+                    c.setCreatedAt(asString(o.get("created_at")));
+                    comments.add(c);
+                }
+            }
+            return comments;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Comments fetch failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Follows a user.
+     */
+    public void followUser(String targetId) throws ApiException {
+        if (targetId == null || targetId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        if (targetId.equals(currentUserId)) return;
+        JsonObject payload = new JsonObject();
+        payload.addProperty("follower_id", currentUserId);
+        payload.addProperty("following_id", targetId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/follows"), payload, token);
+    }
+
+    /**
+     * Unfollows a user.
+     */
+    public void unfollowUser(String targetUserId) throws ApiException {
+        if (targetUserId == null || targetUserId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String url = restUrl("/follows?follower_id=eq." + currentUserId + "&following_id=eq." + targetUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        deleteWithAuth(url, token);
+    }
+
+    /**
+     * Fetches follower count for a user.
+     */
+    public int getFollowerCount(String userId) throws ApiException {
+        if (userId == null || userId.isBlank()) return 0;
+        return getCountFromTable("follows", "following_id", userId);
+    }
+
+    /**
+     * Fetches following count for a user.
+     */
+    public int getFollowingCount(String userId) throws ApiException {
+        if (userId == null || userId.isBlank()) return 0;
+        return getCountFromTable("follows", "follower_id", userId);
+    }
+
+    private int getCountFromTable(String table, String column, String value) throws ApiException {
+        String url = restUrl("/" + table + "?" + column + "=eq." + value + "&select=" + column);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", SupabaseConfig.getAnonKey())
+                .header("Authorization", "Bearer " + token)
+                .header("Accept", "application/json")
+                .header("Prefer", "count=exact")
+                .header("Range", "0-0")
+                .GET()
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            String range = response.headers().firstValue("Content-Range").orElse("");
+            if (range.contains("/")) {
+                String total = range.split("/")[1].trim();
+                return Integer.parseInt(total);
+            }
+            return 0;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return 0;
+        }
+    }
+
+    /**
+     * Checks if current user follows targetUserId.
+     */
+    public boolean isFollowing(String targetUserId) throws ApiException {
+        if (targetUserId == null || targetUserId.isBlank() || currentUserId == null || currentUserId.isBlank()) return false;
+        String url = restUrl("/follows?follower_id=eq." + currentUserId + "&following_id=eq." + targetUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String body = getRawWithAuth(url, token);
+        if (body == null || body.isBlank()) return false;
+        try {
+            var parsed = JsonParser.parseString(body);
+            return parsed != null && parsed.isJsonArray() && parsed.getAsJsonArray().size() > 0;
+        } catch (Exception e) { return false; }
+    }
+
+    /**
+     * Fetches notifications for the current user.
+     */
+    public List<Notification> fetchNotifications() throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/notifications?user_id=eq." + currentUserId + "&order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<Notification> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    Notification n = new Notification();
+                    n.setId(asString(o.get("id")));
+                    n.setUserId(asString(o.get("user_id")));
+                    n.setType(asString(o.get("type")));
+                    n.setActorId(asString(o.get("actor_id")));
+                    n.setActorName(asString(o.get("actor_name")));
+                    n.setPostId(asLong(o.get("post_id")));
+                    n.setCreatedAt(asString(o.get("created_at")));
+                    list.add(n);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Notifications fetch failed: " + e.getMessage(), null, null, null);
+        }
     }
 
     private List<Post> getPostsWithAuth(String url, String bearerToken) throws ApiException {
@@ -207,7 +538,7 @@ public final class ApiService {
                         if (el != null && el.isJsonObject()) {
                             JsonObject obj = el.getAsJsonObject();
                             Post p = new Post();
-                            p.setId(asString(obj.get("id")));
+                            p.setId(asLong(obj.get("id")));
                             p.setUserId(asString(obj.get("user_id")));
                             p.setUserName(asString(obj.get("user_name")));
                             p.setContent(asString(obj.get("content")));
@@ -417,6 +748,23 @@ public final class ApiService {
         if (element == null || element.isJsonNull()) return null;
         try {
             return element.getAsString();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static Long asLong(JsonElement element) {
+        if (element == null || element.isJsonNull()) return null;
+        try {
+            if (element.isJsonPrimitive()) {
+                var prim = element.getAsJsonPrimitive();
+                if (prim.isNumber()) return prim.getAsLong();
+                if (prim.isString()) {
+                    String s = prim.getAsString();
+                    return s == null || s.isBlank() ? null : Long.parseLong(s);
+                }
+            }
+            return null;
         } catch (Exception ignored) {
             return null;
         }

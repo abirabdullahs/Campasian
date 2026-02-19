@@ -351,3 +351,93 @@
 .btn-secondary:hover {
     -fx-background-color: #f4f4f5;
 }
+
+/* Feed filter (Global/Following) */
+.feed-filter-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #71717a;
+    -fx-font-size: 13px;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-background-radius: 8px;
+}
+
+.feed-filter-btn:hover {
+    -fx-background-color: #f4f4f5;
+    -fx-text-fill: #18181b;
+}
+
+.feed-filter-active {
+    -fx-background-color: #f4f4f5;
+    -fx-text-fill: #18181b;
+}
+
+/* Post card actions */
+.post-actions {
+    -fx-spacing: 16;
+}
+
+.post-action-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #71717a;
+    -fx-font-size: 13px;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+    -fx-background-radius: 6px;
+}
+
+.post-action-btn:hover {
+    -fx-background-color: #f4f4f5;
+}
+
+.post-action-btn-liked {
+    -fx-text-fill: #ef4444;
+}
+
+/* Comments */
+.comments-container {
+    -fx-padding: 8 0 0 0;
+}
+
+.comment-field {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7;
+    -fx-border-radius: 8px;
+}
+
+.comment-card {
+    -fx-padding: 8 12;
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 8px;
+}
+
+.comment-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #18181b;
+}
+
+/* Profile stats */
+.profile-stats {
+    -fx-padding: 0 0 16 0;
+}
+
+.profile-stat-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #18181b;
+}
+
+/* Notifications */
+.notification-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7;
+    -fx-border-width: 1px;
+    -fx-padding: 12 16;
+}
+
+.notification-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #18181b;
+}

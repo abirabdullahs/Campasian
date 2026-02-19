@@ -5,16 +5,18 @@ package com.campasian.model;
  */
 public class Post {
 
-    private String id;
+    private Long id;
     private String userId;
     private String userName;
     private String content;
     private String university;
     private String createdAt;
+    private int likeCount;
+    private boolean likedByMe;
 
     public Post() {}
 
-    public Post(String id, String userId, String userName, String content, String university, String createdAt) {
+    public Post(Long id, String userId, String userName, String content, String university, String createdAt) {
         this.id = id;
         this.userId = userId;
         this.userName = userName;
@@ -23,8 +25,8 @@ public class Post {
         this.createdAt = createdAt;
     }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
@@ -40,4 +42,10 @@ public class Post {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public int getLikeCount() { return likeCount; }
+    public void setLikeCount(int likeCount) { this.likeCount = likeCount; }
+
+    public boolean isLikedByMe() { return likedByMe; }
+    public void setLikedByMe(boolean likedByMe) { this.likedByMe = likedByMe; }
 }
