@@ -1,4 +1,4 @@
-module com.abir.demo {
+module com.campasian {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -13,7 +13,7 @@ module com.abir.demo {
     requires com.almasb.fxgl.all;
     requires kotlin.stdlib;
 
-    opens com.abir.demo.controllers to javafx.fxml;  // 👈 plural, matches your folder
-    opens com.abir.demo to javafx.fxml;
-    exports com.abir.demo;
+    opens com.campasian.controller to javafx.fxml;
+    opens com.campasian to javafx.fxml;
+    exports com.campasian;
 }

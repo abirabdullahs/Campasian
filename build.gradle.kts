@@ -26,8 +26,8 @@ tasks.withType<JavaCompile> {
 }
 
 application {
-    mainModule.set("com.abir.demo")
-    mainClass.set("com.abir.demo.HelloApplication")
+    mainModule.set("com.campasian")
+    mainClass.set("com.campasian.CampasianApplication")
 }
 
 javafx {
