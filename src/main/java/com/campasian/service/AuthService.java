@@ -1,6 +1,7 @@
 package com.campasian.service;
 
 import com.campasian.model.User;
+import com.campasian.model.UserProfile;
 import com.google.gson.JsonObject;
 
 /**
@@ -56,5 +57,22 @@ public final class AuthService {
             if (e.isInvalidCredentials()) return null;
             throw e;
         }
+    }
+
+    /**
+     * Fetches the current user's profile from the profiles table.
+     * Uses the session's userId. Returns null if not found or no session.
+     */
+    public UserProfile getCurrentUserProfile() throws ApiException {
+        String userId = apiService.getCurrentUserId();
+        if (userId == null || userId.isBlank()) return null;
+        return apiService.getProfile(userId);
+    }
+
+    /**
+     * Clears session and navigates to login. Call from logout.
+     */
+    public void logout() {
+        apiService.clearSession();
     }
 }

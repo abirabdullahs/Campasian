@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.campasian.controller.HomeController"
+          styleClass="root"
+          stylesheets="@../styles/app.css"
+          minWidth="900" minHeight="600"
+          prefWidth="1200" prefHeight="700"
+          maxWidth="Infinity" maxHeight="Infinity">
+    <columnConstraints>
+        <ColumnConstraints minWidth="200" prefWidth="220" maxWidth="280"/>
+        <ColumnConstraints hgrow="ALWAYS"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints vgrow="ALWAYS"/>
+    </rowConstraints>
+
+    <!-- Sidebar -->
+    <VBox styleClass="dashboard-sidebar" spacing="8" GridPane.columnIndex="0">
+        <padding>
+            <Insets top="24" right="16" bottom="24" left="24"/>
+        </padding>
+        <Label text="Campasian" styleClass="sidebar-brand"/>
+        <Button text="Home" styleClass="sidebar-btn" onAction="#onHomeClick"/>
+        <Button text="Settings" styleClass="sidebar-btn" onAction="#onSettingsClick"/>
+        <VBox VBox.vgrow="ALWAYS"/>
+        <Button text="Logout" styleClass="sidebar-btn-logout" onAction="#onLogoutClick"/>
+    </VBox>
+
+    <!-- Main content -->
+    <VBox styleClass="dashboard-main" spacing="24" GridPane.columnIndex="1">
+        <padding>
+            <Insets top="24" right="24" bottom="24" left="24"/>
+        </padding>
+        <Label text="Dashboard" styleClass="dashboard-title"/>
+        <VBox styleClass="profile-card" spacing="16">
+            <Label text="Profile" styleClass="profile-card-title"/>
+            <VBox spacing="16">
+                <VBox spacing="4">
+                    <Label text="Full Name" styleClass="profile-label"/>
+                    <Label fx:id="fullNameLabel" styleClass="profile-value" text="—"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="University" styleClass="profile-label"/>
+                    <Label fx:id="universityLabel" styleClass="profile-value" text="—"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="EIN" styleClass="profile-label"/>
+                    <Label fx:id="einLabel" styleClass="profile-value" text="—"/>
+                </VBox>
+            </VBox>
+        </VBox>
+    </VBox>
+</GridPane>

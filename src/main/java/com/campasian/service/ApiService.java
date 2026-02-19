@@ -2,6 +2,7 @@ package com.campasian.service;
 
 import com.campasian.config.SupabaseConfig;
 import com.campasian.model.User;
+import com.campasian.model.UserProfile;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,6 +34,7 @@ public final class ApiService {
 
     private volatile String accessToken;
     private volatile String refreshToken;
+    private volatile String currentUserId;
 
     public static ApiService getInstance() {
         return INSTANCE;
@@ -44,6 +46,68 @@ public final class ApiService {
 
     public String getRefreshToken() {
         return refreshToken;
+    }
+
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    /**
+     * Clears session (tokens and userId). Call on logout.
+     */
+    public void clearSession() {
+        accessToken = null;
+        refreshToken = null;
+        currentUserId = null;
+    }
+
+    /**
+     * Fetches profile from /rest/v1/profiles?id=eq.{userId}.
+     * Returns null if not found or error.
+     */
+    public UserProfile getProfile(String userId) throws ApiException {
+        if (userId == null || userId.isBlank()) return null;
+        String url = restUrl("/profiles?id=eq." + userId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getJsonWithAuth(url, token);
+    }
+
+    private UserProfile getJsonWithAuth(String url, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int status = response.statusCode();
+            String body = response.body();
+
+            if (status >= 200 && status < 300 && body != null && !body.isBlank()) {
+                var parsed = JsonParser.parseString(body);
+                if (parsed != null && parsed.isJsonArray()) {
+                    var arr = parsed.getAsJsonArray();
+                    if (arr.size() > 0) {
+                        JsonObject obj = arr.get(0).getAsJsonObject();
+                        UserProfile p = new UserProfile();
+                        p.setId(asString(obj.get("id")));
+                        p.setFullName(asString(obj.get("full_name")));
+                        p.setUniversityName(asString(obj.get("university_name")));
+                        p.setEinNumber(asString(obj.get("ein_number")));
+                        return p;
+                    }
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Profile fetch failed: " + e.getMessage(), null, null, null);
+        }
     }
 
     /**
@@ -60,6 +124,7 @@ public final class ApiService {
 
         JsonObject root = postJson(authUrl("/signup"), payload);
         storeTokensIfPresent(root);
+        storeCurrentUserId(root);
         return root;
     }
 
@@ -147,9 +212,18 @@ public final class ApiService {
 
         JsonObject root = postJson(authUrl("/token?grant_type=password"), payload);
         storeTokensIfPresent(root);
+        storeCurrentUserId(root);
 
         JsonObject userJson = asObject(root.get("user"));
         return toUser(userJson);
+    }
+
+    private void storeCurrentUserId(JsonObject root) {
+        if (root == null) return;
+        JsonObject userJson = asObject(root.get("user"));
+        if (userJson != null && userJson.has("id")) {
+            currentUserId = userJson.get("id").getAsString();
+        }
     }
 
     private JsonObject postJson(String url, JsonObject payload) throws ApiException {
