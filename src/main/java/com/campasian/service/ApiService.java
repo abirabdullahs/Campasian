@@ -1,6 +1,7 @@
 package com.campasian.service;
 
 import com.campasian.config.SupabaseConfig;
+import com.campasian.model.Post;
 import com.campasian.model.User;
 import com.campasian.model.UserProfile;
 import com.google.gson.Gson;
@@ -14,6 +15,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Minimal Supabase REST client for authentication.
@@ -144,6 +148,82 @@ public final class ApiService {
         String url = restUrl("/profiles");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         postJsonWithAuth(url, body, token);
+    }
+
+    /**
+     * Creates a new post. Uses current user's id, name, and university from profile.
+     */
+    public void sendPost(String content) throws ApiException {
+        String userId = currentUserId;
+        if (userId == null || userId.isBlank()) {
+            throw new ApiException(-1, "Not logged in", null, null, null);
+        }
+        UserProfile profile = getProfile(userId);
+        String userName = profile != null && profile.getFullName() != null ? profile.getFullName() : "Anonymous";
+        String university = profile != null && profile.getUniversityName() != null ? profile.getUniversityName() : "";
+
+        JsonObject body = new JsonObject();
+        body.addProperty("user_id", userId);
+        body.addProperty("user_name", userName);
+        body.addProperty("content", content != null ? content : "");
+        body.addProperty("university", university);
+
+        String url = restUrl("/posts");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(url, body, token);
+    }
+
+    /**
+     * Fetches all posts ordered by created_at descending (newest first).
+     */
+    public List<Post> getAllPosts() throws ApiException {
+        String url = restUrl("/posts?order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getPostsWithAuth(url, token);
+    }
+
+    private List<Post> getPostsWithAuth(String url, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            int status = response.statusCode();
+            String body = response.body();
+
+            if (status >= 200 && status < 300 && body != null && !body.isBlank()) {
+                var parsed = JsonParser.parseString(body);
+                if (parsed != null && parsed.isJsonArray()) {
+                    var arr = parsed.getAsJsonArray();
+                    List<Post> posts = new ArrayList<>();
+                    for (JsonElement el : arr) {
+                        if (el != null && el.isJsonObject()) {
+                            JsonObject obj = el.getAsJsonObject();
+                            Post p = new Post();
+                            p.setId(asString(obj.get("id")));
+                            p.setUserId(asString(obj.get("user_id")));
+                            p.setUserName(asString(obj.get("user_name")));
+                            p.setContent(asString(obj.get("content")));
+                            p.setUniversity(asString(obj.get("university")));
+                            p.setCreatedAt(asString(obj.get("created_at")));
+                            posts.add(p);
+                        }
+                    }
+                    return posts;
+                }
+            }
+            return Collections.emptyList();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Posts fetch failed: " + e.getMessage(), null, null, null);
+        }
     }
 
     private static String restUrl(String path) throws ApiException {
