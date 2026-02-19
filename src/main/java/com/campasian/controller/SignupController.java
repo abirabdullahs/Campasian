@@ -42,26 +42,47 @@ public class SignupController implements Initializable {
         authService = AuthService.getInstance();
         var all = FXCollections.observableArrayList(UniversityService.loadUniversities());
         var filtered = new FilteredList<>(all, s -> true);
+
         universityCombo.setItems(filtered);
         universityCombo.setEditable(true);
+
+        // ১. টেক্সট ফিল্টার লজিক (লুপ এবং সিলেকশন ফিক্সড)
         universityCombo.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
-            String q = newVal != null ? newVal.trim().toLowerCase() : "";
-            if (q.equals(lastFilterQuery)) return;
-            lastFilterQuery = q;
-            Platform.runLater(() -> {
-                try {
-                    filtered.setPredicate(s -> q.isEmpty() || (s != null && s.toLowerCase().contains(q)));
-                } finally {
-                    lastFilterQuery = q;
-                }
+            // যদি সিলেকশন এর কারণে টেক্সট চেঞ্জ হয়, তবে ফিল্টার করার দরকার নেই
+            if (universityCombo.getSelectionModel().getSelectedItem() != null &&
+                    universityCombo.getSelectionModel().getSelectedItem().equals(newVal)) {
+                return;
+            }
+
+            String q = (newVal == null) ? "" : newVal.trim().toLowerCase();
+
+            // প্রেডিকেট আপডেট (সরাসরি করা ভালো যেন ড্রপডাউন ফ্লিকার না করে)
+            filtered.setPredicate(s -> {
+                if (q.isEmpty()) return true;
+                return s != null && s.toLowerCase().contains(q);
             });
+
+            // যদি কিছু টাইপ করা হয়, তবেই ড্রপডাউন দেখাবে
+            if (!q.isEmpty()) {
+                universityCombo.show();
+            }
         });
 
-        // Real-time password match validation
+        // ২. সিলেকশন হ্যান্ডলিং: সিলেক্ট করার পর কার্সারকে টেক্সটের শেষে নিয়ে যাওয়া
+        universityCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                Platform.runLater(() -> {
+                    universityCombo.getEditor().end(); // সিলেকশনের পর কার্সার শেষে থাকবে
+                });
+            }
+        });
+
+        // ৩. রিয়েল-টাইম পাসওয়ার্ড ভ্যালিডেশন
         ChangeListener<String> passwordListener = (obs, oldVal, newVal) -> updatePasswordMatchStyle();
         passwordField.textProperty().addListener(passwordListener);
         confirmPasswordField.textProperty().addListener(passwordListener);
     }
+
 
     private void updatePasswordMatchStyle() {
         String p = passwordField.getText();

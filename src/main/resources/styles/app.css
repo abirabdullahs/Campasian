@@ -138,3 +138,20 @@
     -fx-font-weight: bold;
     -fx-text-fill: #0f172a;
 }
+
+
+
+.combo-box .list-view {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7; /* Shadcn border color */
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #18181b;
+    -fx-padding: 8px;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #f4f4f5; /* Light gray hover */
+}
