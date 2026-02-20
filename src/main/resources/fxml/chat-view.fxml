@@ -1,43 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Separator?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.ChatController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/app.css"
+      styleClass="chat-root"
+      stylesheets="@../styles/chat.css"
       maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
 
-    <VBox styleClass="page-header" spacing="4">
-        <Label text="Messages" styleClass="page-title"/>
-        <Label text="Chat with your friends. Messages appear here instantly." styleClass="page-subtitle" wrapText="true"/>
-    </VBox>
+    <!-- ── Top Bar ── -->
+    <HBox styleClass="chat-topbar" alignment="CENTER_LEFT" spacing="12">
+        <Label text="⊟" styleClass="chat-topbar-icon"/>
+        <VBox spacing="1" HBox.hgrow="ALWAYS">
+            <Label text="Messages" styleClass="chat-topbar-title"/>
+            <Label text="Chat with friends — messages appear instantly." styleClass="chat-topbar-sub"/>
+        </VBox>
+        <!-- Online indicator -->
+        <HBox styleClass="chat-online-badge" spacing="6" alignment="CENTER">
+            <Label text="●" styleClass="chat-online-dot"/>
+            <Label text="Online" styleClass="chat-online-text"/>
+        </HBox>
+    </HBox>
 
-    <HBox spacing="24" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-        <VBox styleClass="profile-card" minWidth="220" maxWidth="260" spacing="8">
-            <Label text="Friends" styleClass="profile-card-title"/>
-            <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-                <VBox fx:id="friendsList" spacing="4" styleClass="feed-container"/>
+    <!-- ── Body ── -->
+    <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity">
+
+        <!-- ══ Friends Sidebar ══ -->
+        <VBox styleClass="chat-friends-panel" minWidth="240" prefWidth="256" maxWidth="256" spacing="0">
+
+            <!-- Search bar -->
+            <VBox styleClass="chat-friends-search-wrap">
+                <TextField promptText="⊕  Search friends…"
+                           styleClass="chat-search-field"
+                           maxWidth="Infinity"/>
+            </VBox>
+
+            <Separator styleClass="chat-divider"/>
+
+            <Label text="FRIENDS" styleClass="chat-section-label"/>
+
+            <ScrollPane fitToWidth="true"
+                        styleClass="chat-scroll"
+                        VBox.vgrow="ALWAYS"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <VBox fx:id="friendsList" spacing="0" styleClass="chat-friends-list"/>
             </ScrollPane>
         </VBox>
-        <VBox styleClass="profile-card" HBox.hgrow="ALWAYS" spacing="12">
-            <Label fx:id="chatPartnerLabel" text="Select a friend to chat" styleClass="profile-card-title"/>
-            <ScrollPane fx:id="messagesScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-                <VBox fx:id="messagesVBox" spacing="8" styleClass="feed-container"/>
+
+        <!-- ══ Chat Window ══ -->
+        <VBox HBox.hgrow="ALWAYS" maxHeight="Infinity" spacing="0" styleClass="chat-window">
+
+            <!-- Chat header -->
+            <HBox styleClass="chat-window-header" alignment="CENTER_LEFT" spacing="12">
+                <StackPane styleClass="chat-avatar-circle">
+                    <Label text="◉" styleClass="chat-avatar-icon"/>
+                </StackPane>
+                <VBox spacing="1" HBox.hgrow="ALWAYS">
+                    <Label fx:id="chatPartnerLabel"
+                           text="Select a friend to start chatting"
+                           styleClass="chat-partner-name"/>
+                    <Label text="Tap a name on the left to open a conversation"
+                           styleClass="chat-partner-status"/>
+                </VBox>
+                <!-- Action icons -->
+                <Button text="⊙" styleClass="chat-icon-btn" disable="true"/>
+            </HBox>
+
+            <Separator styleClass="chat-divider"/>
+
+            <!-- Messages area -->
+            <ScrollPane fx:id="messagesScroll"
+                        fitToWidth="true"
+                        styleClass="chat-scroll chat-messages-scroll"
+                        VBox.vgrow="ALWAYS"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <VBox fx:id="messagesVBox"
+                      spacing="10"
+                      styleClass="chat-messages-container"/>
             </ScrollPane>
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <TextField fx:id="messageField" promptText="Type a message..." styleClass="material-input" HBox.hgrow="ALWAYS" onAction="#onSendMessage"/>
-                <javafx.scene.control.Button text="Send" styleClass="btn-primary" onAction="#onSendMessage"/>
+
+            <Separator styleClass="chat-divider"/>
+
+            <!-- Input bar -->
+            <HBox styleClass="chat-input-bar" spacing="10" alignment="CENTER">
+                <TextField fx:id="messageField"
+                           promptText="Type a message and press Enter…"
+                           styleClass="chat-input-field"
+                           HBox.hgrow="ALWAYS"
+                           onAction="#onSendMessage"/>
+                <Button text="⊞  Send"
+                        styleClass="chat-send-btn"
+                        onAction="#onSendMessage"/>
             </HBox>
         </VBox>
+
     </HBox>
 </VBox>

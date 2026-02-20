@@ -22,6 +22,9 @@ public class EditProfileModalController {
     @FXML private TextField fullNameField;
     @FXML private TextField universityField;
     @FXML private TextArea bioField;
+    @FXML private TextField bloodGroupField;
+    @FXML private TextField sessionField;
+    @FXML private TextField batchField;
     @FXML private ImageView avatarPreview;
     @FXML private javafx.scene.control.Label avatarLabel;
 
@@ -33,10 +36,13 @@ public class EditProfileModalController {
     public void setStage(Stage stage) { this.stage = stage; }
     public void setOnSaved(Runnable r) { this.onSaved = r; }
 
-    public void setInitialData(String fullName, String university, String bio) {
+    public void setInitialData(String fullName, String university, String bio, String bloodGroup, String session, String batch) {
         if (fullNameField != null) fullNameField.setText(fullName != null ? fullName : "");
         if (universityField != null) universityField.setText(university != null ? university : "");
         if (bioField != null) bioField.setText(bio != null ? bio : "");
+        if (bloodGroupField != null) bloodGroupField.setText(bloodGroup != null ? bloodGroup : "");
+        if (sessionField != null) sessionField.setText(session != null ? session : "");
+        if (batchField != null) batchField.setText(batch != null ? batch : "");
     }
 
     public void setInitialAvatarUrl(String avatarUrl) {
@@ -76,7 +82,10 @@ public class EditProfileModalController {
             ApiService.getInstance().updateProfile(
                 fullNameField != null ? fullNameField.getText() : null,
                 universityField != null ? universityField.getText() : null,
-                bioField != null ? bioField.getText() : null
+                bioField != null ? bioField.getText() : null,
+                bloodGroupField != null && !bloodGroupField.getText().isBlank() ? bloodGroupField.getText().trim() : null,
+                sessionField != null && !sessionField.getText().isBlank() ? sessionField.getText().trim() : null,
+                batchField != null && !batchField.getText().isBlank() ? batchField.getText().trim() : null
             );
             if (onSaved != null) onSaved.run();
             if (stage != null) stage.close();

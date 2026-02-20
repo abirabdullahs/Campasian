@@ -4,67 +4,158 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.ProfileController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/style.css"
-      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
+      styleClass="profile-root"
+      stylesheets="@../styles/profile.css"
+      spacing="0" maxWidth="Infinity" maxHeight="Infinity">
 
-    <!-- Page header -->
-    <HBox styleClass="cc-header" spacing="16" alignment="CENTER_LEFT">
-        <VBox spacing="4" HBox.hgrow="ALWAYS">
-            <Label text="Profile" styleClass="cc-headline"/>
-            <Label text="View your details, connections, and recent posts." styleClass="cc-description" wrapText="true"/>
+    <!-- ── Top Bar ── -->
+    <HBox styleClass="profile-topbar" alignment="CENTER_LEFT" spacing="12">
+        <Label text="◉" styleClass="profile-topbar-icon"/>
+        <VBox spacing="1" HBox.hgrow="ALWAYS">
+            <Label text="Profile" styleClass="profile-topbar-title"/>
+            <Label text="Your details, connections, and recent posts." styleClass="profile-topbar-sub"/>
         </VBox>
-        <HBox spacing="12">
-            <Button fx:id="editProfileBtn" text="Edit Profile" styleClass="btn-secondary" onAction="#onEditProfileClick" visible="false" managed="false"/>
-            <Button fx:id="followBtn" text="Follow" styleClass="btn-primary" onAction="#onFollowClick" visible="false" managed="false"/>
-            <Button fx:id="unfollowBtn" text="Unfollow" styleClass="btn-secondary" onAction="#onUnfollowClick" visible="false" managed="false"/>
+        <!-- Action buttons -->
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button fx:id="editProfileBtn" text="✎  Edit Profile"
+                    styleClass="btn-secondary" onAction="#onEditProfileClick"
+                    visible="false" managed="false"/>
+            <Button fx:id="followBtn" text="⊕  Follow"
+                    styleClass="btn-primary" onAction="#onFollowClick"
+                    visible="false" managed="false"/>
+            <Button fx:id="unfollowBtn" text="⊟  Unfollow"
+                    styleClass="btn-ghost" onAction="#onUnfollowClick"
+                    visible="false" managed="false"/>
         </HBox>
     </HBox>
 
-    <HBox spacing="24" styleClass="profile-stats">
-        <VBox spacing="4" styleClass="profile-stat">
-            <Label fx:id="followersCountLabel" text="0" styleClass="profile-stat-value"/>
-            <Label text="Followers" styleClass="profile-label"/>
+    <Separator styleClass="profile-divider"/>
+
+    <!-- ── Scrollable body ── -->
+    <ScrollPane fitToWidth="true" styleClass="profile-scroll"
+                VBox.vgrow="ALWAYS" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+        <VBox spacing="24" styleClass="profile-body">
+            <padding>
+                <Insets top="28" right="28" bottom="32" left="28"/>
+            </padding>
+
+            <!-- ── Hero / Avatar card ── -->
+            <VBox styleClass="profile-hero-card" spacing="0">
+                <!-- Cover strip -->
+                <StackPane styleClass="profile-cover"/>
+
+                <!-- Avatar + name row -->
+                <HBox styleClass="profile-identity-row" spacing="18" alignment="BOTTOM_LEFT">
+                    <StackPane styleClass="profile-avatar-wrap">
+                        <ImageView fx:id="avatarImageView"
+                                   fitWidth="72" fitHeight="72"
+                                   preserveRatio="true"
+                                   styleClass="profile-avatar-img"/>
+                        <Label text="◉" styleClass="profile-avatar-fallback"/>
+                    </StackPane>
+                    <VBox spacing="3" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+                        <Label fx:id="fullNameLabel" text="—" styleClass="profile-hero-name"/>
+                        <Label fx:id="universityLabel" text="—" styleClass="profile-hero-uni"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Stats row -->
+                <HBox styleClass="profile-stats-row" spacing="0">
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER" styleClass="profile-stat-cell">
+                        <Label fx:id="followersCountLabel" text="0" styleClass="profile-stat-number"/>
+                        <Label text="Followers" styleClass="profile-stat-label"/>
+                    </VBox>
+                    <Separator styleClass="profile-stat-divider" orientation="VERTICAL"/>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER" styleClass="profile-stat-cell">
+                        <Label fx:id="followingCountLabel" text="0" styleClass="profile-stat-number"/>
+                        <Label text="Following" styleClass="profile-stat-label"/>
+                    </VBox>
+                    <Separator styleClass="profile-stat-divider" orientation="VERTICAL"/>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER" styleClass="profile-stat-cell">
+                        <Label text="—" styleClass="profile-stat-number" fx:id="postCountLabel"/>
+                        <Label text="Posts" styleClass="profile-stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- ── Info card ── -->
+            <VBox styleClass="profile-info-card" spacing="0">
+                <HBox styleClass="profile-card-header" alignment="CENTER_LEFT" spacing="8">
+                    <Label text="⊙" styleClass="profile-card-header-icon"/>
+                    <Label text="Profile Information" styleClass="profile-card-title"/>
+                </HBox>
+
+                <Separator styleClass="profile-divider"/>
+
+                <VBox styleClass="profile-fields" spacing="0">
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Full Name" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="fullNameLabel2" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="University" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="universityLabel2" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Student ID" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="einLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0" alignment="TOP_LEFT">
+                        <Label text="Bio" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="bioLabel" text="—" styleClass="profile-field-value"
+                               HBox.hgrow="ALWAYS" wrapText="true"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Blood Group" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="bloodGroupLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Session" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="sessionLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Batch" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="batchLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                </VBox>
+            </VBox>
+
+            <!-- ── Posts section ── -->
+            <VBox spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="⊞" styleClass="profile-posts-icon"/>
+                    <Label text="Posts" styleClass="profile-posts-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Recent activity" styleClass="profile-posts-sub"/>
+                </HBox>
+                <Separator styleClass="profile-divider"/>
+                <VBox fx:id="postsVBox" spacing="12" styleClass="feed-container"/>
+            </VBox>
+
         </VBox>
-        <VBox spacing="4" styleClass="profile-stat">
-            <Label fx:id="followingCountLabel" text="0" styleClass="profile-stat-value"/>
-            <Label text="Following" styleClass="profile-label"/>
-        </VBox>
-    </HBox>
-    <VBox styleClass="profile-card" spacing="16">
-        <HBox spacing="16" alignment="CENTER_LEFT">
-            <javafx.scene.image.ImageView fx:id="avatarImageView" fitWidth="80" fitHeight="80" preserveRatio="true" style="-fx-background-color: #E4E4E7; -fx-background-radius: 6;"/>
-            <Label text="Profile Information" styleClass="profile-card-title"/>
-        </HBox>
-        <VBox spacing="16">
-            <VBox spacing="4">
-                <Label text="Full Name" styleClass="profile-label"/>
-                <Label fx:id="fullNameLabel" styleClass="profile-value" text="—"/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="University" styleClass="profile-label"/>
-                <Label fx:id="universityLabel" styleClass="profile-value" text="—"/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Student ID" styleClass="profile-label"/>
-                <Label fx:id="einLabel" styleClass="profile-value" text="—"/>
-            </VBox>
-            <VBox spacing="4">
-                <Label text="Bio" styleClass="profile-label"/>
-                <Label fx:id="bioLabel" styleClass="profile-value" text="—" wrapText="true"/>
-            </VBox>
-        </VBox>
-    </VBox>
-    <Label text="Posts" styleClass="profile-card-title"/>
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-        <VBox fx:id="postsVBox" spacing="12" styleClass="feed-container"/>
     </ScrollPane>
+
 </VBox>

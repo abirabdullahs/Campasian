@@ -1,0 +1,353 @@
+/* ════════════════════════════════════════════
+   Campasian — Notifications  |  notifications.css
+   Poppins · black · gray · white
+════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ── Root ── */
+.notif-root {
+    -fx-background-color: #09090b;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════
+   TOP BAR
+════════════════════ */
+.notif-topbar {
+    -fx-background-color: #0f0f11;
+    -fx-border-color:     #1e1e23;
+    -fx-border-width:     0 0 1 0;
+    -fx-padding:          16 24 16 24;
+    -fx-min-height:       64;
+}
+
+.notif-topbar-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  20px;
+}
+
+.notif-topbar-title {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   18px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.notif-topbar-sub {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.notif-mark-btn {
+    -fx-background-color:  transparent;
+    -fx-background-radius: 8;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     8;
+    -fx-border-width:      1;
+    -fx-text-fill:         #71717a;
+    -fx-font-size:         12px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           6 14;
+    -fx-cursor:            hand;
+    -fx-pref-height:       32;
+}
+
+.notif-mark-btn:hover {
+    -fx-background-color: #18181b;
+    -fx-text-fill:        #a1a1aa;
+}
+
+/* ── Divider ── */
+.notif-divider {
+    -fx-background-color: #1e1e23;
+    -fx-border-color:     #1e1e23;
+    -fx-pref-height:      1;
+    -fx-opacity:          1;
+}
+
+/* ════════════════════
+   FILTER CHIPS
+════════════════════ */
+.notif-filter-row {
+    -fx-padding: 0 0 14 0;
+}
+
+.notif-chip {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 20;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     20;
+    -fx-border-width:      1;
+    -fx-text-fill:         #71717a;
+    -fx-font-size:         12px;
+    -fx-font-weight:       500;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           6 16;
+    -fx-cursor:            hand;
+    -fx-pref-height:       32;
+}
+
+.notif-chip:hover {
+    -fx-background-color: #27272a;
+    -fx-text-fill:        #e4e4e7;
+}
+
+.notif-chip-active {
+    -fx-background-color: #fafafa;
+    -fx-border-color:     #fafafa;
+    -fx-text-fill:        #09090b;
+    -fx-font-weight:      600;
+}
+
+.notif-sort-label {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ── Section label ── */
+.notif-section-label-wrap {
+    -fx-padding: 0 0 8 0;
+}
+
+.notif-section-label {
+    -fx-text-fill:    #3f3f46;
+    -fx-font-size:    10.5px;
+    -fx-font-weight:  600;
+    -fx-font-family:  'Poppins', 'Segoe UI', sans-serif;
+    -fx-letter-spacing: 1.2px;
+}
+
+/* ════════════════════
+   SCROLL
+════════════════════ */
+.notif-scroll {
+    -fx-background:       #09090b;
+    -fx-background-color: #09090b;
+    -fx-border-color:     transparent;
+}
+
+.notif-scroll .viewport {
+    -fx-background-color: #09090b;
+}
+
+.notif-scroll .scroll-bar:vertical {
+    -fx-background-color: #0f0f11;
+    -fx-pref-width:       4;
+}
+
+.notif-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color:  #27272a;
+    -fx-background-radius: 3;
+}
+
+.notif-scroll .scroll-bar:vertical .increment-button,
+.notif-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height:      0;
+}
+
+/* ════════════════════
+   NOTIFICATION LIST
+════════════════════ */
+.notif-list {
+    -fx-background-color: #09090b;
+    -fx-padding:          0 0 20 0;
+}
+
+/* Notification row — apply from controller */
+.notif-row {
+    -fx-background-color: #09090b;
+    -fx-padding:          14 4 14 4;
+    -fx-cursor:           hand;
+    -fx-border-color:     transparent transparent #18181b transparent;
+    -fx-border-width:     0 0 1 0;
+}
+
+.notif-row:hover {
+    -fx-background-color: #0f0f11;
+}
+
+/* Unread row highlight */
+.notif-row-unread {
+    -fx-background-color: #111116;
+    -fx-border-color:     transparent transparent #1e1e23 transparent;
+    -fx-border-width:     0 0 1 0;
+}
+
+.notif-row-unread:hover {
+    -fx-background-color: #14141a;
+}
+
+/* Unread dot */
+.notif-unread-dot {
+    -fx-text-fill:  #60a5fa;
+    -fx-font-size:  9px;
+}
+
+/* Type icon circle */
+.notif-type-circle {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 50%;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     50%;
+    -fx-border-width:      1;
+    -fx-min-width:         36;
+    -fx-min-height:        36;
+    -fx-max-width:         36;
+    -fx-max-height:        36;
+    -fx-alignment:         CENTER;
+}
+
+.notif-type-icon {
+    -fx-text-fill:  #71717a;
+    -fx-font-size:  14px;
+}
+
+/* Request icon — green tint */
+.notif-icon-request {
+    -fx-text-fill: #4ade80;
+}
+
+/* Like icon — red tint */
+.notif-icon-like {
+    -fx-text-fill: #f87171;
+}
+
+/* Comment icon — blue tint */
+.notif-icon-comment {
+    -fx-text-fill: #60a5fa;
+}
+
+/* Follow icon — amber tint */
+.notif-icon-follow {
+    -fx-text-fill: #fbbf24;
+}
+
+/* Text */
+.notif-actor {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   13.5px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.notif-body {
+    -fx-text-fill:   #71717a;
+    -fx-font-size:   12.5px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-wrap-text:   true;
+}
+
+.notif-time {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Accept / Decline buttons for friend requests */
+.notif-accept-btn {
+    -fx-background-color:  #fafafa;
+    -fx-background-radius: 6;
+    -fx-border-color:      transparent;
+    -fx-text-fill:         #09090b;
+    -fx-font-size:         12px;
+    -fx-font-weight:       600;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           5 14;
+    -fx-cursor:            hand;
+}
+
+.notif-accept-btn:hover {
+    -fx-background-color: #e4e4e7;
+}
+
+.notif-decline-btn {
+    -fx-background-color:  transparent;
+    -fx-background-radius: 6;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     6;
+    -fx-border-width:      1;
+    -fx-text-fill:         #71717a;
+    -fx-font-size:         12px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           5 14;
+    -fx-cursor:            hand;
+}
+
+.notif-decline-btn:hover {
+    -fx-background-color: #18181b;
+    -fx-text-fill:        #f87171;
+    -fx-border-color:     #3f3f46;
+}
+
+/* ════════════════════
+   RIGHT PANEL
+════════════════════ */
+.notif-right-panel {
+    -fx-background-color: #0a0a0c;
+    -fx-border-color:     #1e1e23;
+    -fx-border-width:     0 0 0 1;
+}
+
+.notif-widget-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 10;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-padding:           16;
+}
+
+.notif-tip-card {
+    -fx-border-color: #27272a;
+}
+
+.notif-widget-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  14px;
+}
+
+.notif-widget-title {
+    -fx-text-fill:   #d4d4d8;
+    -fx-font-size:   13px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.notif-widget-body {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-line-spacing: 3;
+}
+
+/* Summary rows */
+.notif-summary-row {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 6;
+    -fx-padding:           8 10;
+}
+
+.notif-summary-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  11px;
+}
+
+.notif-summary-key {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   12px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.notif-summary-val {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   13px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}

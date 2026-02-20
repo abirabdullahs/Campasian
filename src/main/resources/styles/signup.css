@@ -6,11 +6,12 @@
 
 /* Fonts — import in your app or preload */
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* ── Root / Canvas ── */
 .root {
     -fx-background-color: #09090b;
-    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+   -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
 /* ── Left info panel ── */

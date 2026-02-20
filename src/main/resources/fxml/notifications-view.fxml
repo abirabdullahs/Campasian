@@ -1,27 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.Priority?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.NotificationsController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/style.css"
-      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
-    <!-- Page header -->
-    <VBox styleClass="cc-header" spacing="4">
-        <Label text="Notifications" styleClass="cc-headline"/>
-        <Label text="Friend requests and activity — likes, comments, follows." styleClass="cc-description" wrapText="true"/>
-    </VBox>
-    
-    <!-- Notifications List -->
-    <ScrollPane fx:id="notificationsScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-        <VBox fx:id="notificationsVBox" spacing="8" styleClass="feed-container"/>
-    </ScrollPane>
+      styleClass="notif-root"
+      stylesheets="@../styles/notifications.css"
+      spacing="0" maxWidth="Infinity" maxHeight="Infinity">
+
+    <!-- ── Top Bar ── -->
+    <HBox styleClass="notif-topbar" alignment="CENTER_LEFT" spacing="12">
+        <Label text="◎" styleClass="notif-topbar-icon"/>
+        <VBox spacing="1" HBox.hgrow="ALWAYS">
+            <Label text="Notifications" styleClass="notif-topbar-title"/>
+            <Label text="Friend requests, likes, comments, and follows." styleClass="notif-topbar-sub"/>
+        </VBox>
+        <!-- Mark all read button -->
+        <Button text="✓  Mark all read" styleClass="notif-mark-btn"/>
+    </HBox>
+
+    <Separator styleClass="notif-divider"/>
+
+    <!-- ── Body ── -->
+    <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity">
+
+        <!-- ══ Notifications list ══ -->
+        <VBox HBox.hgrow="ALWAYS" maxHeight="Infinity" spacing="0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="24"/>
+            </padding>
+
+            <!-- Filter chips -->
+            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="notif-filter-row">
+                <Button styleClass="notif-chip notif-chip-active" text="All"/>
+                <Button styleClass="notif-chip" text="⊕  Requests"/>
+                <Button styleClass="notif-chip" text="◎  Activity"/>
+                <Button styleClass="notif-chip" text="⬡  Mentions"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Newest first" styleClass="notif-sort-label"/>
+            </HBox>
+
+            <VBox styleClass="notif-section-label-wrap">
+                <Label text="TODAY" styleClass="notif-section-label"/>
+            </VBox>
+
+            <ScrollPane fx:id="notificationsScroll"
+                        fitToWidth="true"
+                        styleClass="notif-scroll"
+                        VBox.vgrow="ALWAYS"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <VBox fx:id="notificationsVBox"
+                      spacing="0"
+                      styleClass="notif-list"/>
+            </ScrollPane>
+        </VBox>
+
+        <!-- ══ Right summary panel ══ -->
+        <VBox styleClass="notif-right-panel" spacing="20"
+              minWidth="224" prefWidth="240" maxWidth="240">
+            <padding>
+                <Insets top="20" right="18" bottom="20" left="16"/>
+            </padding>
+
+            <!-- Summary card -->
+            <VBox styleClass="notif-widget-card" spacing="12">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="◎" styleClass="notif-widget-icon"/>
+                    <Label text="Summary" styleClass="notif-widget-title"/>
+                </HBox>
+                <VBox spacing="8">
+                    <HBox styleClass="notif-summary-row" alignment="CENTER_LEFT" spacing="10">
+                        <Label text="⊕" styleClass="notif-summary-icon"/>
+                        <Label text="Friend Requests" styleClass="notif-summary-key" HBox.hgrow="ALWAYS"/>
+                        <Label text="—" styleClass="notif-summary-val" fx:id="requestCountLabel"/>
+                    </HBox>
+                    <HBox styleClass="notif-summary-row" alignment="CENTER_LEFT" spacing="10">
+                        <Label text="♥" styleClass="notif-summary-icon"/>
+                        <Label text="Likes" styleClass="notif-summary-key" HBox.hgrow="ALWAYS"/>
+                        <Label text="—" styleClass="notif-summary-val" fx:id="likeCountLabel"/>
+                    </HBox>
+                    <HBox styleClass="notif-summary-row" alignment="CENTER_LEFT" spacing="10">
+                        <Label text="⊟" styleClass="notif-summary-icon"/>
+                        <Label text="Comments" styleClass="notif-summary-key" HBox.hgrow="ALWAYS"/>
+                        <Label text="—" styleClass="notif-summary-val" fx:id="commentCountLabel"/>
+                    </HBox>
+                    <HBox styleClass="notif-summary-row" alignment="CENTER_LEFT" spacing="10">
+                        <Label text="◉" styleClass="notif-summary-icon"/>
+                        <Label text="New Followers" styleClass="notif-summary-key" HBox.hgrow="ALWAYS"/>
+                        <Label text="—" styleClass="notif-summary-val" fx:id="followCountLabel"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- Tip card -->
+            <VBox styleClass="notif-widget-card notif-tip-card" spacing="8">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="⊙" styleClass="notif-widget-icon"/>
+                    <Label text="Stay in the loop" styleClass="notif-widget-title"/>
+                </HBox>
+                <Label text="Accept friend requests to grow your network and see more personalised posts in your feed."
+                       styleClass="notif-widget-body" wrapText="true"/>
+            </VBox>
+
+        </VBox>
+
+    </HBox>
 </VBox>

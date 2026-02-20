@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.SellItemModalController"
+      styleClass="modal-root"
+      stylesheets="@../styles/style.css"
+      prefWidth="420" prefHeight="480">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+    <VBox spacing="4">
+        <Label text="Sell an Item" styleClass="cc-headline"/>
+        <Label text="List your item for sale. Price, condition, and category required." styleClass="cc-description" wrapText="true"/>
+    </VBox>
+    <Label text="Title" styleClass="profile-label"/>
+    <TextField fx:id="titleField" styleClass="material-input" promptText="Item title"/>
+    <Label text="Category" styleClass="profile-label"/>
+    <ComboBox fx:id="categoryCombo" styleClass="material-input" prefWidth="Infinity"/>
+    <Label text="Price" styleClass="profile-label"/>
+    <TextField fx:id="priceField" styleClass="material-input" promptText="e.g. ৳500"/>
+    <Label text="Condition" styleClass="profile-label"/>
+    <TextField fx:id="conditionField" styleClass="material-input" promptText="e.g. Like New, Good"/>
+    <Label text="Description" styleClass="profile-label"/>
+    <TextArea fx:id="descField" styleClass="modal-text-area" promptText="Describe your item..." wrapText="true" prefRowCount="4"/>
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancel"/>
+        <Button text="Post" styleClass="btn-primary" onAction="#onPost"/>
+    </HBox>
+</VBox>

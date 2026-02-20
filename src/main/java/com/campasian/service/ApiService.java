@@ -3,6 +3,8 @@ package com.campasian.service;
 import com.campasian.config.SupabaseConfig;
 import com.campasian.model.Comment;
 import com.campasian.model.FriendRequest;
+import com.campasian.model.LostFoundItem;
+import com.campasian.model.MarketplaceItem;
 import com.campasian.model.Message;
 import com.campasian.model.Notification;
 import com.campasian.model.Post;
@@ -153,6 +155,9 @@ public final class ApiService {
                         p.setEinNumber(asString(obj.get("ein_number")));
                         p.setBio(asString(obj.get("bio")));
                         p.setAvatarUrl(asString(obj.get("avatar_url")));
+                        p.setBloodGroup(asString(obj.get("blood_group")));
+                        p.setSession(asString(obj.get("session")));
+                        p.setBatch(asString(obj.get("batch")));
                         return p;
                     }
                 }
@@ -615,7 +620,7 @@ public final class ApiService {
      * Table: public.profiles. Select uses base schema; bio optional (run social_extensions to add).
      */
     public List<UserProfile> getAllProfiles() throws ApiException {
-        String url = restUrl("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url");
+        String url = restUrl("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url,blood_group,session,batch");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         return getProfilesList(url, token);
     }
@@ -624,7 +629,7 @@ public final class ApiService {
      * Searches profiles by name or university. Uses ilike for partial match.
      */
     public List<UserProfile> searchProfiles(String nameQuery, String universityQuery) throws ApiException {
-        StringBuilder q = new StringBuilder("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url");
+        StringBuilder q = new StringBuilder("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url,blood_group,session,batch");
         if (nameQuery != null && !nameQuery.isBlank()) {
             q.append("&full_name=ilike.*").append(encode(nameQuery)).append("*");
         }
@@ -658,6 +663,10 @@ public final class ApiService {
                     p.setEinNumber(asString(o.get("ein_number")));
                     p.setBio(asString(o.get("bio")));
                     p.setAvatarUrl(asString(o.get("avatar_url")));
+                    p.setBloodGroup(asString(o.get("blood_group")));
+                    p.setSession(asString(o.get("session")));
+                    p.setBatch(asString(o.get("batch")));
+                    p.setDepartment(asString(o.get("department")));
                     list.add(p);
                 }
             }
@@ -666,6 +675,31 @@ public final class ApiService {
             if (e instanceof InterruptedException) Thread.currentThread().interrupt();
             throw new ApiException(-1, "Profiles fetch failed: " + e.getMessage(), null, null, null);
         }
+    }
+
+    /**
+     * Fetches profiles filtered by department (e.g. CSE, EEE, BBA).
+     */
+    public List<UserProfile> getProfilesByDepartment(String department) throws ApiException {
+        if (department == null || department.isBlank()) return getAllProfiles();
+        String url = restUrl("/profiles?department=ilike.*" + encode(department) + "*&select=id,full_name,university_name,ein_number,department,avatar_url,blood_group,session,batch");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getProfilesListFromUrl(url, token);
+    }
+
+    /**
+     * Fetches profiles by blood group for emergency donor search.
+     */
+    public List<UserProfile> getProfilesByBloodGroup(String bloodGroup) throws ApiException {
+        if (bloodGroup == null || bloodGroup.isBlank()) return Collections.emptyList();
+        String encoded = bloodGroup.replace("+", "%2B");
+        String url = restUrl("/profiles?blood_group=ilike." + encoded + "&select=id,full_name,university_name,department,session,batch,blood_group");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getProfilesListFromUrl(url, token);
+    }
+
+    private List<UserProfile> getProfilesListFromUrl(String url, String bearerToken) throws ApiException {
+        return getProfilesList(url, bearerToken);
     }
 
     /**
@@ -927,9 +961,131 @@ public final class ApiService {
     }
 
     /**
+     * Fetches marketplace items. category: Books, Electronics, Stationery, or null for all.
+     */
+    public List<MarketplaceItem> getMarketplaceItems(String category) throws ApiException {
+        StringBuilder url = new StringBuilder("/marketplace_items?order=created_at.desc");
+        if (category != null && !category.isBlank()) url.append("&category=eq.").append(encode(category));
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(restUrl(url.toString()), token);
+            return parseMarketplaceItems(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createMarketplaceItem(String title, String description, String price, String condition, String category) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        UserProfile p = getProfile(currentUserId);
+        String userName = p != null && p.getFullName() != null ? p.getFullName() : "Anonymous";
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("user_name", userName);
+        payload.addProperty("title", title != null ? title : "");
+        payload.addProperty("description", description != null ? description : "");
+        payload.addProperty("price", price != null ? price : "");
+        payload.addProperty("condition", condition != null ? condition : "");
+        payload.addProperty("category", category != null ? category : "");
+        postJsonWithAuth(restUrl("/marketplace_items"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<MarketplaceItem> parseMarketplaceItems(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<MarketplaceItem> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    MarketplaceItem m = new MarketplaceItem();
+                    m.setId(asString(o.get("id")));
+                    m.setUserId(asString(o.get("user_id")));
+                    m.setUserName(asString(o.get("user_name")));
+                    m.setTitle(asString(o.get("title")));
+                    m.setDescription(asString(o.get("description")));
+                    m.setPrice(asString(o.get("price")));
+                    m.setCondition(asString(o.get("condition")));
+                    m.setCategory(asString(o.get("category")));
+                    m.setCreatedAt(asString(o.get("created_at")));
+                    list.add(m);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    /**
+     * Fetches lost & found items. type: "lost", "found", or null for all.
+     */
+    public List<LostFoundItem> getLostFoundItems(String type) throws ApiException {
+        StringBuilder url = new StringBuilder("/lost_found?order=created_at.desc");
+        if (type != null && !type.isBlank()) url.append("&type=eq.").append(type.toLowerCase());
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(restUrl(url.toString()), token);
+            return parseLostFoundItems(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createLostFoundItem(String type, String title, String description, String location) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        UserProfile p = getProfile(currentUserId);
+        String userName = p != null && p.getFullName() != null ? p.getFullName() : "Anonymous";
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("user_name", userName);
+        payload.addProperty("type", "lost".equalsIgnoreCase(type) ? "lost" : "found");
+        payload.addProperty("title", title != null ? title : "");
+        payload.addProperty("description", description != null ? description : "");
+        payload.addProperty("location", location != null ? location : "");
+        postJsonWithAuth(restUrl("/lost_found"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<LostFoundItem> parseLostFoundItems(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<LostFoundItem> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    LostFoundItem l = new LostFoundItem();
+                    l.setId(asString(o.get("id")));
+                    l.setUserId(asString(o.get("user_id")));
+                    l.setUserName(asString(o.get("user_name")));
+                    l.setType(asString(o.get("type")));
+                    l.setTitle(asString(o.get("title")));
+                    l.setDescription(asString(o.get("description")));
+                    l.setLocation(asString(o.get("location")));
+                    l.setCreatedAt(asString(o.get("created_at")));
+                    list.add(l);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    /**
      * Updates current user's profile. Pass only fields to update.
      */
     public void updateProfile(String fullName, String universityName, String bio) throws ApiException {
+        updateProfile(fullName, universityName, bio, null, null, null);
+    }
+
+    /**
+     * Updates current user's profile with extended campus fields.
+     */
+    public void updateProfile(String fullName, String universityName, String bio,
+                             String bloodGroup, String session, String batch) throws ApiException {
         if (currentUserId == null || currentUserId.isBlank()) {
             throw new ApiException(-1, "Not logged in", null, null, null);
         }
@@ -937,6 +1093,9 @@ public final class ApiService {
         if (fullName != null) payload.addProperty("full_name", fullName);
         if (universityName != null) payload.addProperty("university_name", universityName);
         if (bio != null) payload.addProperty("bio", bio);
+        if (bloodGroup != null) payload.addProperty("blood_group", bloodGroup);
+        if (session != null) payload.addProperty("session", session);
+        if (batch != null) payload.addProperty("batch", batch);
         if (payload.size() == 0) return;
         String url = restUrl("/profiles?id=eq." + currentUserId);
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();

@@ -25,6 +25,9 @@ public class HomeController implements Initializable {
     @FXML private Button feedBtn;
     @FXML private Button peopleBtn;
     @FXML private Button communityBtn;
+    @FXML private Button marketplaceBtn;
+    @FXML private Button lostFoundBtn;
+    @FXML private Button bloodSearchBtn;
     @FXML private Button profileBtn;
     @FXML private Button notificationsBtn;
     @FXML private Button chatBtn;
@@ -70,6 +73,24 @@ public class HomeController implements Initializable {
     protected void onCommunityClick() {
         loadView(ViewPaths.COMMUNITY_VIEW);
         updateSidebarActive(communityBtn);
+    }
+
+    @FXML
+    protected void onMarketplaceClick() {
+        loadView(ViewPaths.MARKETPLACE_VIEW);
+        updateSidebarActive(marketplaceBtn);
+    }
+
+    @FXML
+    protected void onLostFoundClick() {
+        loadView(ViewPaths.LOST_FOUND_VIEW);
+        updateSidebarActive(lostFoundBtn);
+    }
+
+    @FXML
+    protected void onBloodSearchClick() {
+        loadView(ViewPaths.BLOOD_SEARCH_VIEW);
+        updateSidebarActive(bloodSearchBtn);
     }
 
     @FXML
@@ -119,6 +140,9 @@ public class HomeController implements Initializable {
         if (feedBtn != null) feedBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (peopleBtn != null) peopleBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (communityBtn != null) communityBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (marketplaceBtn != null) marketplaceBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (lostFoundBtn != null) lostFoundBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (bloodSearchBtn != null) bloodSearchBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (profileBtn != null) profileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);

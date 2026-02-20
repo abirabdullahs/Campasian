@@ -18,6 +18,7 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the People discovery sub-view. Debounced search by name and university.
@@ -26,11 +27,18 @@ public class PeopleController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private VBox peopleVBox;
+    @FXML private Button allDeptBtn;
+    @FXML private Button cseDeptBtn;
+    @FXML private Button eeeDeptBtn;
+    @FXML private Button bbaDeptBtn;
 
+    private String currentDepartment;
+    private static final String CHIP_ACTIVE = "people-chip-active";
     private final PauseTransition debouncer = new PauseTransition(Duration.millis(300));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        currentDepartment = null;
         loadPeople();
         if (searchField != null) {
             searchField.textProperty().addListener((o, oldVal, newVal) -> {
@@ -48,17 +56,44 @@ public class PeopleController implements Initializable {
         debouncer.playFromStart();
     }
 
+    @FXML protected void onFilterAll()   { setDepartment(null); }
+    @FXML protected void onFilterCSE()   { setDepartment("CSE"); }
+    @FXML protected void onFilterEEE()   { setDepartment("EEE"); }
+    @FXML protected void onFilterBBA()   { setDepartment("BBA"); }
+
+    private void setDepartment(String dept) {
+        currentDepartment = dept;
+        if (allDeptBtn != null) allDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
+        if (cseDeptBtn != null) cseDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
+        if (eeeDeptBtn != null) eeeDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
+        if (bbaDeptBtn != null) bbaDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
+        if (dept == null && allDeptBtn != null) allDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        else if ("CSE".equals(dept) && cseDeptBtn != null) cseDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        else if ("EEE".equals(dept) && eeeDeptBtn != null) eeeDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        else if ("BBA".equals(dept) && bbaDeptBtn != null) bbaDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        loadPeople();
+    }
+
     private void loadPeople() {
         if (peopleVBox == null) return;
         peopleVBox.getChildren().clear();
 
         String query = searchField != null ? searchField.getText() : null;
-        // Run API call off FX thread; update UI with Platform.runLater
+        String dept = currentDepartment;
         new Thread(() -> {
             try {
                 String trimmed = query != null ? query.trim() : "";
                 List<UserProfile> profiles;
-                if (!trimmed.isBlank()) {
+                if (dept != null && !dept.isBlank()) {
+                    profiles = ApiService.getInstance().getProfilesByDepartment(dept);
+                    if (!trimmed.isBlank()) {
+                        String q = trimmed.toLowerCase();
+                        profiles = profiles.stream()
+                            .filter(p -> (p.getFullName() != null && p.getFullName().toLowerCase().contains(q))
+                                || (p.getUniversityName() != null && p.getUniversityName().toLowerCase().contains(q)))
+                            .collect(Collectors.toList());
+                    }
+                } else if (!trimmed.isBlank()) {
                     profiles = ApiService.getInstance().searchProfiles(trimmed, trimmed);
                 } else {
                     profiles = ApiService.getInstance().getAllProfiles();
@@ -106,12 +141,23 @@ public class PeopleController implements Initializable {
         String name = p.getFullName() != null ? p.getFullName() : "Unknown";
         String uni = p.getUniversityName() != null && !p.getUniversityName().isBlank()
             ? p.getUniversityName() : "—";
+        String session = p.getSession() != null && !p.getSession().isBlank() ? p.getSession() : null;
+        String batch = p.getBatch() != null && !p.getBatch().isBlank() ? p.getBatch() : null;
 
         Label nameLbl = new Label(name);
         nameLbl.getStyleClass().add("profile-value");
         nameLbl.setWrapText(true);
         nameLbl.setCursor(javafx.scene.Cursor.HAND);
         nameLbl.setOnMouseClicked(e -> AppRouter.navigateToProfile(p.getId()));
+
+        HBox badgeRow = new HBox(8);
+        if (session != null || batch != null) {
+            String badge = (session != null ? session : "") + (session != null && batch != null ? " · " : "") + (batch != null ? batch : "");
+            Label sessLbl = new Label(badge);
+            sessLbl.getStyleClass().add("people-chip");
+            sessLbl.setStyle("-fx-background-color: #E4E4E7; -fx-text-fill: #09090B; -fx-padding: 4 8; -fx-background-radius: 6; -fx-font-size: 11px;");
+            badgeRow.getChildren().add(sessLbl);
+        }
 
         Label uniLbl = new Label(uni);
         uniLbl.getStyleClass().add("profile-label");
@@ -161,7 +207,11 @@ public class PeopleController implements Initializable {
 
         VBox card = new VBox(8);
         card.getStyleClass().add("user-card");
-        card.getChildren().addAll(nameLbl, uniLbl, actions);
+        if (badgeRow.getChildren().isEmpty()) {
+            card.getChildren().addAll(nameLbl, uniLbl, actions);
+        } else {
+            card.getChildren().addAll(nameLbl, badgeRow, uniLbl, actions);
+        }
         return card;
     }
 }

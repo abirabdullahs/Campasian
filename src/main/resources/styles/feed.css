@@ -1,0 +1,300 @@
+/* ════════════════════════════════════════════
+   Campasian — Feed View  |  feed.css
+   Poppins · black · gray · white
+════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ── Root ── */
+.feed-root {
+    -fx-background-color: #09090b;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════
+   TOP BAR
+════════════════════ */
+.feed-topbar {
+    -fx-background-color: #0f0f11;
+    -fx-border-color:     #1e1e23;
+    -fx-border-width:     0 0 1 0;
+    -fx-padding:          16 28 16 28;
+    -fx-min-height:       64;
+}
+
+.feed-topbar-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  18px;
+}
+
+.feed-topbar-title {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   18px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.feed-topbar-sub {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:     0 0 0 28;
+}
+
+/* Live badge */
+.feed-live-badge {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 20;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     20;
+    -fx-border-width:      1;
+    -fx-padding:           6 14;
+}
+
+.feed-live-dot {
+    -fx-text-fill:  #4ade80;
+    -fx-font-size:  9px;
+}
+
+.feed-live-text {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   11px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════
+   CREATE POST BUTTON
+════════════════════ */
+.create-post-btn {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 10;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-text-fill:         #52525b;
+    -fx-font-size:         13.5px;
+    -fx-font-weight:       400;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-alignment:         CENTER_LEFT;
+    -fx-padding:           14 18;
+    -fx-cursor:            hand;
+    -fx-pref-height:       48;
+}
+
+.create-post-btn:hover {
+    -fx-background-color: #1c1c1f;
+    -fx-border-color:     #3f3f46;
+    -fx-text-fill:        #71717a;
+}
+
+/* ════════════════════
+   FILTER CHIPS
+════════════════════ */
+.feed-filter-btn {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 20;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     20;
+    -fx-border-width:      1;
+    -fx-text-fill:         #a1a1aa;
+    -fx-font-size:         12.5px;
+    -fx-font-weight:       500;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           7 18;
+    -fx-cursor:            hand;
+    -fx-pref-height:       34;
+}
+
+.feed-filter-btn:hover {
+    -fx-background-color: #27272a;
+    -fx-text-fill:        #e4e4e7;
+}
+
+/* Active filter — add .feed-filter-active from controller */
+.feed-filter-active {
+    -fx-background-color: #fafafa;
+    -fx-text-fill:        #09090b;
+    -fx-font-weight:      600;
+    -fx-border-color:     #fafafa;
+}
+
+.feed-count-label {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════
+   SCROLL PANE
+════════════════════ */
+.feed-scroll {
+    -fx-background:       #09090b;
+    -fx-background-color: #09090b;
+    -fx-border-color:     transparent;
+    -fx-padding:          0;
+}
+
+.feed-scroll .viewport {
+    -fx-background-color: #09090b;
+}
+
+.feed-scroll .scroll-bar:vertical {
+    -fx-background-color: #0f0f11;
+    -fx-pref-width:       5;
+}
+
+.feed-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color:  #27272a;
+    -fx-background-radius: 3;
+}
+
+.feed-scroll .scroll-bar:vertical .increment-button,
+.feed-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height:      0;
+}
+
+/* ════════════════════
+   FEED CONTAINER
+════════════════════ */
+.feed-container {
+    -fx-background-color: #09090b;
+    -fx-padding:          4 0 24 0;
+}
+
+/* ════════════════════
+   POST CARD (used by FeedController dynamically)
+════════════════════ */
+.post-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 10;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-padding:           18 20;
+    -fx-spacing:           10;
+}
+
+.post-card:hover {
+    -fx-background-color: #111114;
+    -fx-border-color:     #27272a;
+}
+
+.post-author {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   13.5px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.post-meta {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.post-body {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   13px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-wrap-text:   true;
+    -fx-line-spacing: 3;
+}
+
+.post-action-btn {
+    -fx-background-color:  transparent;
+    -fx-border-color:      transparent;
+    -fx-text-fill:         #3f3f46;
+    -fx-font-size:         12px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-cursor:            hand;
+    -fx-padding:           4 10;
+    -fx-background-radius: 4;
+}
+
+.post-action-btn:hover {
+    -fx-background-color: #18181b;
+    -fx-text-fill:        #71717a;
+}
+
+/* ════════════════════
+   RIGHT PANEL
+════════════════════ */
+.feed-right-panel {
+    -fx-background-color: #0a0a0c;
+    -fx-border-color:     #1e1e23;
+    -fx-border-width:     0 0 0 1;
+}
+
+/* Widget cards */
+.feed-widget-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 10;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-padding:           16 16;
+}
+
+.feed-tip-card {
+    -fx-border-color: #27272a;
+}
+
+.widget-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  15px;
+}
+
+.widget-title {
+    -fx-text-fill:   #d4d4d8;
+    -fx-font-size:   13px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.widget-body {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-line-spacing: 3;
+}
+
+/* Pulse rows */
+.pulse-row {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 6;
+    -fx-padding:           7 10;
+}
+
+.pulse-tag {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   12px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-pref-width:  110;
+}
+
+.pulse-count {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Stats */
+.stat-number {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   18px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.stat-label {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   10.5px;
+    -fx-font-weight: 400;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}

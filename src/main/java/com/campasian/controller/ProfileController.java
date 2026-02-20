@@ -42,6 +42,9 @@ public class ProfileController implements Initializable {
     @FXML private Label universityLabel;
     @FXML private Label einLabel;
     @FXML private Label bioLabel;
+    @FXML private Label bloodGroupLabel;
+    @FXML private Label sessionLabel;
+    @FXML private Label batchLabel;
     @FXML private Label followersCountLabel;
     @FXML private Label followingCountLabel;
     @FXML private Button editProfileBtn;
@@ -70,7 +73,7 @@ public class ProfileController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit-profile-modal.fxml"));
             Parent root = loader.load();
             EditProfileModalController ctrl = loader.getController();
-            ctrl.setInitialData(p.getFullName(), p.getUniversityName(), p.getBio());
+            ctrl.setInitialData(p.getFullName(), p.getUniversityName(), p.getBio(), p.getBloodGroup(), p.getSession(), p.getBatch());
             ctrl.setInitialAvatarUrl(p.getAvatarUrl());
             ctrl.setOnSaved(this::loadProfile);
 
@@ -160,6 +163,9 @@ public class ProfileController implements Initializable {
                         universityLabel.setText(finalProfile.getUniversityName() != null ? finalProfile.getUniversityName() : "—");
                         einLabel.setText(finalProfile.getEinNumber() != null ? finalProfile.getEinNumber() : "—");
                         bioLabel.setText(finalProfile.getBio() != null && !finalProfile.getBio().isBlank() ? finalProfile.getBio() : "—");
+                        if (bloodGroupLabel != null) bloodGroupLabel.setText(finalProfile.getBloodGroup() != null && !finalProfile.getBloodGroup().isBlank() ? finalProfile.getBloodGroup() : "—");
+                        if (sessionLabel != null) sessionLabel.setText(finalProfile.getSession() != null && !finalProfile.getSession().isBlank() ? finalProfile.getSession() : "—");
+                        if (batchLabel != null) batchLabel.setText(finalProfile.getBatch() != null && !finalProfile.getBatch().isBlank() ? finalProfile.getBatch() : "—");
                         if (followersCountLabel != null) followersCountLabel.setText(String.valueOf(followers.get()));
                         if (followingCountLabel != null) followingCountLabel.setText(String.valueOf(following.get()));
                     } else {

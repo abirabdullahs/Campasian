@@ -20,4 +20,7 @@ public final class ViewPaths {
     public static final String CHAT_VIEW = "/fxml/chat-view.fxml";
     public static final String COMMUNITY_VIEW = "/fxml/community-view.fxml";
     public static final String SETTINGS_VIEW = "/fxml/settings-view.fxml";
+    public static final String MARKETPLACE_VIEW = "/fxml/marketplace-view.fxml";
+    public static final String LOST_FOUND_VIEW = "/fxml/lost-found-view.fxml";
+    public static final String BLOOD_SEARCH_VIEW = "/fxml/blood-search-view.fxml";
 }

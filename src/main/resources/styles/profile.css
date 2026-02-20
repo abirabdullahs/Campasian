@@ -1,0 +1,529 @@
+/* ════════════════════════════════════════════
+   Campasian — Profile View  |  profile.css
+   Poppins · black · gray · white
+════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ── Root ── */
+.profile-root {
+    -fx-background-color: #09090b;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════
+   TOP BAR
+════════════════════ */
+.profile-topbar {
+    -fx-background-color: #0f0f11;
+    -fx-border-color:     #1e1e23;
+    -fx-border-width:     0 0 1 0;
+    -fx-padding:          16 24 16 24;
+    -fx-min-height:       64;
+}
+
+.profile-topbar-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  20px;
+}
+
+.profile-topbar-title {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   18px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-topbar-sub {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Buttons */
+.btn-primary {
+    -fx-background-color:  #fafafa;
+    -fx-background-radius: 8;
+    -fx-text-fill:         #09090b;
+    -fx-font-size:         13px;
+    -fx-font-weight:       600;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           8 18;
+    -fx-cursor:            hand;
+    -fx-border-color:      transparent;
+    -fx-pref-height:       36;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #e4e4e7;
+}
+
+.btn-secondary {
+    -fx-background-color:  transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill:         #a1a1aa;
+    -fx-font-size:         13px;
+    -fx-font-weight:       500;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           7 18;
+    -fx-cursor:            hand;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     8;
+    -fx-border-width:      1;
+    -fx-pref-height:       36;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #18181b;
+    -fx-text-fill:        #e4e4e7;
+}
+
+.btn-ghost {
+    -fx-background-color:  transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill:         #52525b;
+    -fx-font-size:         13px;
+    -fx-font-weight:       500;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           7 18;
+    -fx-cursor:            hand;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     8;
+    -fx-border-width:      1;
+    -fx-pref-height:       36;
+}
+
+.btn-ghost:hover {
+    -fx-text-fill:        #a1a1aa;
+    -fx-border-color:     #27272a;
+}
+
+/* ════════════════════
+   SCROLL
+════════════════════ */
+.profile-scroll {
+    -fx-background:       #09090b;
+    -fx-background-color: #09090b;
+    -fx-border-color:     transparent;
+}
+
+.profile-scroll .viewport {
+    -fx-background-color: #09090b;
+}
+
+.profile-scroll .scroll-bar:vertical {
+    -fx-background-color: #0f0f11;
+    -fx-pref-width:       5;
+}
+
+.profile-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color:  #27272a;
+    -fx-background-radius: 3;
+}
+
+.profile-scroll .scroll-bar:vertical .increment-button,
+.profile-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height:      0;
+}
+
+.profile-body {
+    -fx-background-color: #09090b;
+}
+
+/* ════════════════════
+   DIVIDERS
+════════════════════ */
+.profile-divider {
+    -fx-background-color: #1e1e23;
+    -fx-border-color:     #1e1e23;
+    -fx-pref-height:      1;
+    -fx-opacity:          1;
+}
+
+/* ════════════════════
+   HERO CARD
+════════════════════ */
+.profile-hero-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 12;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     12;
+    -fx-border-width:      1;
+}
+
+/* Cover gradient strip */
+.profile-cover {
+    -fx-background-color:  linear-gradient(to right, #18181b, #27272a);
+    -fx-min-height:        72;
+    -fx-background-radius: 12 12 0 0;
+}
+
+/* Avatar + name */
+.profile-identity-row {
+    -fx-padding: 0 20 16 20;
+    -fx-translate-y: -28;
+}
+
+.profile-avatar-wrap {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 50%;
+    -fx-border-color:      #0f0f11;
+    -fx-border-radius:     50%;
+    -fx-border-width:      3;
+    -fx-min-width:         78;
+    -fx-min-height:        78;
+    -fx-max-width:         78;
+    -fx-max-height:        78;
+    -fx-alignment:         CENTER;
+}
+
+.profile-avatar-img {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 50%;
+}
+
+.profile-avatar-fallback {
+    -fx-text-fill:  #3f3f46;
+    -fx-font-size:  36px;
+}
+
+.profile-hero-name {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   20px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-hero-uni {
+    -fx-text-fill:   #71717a;
+    -fx-font-size:   13px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Stats row */
+.profile-stats-row {
+    -fx-border-color:  #1e1e23;
+    -fx-border-width:  1 0 0 0;
+    -fx-padding:       0;
+}
+
+.profile-stat-cell {
+    -fx-padding: 16 0;
+}
+
+.profile-stat-number {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   20px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-stat-label {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   11px;
+    -fx-font-weight: 400;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-stat-divider {
+    -fx-background-color: #1e1e23;
+    -fx-pref-width:       1;
+    -fx-opacity:          1;
+}
+
+/* ════════════════════
+   INFO CARD
+════════════════════ */
+.profile-info-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 12;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     12;
+    -fx-border-width:      1;
+}
+
+.profile-card-header {
+    -fx-padding: 16 20;
+}
+
+.profile-card-header-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  15px;
+}
+
+.profile-card-title {
+    -fx-text-fill:   #d4d4d8;
+    -fx-font-size:   14px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Fields */
+.profile-fields {
+    -fx-padding: 0;
+}
+
+.profile-field-row {
+    -fx-padding:    14 20;
+    -fx-alignment:  CENTER_LEFT;
+}
+
+.profile-field-row:hover {
+    -fx-background-color: #111114;
+}
+
+.profile-field-label {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12.5px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-field-value {
+    -fx-text-fill:   #d4d4d8;
+    -fx-font-size:   13px;
+    -fx-font-weight: 400;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-field-divider {
+    -fx-background-color: #18181b;
+    -fx-border-color:     #18181b;
+    -fx-pref-height:      1;
+    -fx-opacity:          1;
+}
+
+/* ════════════════════
+   POSTS SECTION
+════════════════════ */
+.profile-posts-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  16px;
+}
+
+.profile-posts-title {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   15px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.profile-posts-sub {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* Feed container (shared with feed-view) */
+.feed-container {
+    -fx-background-color: #09090b;
+    -fx-padding:          4 0 8 0;
+}
+
+/* Post cards (reuse from feed.css or duplicate here) */
+.post-card {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 10;
+    -fx-border-color:      #1e1e23;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-padding:           18 20;
+    -fx-spacing:           10;
+}
+
+.post-card:hover {
+    -fx-background-color: #111114;
+    -fx-border-color:     #27272a;
+}
+
+.post-author {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   13.5px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.post-meta {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.post-body {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   13px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-wrap-text:   true;
+    -fx-line-spacing: 3;
+}
+
+.post-action-btn {
+    -fx-background-color:  transparent;
+    -fx-border-color:      transparent;
+    -fx-text-fill:         #3f3f46;
+    -fx-font-size:         12px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-cursor:            hand;
+    -fx-padding:           4 10;
+    -fx-background-radius: 4;
+}
+
+.post-action-btn:hover {
+    -fx-background-color: #18181b;
+    -fx-text-fill:        #71717a;
+}
+
+/* ════════════════════════════════════════════
+   EDIT PROFILE MODAL
+════════════════════════════════════════════ */
+
+.modal-root {
+    -fx-background-color:  #0f0f11;
+    -fx-background-radius: 14;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     14;
+    -fx-border-width:      1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 32, 0, 0, 8);
+}
+
+/* ── Modal Header ── */
+.modal-header {
+    -fx-background-color:  #0a0a0c;
+    -fx-background-radius: 14 14 0 0;
+    -fx-padding:           18 22;
+    -fx-border-color:      transparent;
+}
+
+.modal-header-icon {
+    -fx-text-fill:  #52525b;
+    -fx-font-size:  18px;
+}
+
+.modal-title {
+    -fx-text-fill:   #fafafa;
+    -fx-font-size:   16px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.modal-subtitle {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   12px;
+    -fx-font-weight: 300;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ── Avatar row ── */
+.modal-avatar-row {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 10;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     10;
+    -fx-border-width:      1;
+    -fx-padding:           14 16;
+}
+
+.modal-avatar-wrap {
+    -fx-background-color:  #27272a;
+    -fx-background-radius: 50%;
+    -fx-border-color:      #3f3f46;
+    -fx-border-radius:     50%;
+    -fx-border-width:      2;
+    -fx-min-width:         68;
+    -fx-min-height:        68;
+    -fx-max-width:         68;
+    -fx-max-height:        68;
+    -fx-alignment:         CENTER;
+}
+
+.modal-avatar-fallback {
+    -fx-text-fill:  #3f3f46;
+    -fx-font-size:  30px;
+}
+
+.modal-avatar-hint {
+    -fx-text-fill:   #52525b;
+    -fx-font-size:   11.5px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ── Field labels ── */
+.modal-field-icon {
+    -fx-text-fill:  #3f3f46;
+    -fx-font-size:  11px;
+}
+
+.modal-field-label {
+    -fx-text-fill:   #a1a1aa;
+    -fx-font-size:   12.5px;
+    -fx-font-weight: 500;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.modal-field-hint {
+    -fx-text-fill:   #3f3f46;
+    -fx-font-size:   11px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+/* ── Inputs ── */
+.modal-input {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 8;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     8;
+    -fx-border-width:      1;
+    -fx-text-fill:         #fafafa;
+    -fx-prompt-text-fill:  #3f3f46;
+    -fx-font-size:         13.5px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           10 14;
+    -fx-pref-height:       40;
+}
+
+.modal-input:focused {
+    -fx-border-color:     #3f3f46;
+    -fx-background-color: #1c1c1f;
+}
+
+/* TextArea */
+.modal-textarea {
+    -fx-background-color:  #18181b;
+    -fx-background-radius: 8;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     8;
+    -fx-border-width:      1;
+    -fx-text-fill:         #fafafa;
+    -fx-prompt-text-fill:  #3f3f46;
+    -fx-font-size:         13px;
+    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
+    -fx-padding:           10 14;
+    -fx-pref-height:       90;
+    -fx-control-inner-background: #18181b;
+    -fx-highlight-fill:    #27272a;
+    -fx-highlight-text-fill: #fafafa;
+}
+
+.modal-textarea:focused {
+    -fx-border-color: #3f3f46;
+}
+
+.modal-textarea .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.modal-textarea .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ── Footer ── */
+.modal-footer {
+    -fx-background-color:  #0a0a0c;
+    -fx-background-radius: 0 0 14 14;
+    -fx-padding:           14 22;
+    -fx-border-color:      transparent;
+}

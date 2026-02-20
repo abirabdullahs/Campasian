@@ -11,6 +11,10 @@ public class UserProfile {
     private String einNumber;
     private String bio;
     private String avatarUrl;
+    private String bloodGroup;
+    private String session;
+    private String batch;
+    private String department;
 
     public UserProfile() {}
 
@@ -38,4 +42,13 @@ public class UserProfile {
 
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+
+    public String getBloodGroup() { return bloodGroup; }
+    public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
+    public String getSession() { return session; }
+    public void setSession(String session) { this.session = session; }
+    public String getBatch() { return batch; }
+    public void setBatch(String batch) { this.batch = batch; }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
 }

@@ -3,37 +3,80 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.PostEditorModalController"
       styleClass="modal-root"
-      stylesheets="@../styles/style.css"
-      prefWidth="560" prefHeight="480"
+      stylesheets="@../styles/post-editor.css"
+      prefWidth="560" spacing="0"
       maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="28" right="28" bottom="24" left="28"/>
-    </padding>
 
-    <VBox spacing="4">
-        <Label text="Create a Post" styleClass="cc-headline"/>
-        <Label text="Share an update, question, or proposal with your campus community." styleClass="cc-description" wrapText="true"/>
-    </VBox>
+    <!-- ── Modal Header ── -->
+    <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+        <Label text="⊞" styleClass="modal-header-icon"/>
+        <VBox spacing="1" HBox.hgrow="ALWAYS">
+            <Label text="Create a Post" styleClass="modal-title"/>
+            <Label text="Share an update, question, or idea with your campus." styleClass="modal-subtitle" wrapText="true"/>
+        </VBox>
+    </HBox>
 
-    <VBox VBox.vgrow="ALWAYS" spacing="8" style="-fx-padding: 16 0 0 0;">
-        <TextArea fx:id="contentArea" styleClass="modal-text-area"
-                  promptText="Share your proposal or post..."
-                  wrapText="true" prefRowCount="10" VBox.vgrow="ALWAYS"/>
-        <HBox spacing="8">
-            <javafx.scene.control.Button fx:id="attachImageBtn" text="Add Image" styleClass="btn-secondary" onAction="#onAttachImage"/>
-            <Label fx:id="imageLabel" text="" styleClass="profile-label"/>
+    <Separator styleClass="post-divider"/>
+
+    <!-- ── Body ── -->
+    <VBox styleClass="post-body" spacing="16" VBox.vgrow="ALWAYS">
+        <padding>
+            <Insets top="20" right="24" bottom="20" left="24"/>
+        </padding>
+
+        <!-- Author hint row -->
+        <HBox spacing="12" alignment="CENTER_LEFT">
+            <StackPane styleClass="post-avatar-circle">
+                <Label text="◉" styleClass="post-avatar-icon"/>
+            </StackPane>
+            <VBox spacing="2">
+                <Label text="Posting as You" styleClass="post-author-label"/>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="⬡" styleClass="post-scope-icon"/>
+                    <Label text="Visible to all students" styleClass="post-scope-label"/>
+                </HBox>
+            </VBox>
+        </HBox>
+
+        <!-- Text area -->
+        <TextArea fx:id="contentArea"
+                  styleClass="post-textarea"
+                  promptText="What's on your mind? Share a post, question, or proposal…"
+                  wrapText="true"
+                  prefRowCount="8"
+                  VBox.vgrow="ALWAYS"/>
+
+        <!-- Attach image row -->
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="post-attach-row">
+            <Button fx:id="attachImageBtn"
+                    text="⊕  Add Image"
+                    styleClass="post-attach-btn"
+                    onAction="#onAttachImage"/>
+            <Label fx:id="imageLabel" text="" styleClass="post-attach-label"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="JPG, PNG · Max 5 MB" styleClass="post-attach-hint"/>
         </HBox>
     </VBox>
 
-    <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
-        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancelClick"/>
-        <Button text="Post" styleClass="btn-primary" onAction="#onPostClick"/>
+    <Separator styleClass="post-divider"/>
+
+    <!-- ── Footer ── -->
+    <HBox styleClass="post-footer" spacing="10" alignment="CENTER_RIGHT">
+        <Label text="Be kind and respectful ·" styleClass="post-footer-tip"/>
+        <Label text="Community Guidelines" styleClass="post-footer-link"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Cancel" styleClass="btn-ghost" onAction="#onCancelClick"/>
+        <Button text="⊞  Publish Post" styleClass="btn-primary" onAction="#onPostClick"/>
     </HBox>
+
 </VBox>

@@ -4,29 +4,136 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="Infinity" maxWidth="Infinity" prefHeight="409.0" prefWidth="771.0" spacing="24" styleClass="dashboard-main" stylesheets="@../styles/style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.campasian.controller.FeedController">
-    <padding>
-        <Insets bottom="24" left="24" right="24" top="24" />
-    </padding>
+<VBox maxHeight="Infinity" maxWidth="Infinity"
+      spacing="0"
+      styleClass="feed-root"
+      stylesheets="@../styles/feed.css"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.campasian.controller.FeedController">
 
-    <!-- Page header -->
-    <VBox styleClass="cc-header" maxWidth="600" spacing="4">
-        <Label text="Your Feed" styleClass="cc-headline"/>
-        <Label text="Read posts from students across campus and share your own updates." styleClass="cc-description" wrapText="true"/>
-    </VBox>
-    
-    <!-- Main Feed Column -->
-    <HBox spacing="24" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-        <!-- Left: Feed Content -->
-        <VBox maxWidth="600" spacing="24" HBox.hgrow="ALWAYS">
-            <Button fx:id="createPostBtn" onAction="#onCreatePostClick" styleClass="create-post-btn" text="What's on your mind?" />
-            <HBox spacing="8">
-                <Button fx:id="feedGlobalBtn" onAction="#onFeedGlobalClick" styleClass="feed-filter-btn " text="Global" />
-                <Button fx:id="feedFollowingBtn" onAction="#onFeedFollowingClick" styleClass="feed-filter-btn" text="Following" />
+    <!-- ── Top Bar ── -->
+    <HBox styleClass="feed-topbar" alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="⊞" styleClass="feed-topbar-icon"/>
+                <Label text="Your Feed" styleClass="feed-topbar-title"/>
             </HBox>
-            <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-                <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container" />
+            <Label text="Catch up on what's happening across campus right now."
+                   styleClass="feed-topbar-sub"/>
+        </VBox>
+
+        <!-- Live badge -->
+        <HBox styleClass="feed-live-badge" spacing="6" alignment="CENTER">
+            <Label text="●" styleClass="feed-live-dot"/>
+            <Label text="Live" styleClass="feed-live-text"/>
+        </HBox>
+    </HBox>
+
+    <!-- ── Body ── -->
+    <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity">
+
+        <!-- ══ Main Feed Column ══ -->
+        <VBox spacing="16" HBox.hgrow="ALWAYS" maxHeight="Infinity">
+            <padding>
+                <Insets top="24" right="20" bottom="24" left="28"/>
+            </padding>
+
+            <!-- Create post bar -->
+            <Button fx:id="createPostBtn"
+                    onAction="#onCreatePostClick"
+                    styleClass="create-post-btn"
+                    text="✎  What's on your mind? Share with your campus..."
+                    maxWidth="Infinity"/>
+
+            <!-- Filter chips -->
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Button fx:id="feedGlobalBtn"
+                        onAction="#onFeedGlobalClick"
+                        styleClass="feed-filter-btn"
+                        text="⊕  Global"/>
+                <Button fx:id="feedFollowingBtn"
+                        onAction="#onFeedFollowingClick"
+                        styleClass="feed-filter-btn"
+                        text="◎  Following"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Showing all posts" styleClass="feed-count-label"/>
+            </HBox>
+
+            <!-- Feed scroll -->
+            <ScrollPane fitToWidth="true"
+                        styleClass="feed-scroll"
+                        VBox.vgrow="ALWAYS"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <VBox fx:id="feedVBox" spacing="12" styleClass="feed-container"/>
             </ScrollPane>
         </VBox>
+
+        <!-- ══ Right: Info Panel ══ -->
+        <VBox styleClass="feed-right-panel" spacing="20" minWidth="240" prefWidth="260" maxWidth="260">
+            <padding>
+                <Insets top="24" right="20" bottom="24" left="16"/>
+            </padding>
+
+            <!-- Campus Pulse card -->
+            <VBox styleClass="feed-widget-card" spacing="12">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="◎" styleClass="widget-icon"/>
+                    <Label text="Campus Pulse" styleClass="widget-title"/>
+                </HBox>
+                <VBox spacing="8">
+                    <HBox styleClass="pulse-row" spacing="10" alignment="CENTER_LEFT">
+                        <Label text="#finals" styleClass="pulse-tag"/>
+                        <Label text="348 posts" styleClass="pulse-count"/>
+                    </HBox>
+                    <HBox styleClass="pulse-row" spacing="10" alignment="CENTER_LEFT">
+                        <Label text="#campusevent" styleClass="pulse-tag"/>
+                        <Label text="210 posts" styleClass="pulse-count"/>
+                    </HBox>
+                    <HBox styleClass="pulse-row" spacing="10" alignment="CENTER_LEFT">
+                        <Label text="#studygroup" styleClass="pulse-tag"/>
+                        <Label text="175 posts" styleClass="pulse-count"/>
+                    </HBox>
+                    <HBox styleClass="pulse-row" spacing="10" alignment="CENTER_LEFT">
+                        <Label text="#internships" styleClass="pulse-tag"/>
+                        <Label text="134 posts" styleClass="pulse-count"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- Quick tip card -->
+            <VBox styleClass="feed-widget-card feed-tip-card" spacing="8">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="⊕" styleClass="widget-icon"/>
+                    <Label text="Grow Your Network" styleClass="widget-title"/>
+                </HBox>
+                <Label text="Follow classmates to personalise your feed. The more you follow, the richer your experience."
+                       styleClass="widget-body" wrapText="true"/>
+            </VBox>
+
+            <!-- Stats card -->
+            <VBox styleClass="feed-widget-card" spacing="10">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="⬡" styleClass="widget-icon"/>
+                    <Label text="Your Activity" styleClass="widget-title"/>
+                </HBox>
+                <HBox spacing="0">
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER">
+                        <Label text="—" styleClass="stat-number" fx:id="postCountLabel"/>
+                        <Label text="Posts" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER">
+                        <Label text="—" styleClass="stat-number" fx:id="followingCountLabel"/>
+                        <Label text="Following" styleClass="stat-label"/>
+                    </VBox>
+                    <VBox HBox.hgrow="ALWAYS" spacing="2" alignment="CENTER">
+                        <Label text="—" styleClass="stat-number" fx:id="followerCountLabel"/>
+                        <Label text="Followers" styleClass="stat-label"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+
     </HBox>
 </VBox>
