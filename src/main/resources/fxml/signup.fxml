@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ScrollPane?>
 
@@ -30,8 +31,13 @@
     <!-- Left: Branding panel -->
     <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
         <VBox spacing="8">
-            <Label text="Campasian" styleClass="hero-title"/>
-            <Label text="Your Campus, Your Connections" styleClass="hero-subtitle"/>
+            <Label text="CampusConnect" styleClass="hero-title"/>
+            <Label text="Your campus, your connections." styleClass="hero-subtitle"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label text="Meet classmates and new friends" styleClass="hero-subtitle"/>
+            <Label text="Follow updates that matter to you" styleClass="hero-subtitle"/>
+            <Label text="Join communities around campus" styleClass="hero-subtitle"/>
         </VBox>
         <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
             <Label text="[Illustration]"/>
@@ -39,24 +45,24 @@
     </VBox>
 
     <!-- Right: Form panel with scroll -->
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                style="-fx-background: white; -fx-background-color: white;"
-                GridPane.columnIndex="1">
-        <VBox styleClass="form-panel" alignment="CENTER" spacing="16">
-            <VBox spacing="4">
-                <Label text="Create an account" styleClass="form-title"/>
-                <Label text="Fill in your details to get started." styleClass="form-subtitle"/>
+    <StackPane styleClass="auth-right" GridPane.columnIndex="1">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="feed-scroll">
+            <VBox styleClass="auth-card" alignment="CENTER" spacing="16" maxWidth="480">
+                <VBox spacing="4">
+                    <Label text="Create your account" styleClass="form-title"/>
+                    <Label text="Join CampusConnect to meet people, share posts, and grow your campus network." styleClass="form-subtitle" wrapText="true"/>
+                </VBox>
+                <TextField fx:id="fullNameField" promptText="Full Name" prefWidth="320"/>
+                <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
+                <ComboBox fx:id="universityCombo" promptText="Search or select university..." editable="true" prefWidth="320"/>
+                <TextField fx:id="numberField" promptText="Student/ID Number" prefWidth="320"/>
+                <TextField fx:id="departmentField" promptText="Department" prefWidth="320"/>
+                <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" prefWidth="320"/>
+                <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
+                <Button text="Sign up" onAction="#onSignupClick" styleClass="btn-primary" prefWidth="320"/>
+                <Button text="Already have an account? Sign in" onAction="#onLoginLinkClick" styleClass="btn-link"/>
             </VBox>
-            <TextField fx:id="fullNameField" promptText="Full Name" prefWidth="320"/>
-            <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
-            <ComboBox fx:id="universityCombo" promptText="Search or select university..." editable="true" prefWidth="320"/>
-            <TextField fx:id="numberField" promptText="Student/ID Number" prefWidth="320"/>
-            <TextField fx:id="departmentField" promptText="Department" prefWidth="320"/>
-            <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
-            <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" prefWidth="320"/>
-            <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
-            <Button text="Sign up" onAction="#onSignupClick" styleClass="btn-primary" prefWidth="320"/>
-            <Button text="Already have an account? Sign in" onAction="#onLoginLinkClick" styleClass="btn-link"/>
-        </VBox>
-    </ScrollPane>
+        </ScrollPane>
+    </StackPane>
 </GridPane>

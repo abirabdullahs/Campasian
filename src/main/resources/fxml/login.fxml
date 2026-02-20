@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <GridPane xmlns:fx="http://javafx.com/fxml"
@@ -29,8 +30,13 @@
     <!-- Left: Branding panel -->
     <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
         <VBox spacing="8">
-            <Label text="Campasian" styleClass="hero-title"/>
-            <Label text="Your Campus, Your Connections" styleClass="hero-subtitle"/>
+            <Label text="CampusConnect" styleClass="hero-title"/>
+            <Label text="Your campus, your connections." styleClass="hero-subtitle"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label text="Share updates with classmates" styleClass="hero-subtitle"/>
+            <Label text="Discover people across campus" styleClass="hero-subtitle"/>
+            <Label text="Build your network in minutes" styleClass="hero-subtitle"/>
         </VBox>
         <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
             <Label text="[Illustration]"/>
@@ -38,16 +44,18 @@
     </VBox>
 
     <!-- Right: Form panel -->
-    <VBox styleClass="form-panel" alignment="CENTER" spacing="20" GridPane.columnIndex="1">
-        <VBox spacing="4">
-            <Label text="Sign in" styleClass="form-title"/>
-            <Label text="Enter your credentials to continue." styleClass="form-subtitle"/>
+    <StackPane styleClass="auth-right" GridPane.columnIndex="1">
+        <VBox styleClass="auth-card" alignment="CENTER" spacing="16" maxWidth="420">
+            <VBox spacing="4">
+                <Label text="Welcome back" styleClass="form-title"/>
+                <Label text="Sign in to continue connecting with your campus." styleClass="form-subtitle" wrapText="true"/>
+            </VBox>
+            <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
+            <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
+            <CheckBox fx:id="rememberMeCheck" text="Remember me" prefWidth="320"/>
+            <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
+            <Button text="Sign in" onAction="#onLoginClick" styleClass="btn-primary" prefWidth="320"/>
+            <Button text="Don't have an account? Sign up" onAction="#onSignupLinkClick" styleClass="btn-link"/>
         </VBox>
-        <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
-        <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
-        <CheckBox fx:id="rememberMeCheck" text="Remember me" prefWidth="320"/>
-        <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
-        <Button text="Sign in" onAction="#onLoginClick" styleClass="btn-primary" prefWidth="320"/>
-        <Button text="Don't have an account? Sign up" onAction="#onSignupLinkClick" styleClass="btn-link"/>
-    </VBox>
+    </StackPane>
 </GridPane>

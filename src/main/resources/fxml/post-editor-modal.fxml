@@ -18,8 +18,8 @@
     </padding>
 
     <VBox spacing="4">
-        <Label text="Create Project Proposal / Post" styleClass="modal-title"/>
-        <Label text="Share your thoughts with the community" style="-fx-font-size: 12px; -fx-text-fill: #71717A;"/>
+        <Label text="Create a Post" styleClass="modal-title"/>
+        <Label text="Share an update, question, or proposal with your campus community." styleClass="modal-subtitle" wrapText="true"/>
     </VBox>
 
     <VBox VBox.vgrow="ALWAYS" spacing="4" style="-fx-padding: 16 0 0 0;">

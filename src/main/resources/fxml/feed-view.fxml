@@ -8,6 +8,12 @@
     <padding>
         <Insets bottom="24" left="24" right="24" top="24" />
     </padding>
+
+    <!-- Page header -->
+    <VBox styleClass="page-header" maxWidth="600" spacing="4">
+        <Label text="Your Feed" styleClass="page-title"/>
+        <Label text="Read posts from students across campus and share your own updates." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
     
     <!-- Main Feed Column -->
     <HBox spacing="24" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">

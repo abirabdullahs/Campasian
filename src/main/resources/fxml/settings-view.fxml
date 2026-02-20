@@ -12,7 +12,11 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="Settings" styleClass="dashboard-title"/>
+    <!-- Page header -->
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Settings" styleClass="page-title"/>
+        <Label text="Manage preferences and account options. Personalize your CampusConnect experience." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
     <VBox styleClass="profile-card" spacing="16" maxWidth="600">
         <Label text="Preferences" styleClass="profile-card-title"/>
         <Label text="More features coming soon. Check back later!" styleClass="profile-label"/>

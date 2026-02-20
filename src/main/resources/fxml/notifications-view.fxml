@@ -14,7 +14,11 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="Notifications" styleClass="dashboard-title"/>
+    <!-- Page header -->
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Notifications" styleClass="page-title"/>
+        <Label text="Keep up with likes, comments, and new connections in one place." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
     
     <!-- Empty State (shown by default) -->
     <VBox fx:id="emptyStateContainer" styleClass="empty-state-container" VBox.vgrow="ALWAYS">

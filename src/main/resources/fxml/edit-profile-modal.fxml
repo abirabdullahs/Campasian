@@ -16,7 +16,10 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="Edit Profile" styleClass="modal-title"/>
+    <VBox spacing="4">
+        <Label text="Edit Profile" styleClass="modal-title"/>
+        <Label text="Update your profile details visible to other students." styleClass="modal-subtitle" wrapText="true"/>
+    </VBox>
     <Label text="Full Name" styleClass="profile-label"/>
     <TextField fx:id="fullNameField" styleClass="material-input" promptText="Full name"/>
     <Label text="University" styleClass="profile-label"/>

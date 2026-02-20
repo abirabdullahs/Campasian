@@ -15,12 +15,20 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="Profile" styleClass="dashboard-title"/>
-    <HBox spacing="12">
-        <Button fx:id="editProfileBtn" text="Edit Profile" styleClass="btn-secondary" onAction="#onEditProfileClick" visible="false" managed="false"/>
-        <Button fx:id="followBtn" text="Follow" styleClass="btn-primary" onAction="#onFollowClick" visible="false" managed="false"/>
-        <Button fx:id="unfollowBtn" text="Unfollow" styleClass="btn-secondary" onAction="#onUnfollowClick" visible="false" managed="false"/>
+
+    <!-- Page header -->
+    <HBox styleClass="page-header" spacing="16" alignment="CENTER_LEFT">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Profile" styleClass="page-title"/>
+            <Label text="View your details, connections, and recent posts." styleClass="page-subtitle" wrapText="true"/>
+        </VBox>
+        <HBox spacing="12">
+            <Button fx:id="editProfileBtn" text="Edit Profile" styleClass="btn-secondary" onAction="#onEditProfileClick" visible="false" managed="false"/>
+            <Button fx:id="followBtn" text="Follow" styleClass="btn-primary" onAction="#onFollowClick" visible="false" managed="false"/>
+            <Button fx:id="unfollowBtn" text="Unfollow" styleClass="btn-secondary" onAction="#onUnfollowClick" visible="false" managed="false"/>
+        </HBox>
     </HBox>
+
     <HBox spacing="24" styleClass="profile-stats">
         <VBox spacing="4" styleClass="profile-stat">
             <Label fx:id="followersCountLabel" text="0" styleClass="profile-stat-value"/>

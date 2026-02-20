@@ -15,7 +15,13 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="People" styleClass="dashboard-title"/>
+
+    <!-- Page header -->
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Discover People" styleClass="page-title"/>
+        <Label text="Connect with fellow students and expand your campus network." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
+
     <HBox spacing="12">
         <TextField fx:id="searchField" promptText="Search by name or university..." styleClass="material-input"
                    HBox.hgrow="ALWAYS" onKeyReleased="#onSearchKeyReleased"/>

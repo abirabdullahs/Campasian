@@ -12,7 +12,11 @@
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
-    <Label text="Community" styleClass="dashboard-title"/>
+    <!-- Page header -->
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Community" styleClass="page-title"/>
+        <Label text="Find groups, events, and campus conversations. More features coming soon." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
     <VBox styleClass="profile-card" spacing="16" maxWidth="600">
         <Label text="Join Campus Groups" styleClass="profile-card-title"/>
         <Label text="Discover and connect with communities on campus. Coming soon!" styleClass="profile-label"/>
