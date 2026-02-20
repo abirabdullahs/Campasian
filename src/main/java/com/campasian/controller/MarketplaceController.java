@@ -116,13 +116,15 @@ public class MarketplaceController implements Initializable {
                             || (i.getDescription() != null && i.getDescription().toLowerCase().contains(q)))
                         .toList();
                 }
+
+                final List<MarketplaceItem> finalItems = items;
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
-                    for (MarketplaceItem i : items) {
+                    for (MarketplaceItem i : finalItems) {
                         itemsVBox.getChildren().add(buildItemCard(i));
                     }
-                    if (items.isEmpty()) {
+                    if (finalItems.isEmpty()) {
                         Label empty = new Label("No items found.");
                         empty.getStyleClass().add("profile-label");
                         itemsVBox.getChildren().add(empty);

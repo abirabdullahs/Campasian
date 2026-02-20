@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.EventAddModalController"
+      styleClass="modal-root"
+      stylesheets="@../styles/style.css,@../styles/app.css"
+      prefWidth="420" prefHeight="400">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+    <VBox spacing="4">
+        <Label text="Create Event" styleClass="cc-headline"/>
+        <Label text="Add a campus event or club activity." styleClass="cc-description" wrapText="true"/>
+    </VBox>
+    <Label text="Title" styleClass="profile-label"/>
+    <TextField fx:id="titleField" styleClass="material-input" promptText="Event title"/>
+    <Label text="Date" styleClass="profile-label"/>
+    <TextField fx:id="dateField" styleClass="material-input" promptText="e.g. March 15, 2025"/>
+    <Label text="Venue" styleClass="profile-label"/>
+    <TextField fx:id="venueField" styleClass="material-input" promptText="Location"/>
+    <Label text="Description" styleClass="profile-label"/>
+    <TextArea fx:id="descField" styleClass="modal-text-area" promptText="Event details..." wrapText="true" prefRowCount="3"/>
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancel"/>
+        <Button text="Create" styleClass="btn-primary" onAction="#onCreate"/>
+    </HBox>
+</VBox>

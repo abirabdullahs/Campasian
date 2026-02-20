@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.ResourceController"
+      styleClass="resource-root"
+      stylesheets="@../styles/resource.css,@../styles/app.css"
+      maxWidth="Infinity" maxHeight="Infinity">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Course Resource Library" styleClass="page-title"/>
+        <Label text="Share and discover Drive links, notes, and materials by Department and Semester." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
+
+    <HBox spacing="8" style="-fx-padding: 12 0 12 0;">
+        <Label text="Department:" styleClass="profile-label"/>
+        <Button fx:id="allDeptBtn" text="All" styleClass="resource-filter-btn resource-filter-btn-active" onAction="#onFilterAllDept"/>
+        <Button fx:id="cseDeptBtn" text="CSE" styleClass="resource-filter-btn" onAction="#onFilterCSE"/>
+        <Button fx:id="eeeDeptBtn" text="EEE" styleClass="resource-filter-btn" onAction="#onFilterEEE"/>
+        <Button fx:id="bbaDeptBtn" text="BBA" styleClass="resource-filter-btn" onAction="#onFilterBBA"/>
+    </HBox>
+    <HBox spacing="8" style="-fx-padding: 0 0 12 0;">
+        <Label text="Semester:" styleClass="profile-label"/>
+        <Button fx:id="allSemBtn" text="All" styleClass="resource-filter-btn resource-filter-btn-active" onAction="#onFilterAllSem"/>
+        <Button fx:id="sem1Btn" text="1" styleClass="resource-filter-btn" onAction="#onFilterSem1"/>
+        <Button fx:id="sem2Btn" text="2" styleClass="resource-filter-btn" onAction="#onFilterSem2"/>
+        <Button fx:id="sem3Btn" text="3" styleClass="resource-filter-btn" onAction="#onFilterSem3"/>
+    </HBox>
+
+    <Button fx:id="addBtn" text="+ Add Resource" styleClass="btn-primary" style="-fx-margin: 0 0 12 0;" onAction="#onAddClick"/>
+
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+        <VBox fx:id="itemsVBox" spacing="12" styleClass="feed-container"/>
+    </ScrollPane>
+</VBox>

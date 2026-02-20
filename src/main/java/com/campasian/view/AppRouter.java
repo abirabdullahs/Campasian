@@ -19,4 +19,11 @@ public final class AppRouter {
             homeController.loadProfileView(userId);
         }
     }
+
+    /** Navigate to chat with a specific user (from Study Partner Message click). */
+    public static void navigateToChat(String userId, String userName) {
+        if (homeController != null && userId != null) {
+            homeController.loadChatWithPartner(userId, userName);
+        }
+    }
 }

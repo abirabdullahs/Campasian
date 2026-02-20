@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.FacultyController"
+      styleClass="faculty-root"
+      stylesheets="@../styles/faculty.css,@../styles/app.css"
+      maxWidth="Infinity" maxHeight="Infinity">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Faculty Directory &amp; Feedback" styleClass="page-title"/>
+        <Label text="Search teachers by name or department. Leave helpful tips about teaching style." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
+
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Search by name or department..." styleClass="material-input" prefWidth="320" onKeyReleased="#onSearchKeyReleased"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
+        <VBox fx:id="facultyVBox" spacing="12" styleClass="feed-container"/>
+    </ScrollPane>
+</VBox>

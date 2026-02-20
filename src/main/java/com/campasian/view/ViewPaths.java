@@ -23,4 +23,9 @@ public final class ViewPaths {
     public static final String MARKETPLACE_VIEW = "/fxml/marketplace-view.fxml";
     public static final String LOST_FOUND_VIEW = "/fxml/lost-found-view.fxml";
     public static final String BLOOD_SEARCH_VIEW = "/fxml/blood-search-view.fxml";
+    public static final String RESOURCE_VIEW = "/fxml/resource-view.fxml";
+    public static final String CONFESSION_VIEW = "/fxml/confession-view.fxml";
+    public static final String EVENTS_VIEW = "/fxml/events-view.fxml";
+    public static final String STUDY_PARTNER_VIEW = "/fxml/study-partner-view.fxml";
+    public static final String FACULTY_VIEW = "/fxml/faculty-view.fxml";
 }

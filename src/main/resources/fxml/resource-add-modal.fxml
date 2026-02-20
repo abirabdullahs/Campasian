@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.ResourceAddModalController"
+      styleClass="modal-root"
+      stylesheets="@../styles/style.css,@../styles/app.css"
+      prefWidth="420" prefHeight="360">
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+    <VBox spacing="4">
+        <Label text="Add Resource" styleClass="cc-headline"/>
+        <Label text="Share a Drive link or resource title." styleClass="cc-description" wrapText="true"/>
+    </VBox>
+    <Label text="Title" styleClass="profile-label"/>
+    <TextField fx:id="titleField" styleClass="material-input" promptText="Resource title"/>
+    <Label text="Drive Link (optional)" styleClass="profile-label"/>
+    <TextField fx:id="linkField" styleClass="material-input" promptText="https://drive.google.com/..."/>
+    <Label text="Department" styleClass="profile-label"/>
+    <ComboBox fx:id="deptCombo" styleClass="material-input" prefWidth="Infinity"/>
+    <Label text="Semester" styleClass="profile-label"/>
+    <ComboBox fx:id="semCombo" styleClass="material-input" prefWidth="Infinity"/>
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancel"/>
+        <Button text="Add" styleClass="btn-primary" onAction="#onAdd"/>
+    </HBox>
+</VBox>

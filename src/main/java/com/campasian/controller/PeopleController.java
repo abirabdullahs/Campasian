@@ -111,14 +111,15 @@ public class PeopleController implements Initializable {
                 }
                 java.util.Map<String, Boolean> finalFollowingMap = followingMap;
                 java.util.Map<String, String> finalFriendStatusMap = friendStatusMap;
+                final List<UserProfile> finalProfiles = profiles;
                 Platform.runLater(() -> {
                     if (peopleVBox == null) return;
                     peopleVBox.getChildren().clear();
-                    for (UserProfile p : profiles) {
+                    for (UserProfile p : finalProfiles) {
                         if (p.getId() != null && p.getId().equals(currentUserId)) continue;
                         peopleVBox.getChildren().add(buildUserCard(p, finalFollowingMap.getOrDefault(p.getId(), false), finalFriendStatusMap.getOrDefault(p.getId(), "none")));
                     }
-                    if (profiles.isEmpty()) {
+                    if (finalProfiles.isEmpty()) {
                         Label empty = new Label("No users found.");
                         empty.getStyleClass().add("profile-label");
                         peopleVBox.getChildren().add(empty);

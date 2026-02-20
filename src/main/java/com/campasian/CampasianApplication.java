@@ -4,6 +4,7 @@ import com.campasian.service.AuthService;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.stage.Stage;
 import javafx.stage.Screen;
 
@@ -13,8 +14,13 @@ import javafx.stage.Screen;
  */
 public class CampasianApplication extends Application {
 
+    private static HostServices hostServices;
+
+    public static HostServices getHostServicesStatic() { return hostServices; }
+
     @Override
     public void start(Stage stage) {
+        hostServices = getHostServices();
         var bounds = Screen.getPrimary().getVisualBounds();
         SceneManager.initialize(stage);
         stage.setTitle("Campasian");

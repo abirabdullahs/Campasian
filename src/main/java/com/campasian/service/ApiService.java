@@ -1,13 +1,19 @@
 package com.campasian.service;
 
 import com.campasian.config.SupabaseConfig;
+import com.campasian.model.CampusEvent;
 import com.campasian.model.Comment;
+import com.campasian.model.Confession;
+import com.campasian.model.CourseResource;
+import com.campasian.model.Faculty;
+import com.campasian.model.FacultyFeedback;
 import com.campasian.model.FriendRequest;
 import com.campasian.model.LostFoundItem;
 import com.campasian.model.MarketplaceItem;
 import com.campasian.model.Message;
 import com.campasian.model.Notification;
 import com.campasian.model.Post;
+import com.campasian.model.StudyPartnerPost;
 import com.campasian.model.User;
 import com.campasian.model.UserProfile;
 import com.google.gson.Gson;
@@ -1068,6 +1074,354 @@ public final class ApiService {
                     l.setLocation(asString(o.get("location")));
                     l.setCreatedAt(asString(o.get("created_at")));
                     list.add(l);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    // ----- Course Resources -----
+    public List<CourseResource> getCourseResources(String department, String semester) throws ApiException {
+        StringBuilder url = new StringBuilder("/course_resources?order=created_at.desc");
+        if (department != null && !department.isBlank()) url.append("&department=ilike.*").append(encode(department)).append("*");
+        if (semester != null && !semester.isBlank()) url.append("&semester=ilike.*").append(encode(semester)).append("*");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(restUrl(url.toString()), token);
+            return parseCourseResources(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createCourseResource(String title, String driveLink, String department, String semester) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        UserProfile p = getProfile(currentUserId);
+        String userName = p != null && p.getFullName() != null ? p.getFullName() : "Anonymous";
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("user_name", userName);
+        payload.addProperty("title", title != null ? title : "");
+        payload.addProperty("drive_link", driveLink != null ? driveLink : "");
+        payload.addProperty("department", department != null ? department : "");
+        payload.addProperty("semester", semester != null ? semester : "");
+        postJsonWithAuth(restUrl("/course_resources"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<CourseResource> parseCourseResources(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<CourseResource> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    CourseResource r = new CourseResource();
+                    r.setId(asString(o.get("id")));
+                    r.setUserId(asString(o.get("user_id")));
+                    r.setUserName(asString(o.get("user_name")));
+                    r.setTitle(asString(o.get("title")));
+                    r.setDriveLink(asString(o.get("drive_link")));
+                    r.setDepartment(asString(o.get("department")));
+                    r.setSemester(asString(o.get("semester")));
+                    r.setCreatedAt(asString(o.get("created_at")));
+                    list.add(r);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    // ----- Confessions -----
+    public List<Confession> getConfessions() throws ApiException {
+        String url = restUrl("/confessions?order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            return parseConfessions(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createConfession(String content) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("content", content != null ? content : "");
+        postJsonWithAuth(restUrl("/confessions"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<Confession> parseConfessions(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<Confession> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    Confession c = new Confession();
+                    c.setId(asString(o.get("id")));
+                    c.setContent(asString(o.get("content")));
+                    c.setCreatedAt(asString(o.get("created_at")));
+                    list.add(c);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    // ----- Campus Events -----
+    public List<CampusEvent> getCampusEvents() throws ApiException {
+        String url = restUrl("/campus_events?order=event_date.asc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            List<CampusEvent> events = parseCampusEvents(body);
+            if (currentUserId != null && !currentUserId.isBlank() && !events.isEmpty()) {
+                List<String> eventIds = new ArrayList<>();
+                for (CampusEvent e : events) eventIds.add(e.getId());
+                String idsParam = String.join(",", eventIds);
+                String intUrl = restUrl("/event_interests?event_id=in.(" + idsParam + ")&user_id=eq." + currentUserId + "&select=event_id");
+                String intBody = getRawWithAuth(intUrl, token);
+                if (intBody != null && !intBody.isBlank()) {
+                    var parsed = JsonParser.parseString(intBody);
+                    if (parsed != null && parsed.isJsonArray()) {
+                        for (JsonElement el : parsed.getAsJsonArray()) {
+                            if (el != null && el.isJsonObject()) {
+                                String eid = asString(el.getAsJsonObject().get("event_id"));
+                                for (CampusEvent ev : events) {
+                                    if (ev.getId() != null && ev.getId().equals(eid)) ev.setUserInterested(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return events;
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createCampusEvent(String title, String description, String eventDate, String venue) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("title", title != null ? title : "");
+        payload.addProperty("description", description != null ? description : "");
+        payload.addProperty("event_date", eventDate != null ? eventDate : "");
+        payload.addProperty("venue", venue != null ? venue : "");
+        postJsonWithAuth(restUrl("/campus_events"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    public void toggleEventInterest(String eventId) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank() || eventId == null || eventId.isBlank()) return;
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String checkUrl = restUrl("/event_interests?event_id=eq." + eventId + "&user_id=eq." + currentUserId);
+        String body = getRawWithAuth(checkUrl, token);
+        boolean exists = body != null && !body.isBlank();
+        try {
+            var parsed = body != null ? JsonParser.parseString(body) : null;
+            exists = parsed != null && parsed.isJsonArray() && parsed.getAsJsonArray().size() > 0;
+        } catch (Exception ignored) {}
+        if (exists) {
+            deleteWithAuth(restUrl("/event_interests?event_id=eq." + eventId + "&user_id=eq." + currentUserId), token);
+            String eventsUrl = restUrl("/campus_events?id=eq." + eventId);
+            JsonObject dec = new JsonObject();
+            dec.addProperty("interested_count", -1);
+            try {
+                String evBody = getRawWithAuth(eventsUrl + "&select=interested_count", token);
+                if (evBody != null && !evBody.isBlank()) {
+                    var arr = JsonParser.parseString(evBody).getAsJsonArray();
+                    if (arr.size() > 0) {
+                        int cur = arr.get(0).getAsJsonObject().get("interested_count").getAsInt();
+                        dec.addProperty("interested_count", Math.max(0, cur - 1));
+                    }
+                }
+            } catch (Exception ignored) {}
+            patchJsonWithAuth(eventsUrl, dec, token);
+        } else {
+            JsonObject payload = new JsonObject();
+            payload.addProperty("event_id", eventId);
+            payload.addProperty("user_id", currentUserId);
+            postJsonWithAuth(restUrl("/event_interests"), payload, token);
+            String eventsUrl = restUrl("/campus_events?id=eq." + eventId);
+            String evBody = getRawWithAuth(eventsUrl + "&select=interested_count", token);
+            int cur = 0;
+            try {
+                if (evBody != null && !evBody.isBlank()) {
+                    var arr = JsonParser.parseString(evBody).getAsJsonArray();
+                    if (arr.size() > 0) cur = arr.get(0).getAsJsonObject().get("interested_count").getAsInt();
+                }
+            } catch (Exception ignored) {}
+            JsonObject inc = new JsonObject();
+            inc.addProperty("interested_count", cur + 1);
+            patchJsonWithAuth(eventsUrl, inc, token);
+        }
+    }
+
+    private List<CampusEvent> parseCampusEvents(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<CampusEvent> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    CampusEvent e = new CampusEvent();
+                    e.setId(asString(o.get("id")));
+                    e.setTitle(asString(o.get("title")));
+                    e.setDescription(asString(o.get("description")));
+                    e.setEventDate(asString(o.get("event_date")));
+                    e.setVenue(asString(o.get("venue")));
+                    e.setInterestedCount(o.has("interested_count") && !o.get("interested_count").isJsonNull() ? o.get("interested_count").getAsInt() : 0);
+                    e.setCreatedAt(asString(o.get("created_at")));
+                    list.add(e);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    // ----- Study Partner -----
+    public List<StudyPartnerPost> getStudyPartnerPosts() throws ApiException {
+        String url = restUrl("/study_partner_posts?order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            return parseStudyPartnerPosts(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createStudyPartnerPost(String subject, String description) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        UserProfile p = getProfile(currentUserId);
+        String userName = p != null && p.getFullName() != null ? p.getFullName() : "Anonymous";
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", currentUserId);
+        payload.addProperty("user_name", userName);
+        payload.addProperty("subject", subject != null ? subject : "");
+        payload.addProperty("description", description != null ? description : "");
+        postJsonWithAuth(restUrl("/study_partner_posts"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<StudyPartnerPost> parseStudyPartnerPosts(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<StudyPartnerPost> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    StudyPartnerPost s = new StudyPartnerPost();
+                    s.setId(asString(o.get("id")));
+                    s.setUserId(asString(o.get("user_id")));
+                    s.setUserName(asString(o.get("user_name")));
+                    s.setSubject(asString(o.get("subject")));
+                    s.setDescription(asString(o.get("description")));
+                    s.setCreatedAt(asString(o.get("created_at")));
+                    list.add(s);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    // ----- Faculty -----
+    public List<Faculty> getFaculty(String search) throws ApiException {
+        StringBuilder url = new StringBuilder("/faculty?order=name.asc");
+        if (search != null && !search.isBlank()) {
+            String pat = "%25" + encode(search) + "%25";
+            url.append("&or=(name.ilike.").append(pat).append(",department.ilike.").append(pat).append(")");
+        }
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(restUrl(url.toString()), token);
+            return parseFaculty(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public List<FacultyFeedback> getFacultyFeedback(String facultyId) throws ApiException {
+        if (facultyId == null || facultyId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/faculty_feedback?faculty_id=eq." + facultyId + "&order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            return parseFacultyFeedback(body);
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    public void createFacultyFeedback(String facultyId, Integer rating, String feedback) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) throw new ApiException(-1, "Not logged in", null, null, null);
+        JsonObject payload = new JsonObject();
+        payload.addProperty("faculty_id", facultyId);
+        payload.addProperty("user_id", currentUserId);
+        if (rating != null) payload.addProperty("rating", rating);
+        payload.addProperty("feedback", feedback != null ? feedback : "");
+        postJsonWithAuth(restUrl("/faculty_feedback"), payload, accessToken != null ? accessToken : SupabaseConfig.getAnonKey());
+    }
+
+    private List<Faculty> parseFaculty(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<Faculty> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    Faculty f = new Faculty();
+                    f.setId(asString(o.get("id")));
+                    f.setName(asString(o.get("name")));
+                    f.setDepartment(asString(o.get("department")));
+                    f.setEmail(asString(o.get("email")));
+                    list.add(f);
+                }
+            }
+            return list;
+        } catch (Exception e) { return Collections.emptyList(); }
+    }
+
+    private List<FacultyFeedback> parseFacultyFeedback(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<FacultyFeedback> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    FacultyFeedback f = new FacultyFeedback();
+                    f.setId(asString(o.get("id")));
+                    f.setFacultyId(asString(o.get("faculty_id")));
+                    f.setUserId(asString(o.get("user_id")));
+                    f.setRating(o.has("rating") && !o.get("rating").isJsonNull() ? o.get("rating").getAsInt() : null);
+                    f.setFeedback(asString(o.get("feedback")));
+                    f.setCreatedAt(asString(o.get("created_at")));
+                    list.add(f);
                 }
             }
             return list;

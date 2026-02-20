@@ -1,0 +1,24 @@
+/* Campasian Faculty Directory - Shadcn Minimalist */
+/* Poppins · 1px #E4E4E7 · 6px radius · Black/White/Gray */
+
+.faculty-root {
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-background-color: #FAFAFA;
+}
+
+.faculty-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 6;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-padding: 16;
+}
+
+.faculty-feedback-card {
+    -fx-background-color: #F4F4F5;
+    -fx-background-radius: 6;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 1;
+    -fx-padding: 12;
+}

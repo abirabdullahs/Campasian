@@ -1,0 +1,16 @@
+/* Campasian Study Partner Finder - Shadcn Minimalist */
+/* Poppins · 1px #E4E4E7 · 6px radius · Black/White/Gray */
+
+.study-partner-root {
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-background-color: #FAFAFA;
+}
+
+.study-partner-card {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 6;
+    -fx-border-color: #E4E4E7;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-padding: 16;
+}

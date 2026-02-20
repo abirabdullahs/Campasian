@@ -5,6 +5,7 @@ import com.campasian.model.UserProfile;
 import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
 import com.campasian.view.AppRouter;
+import com.campasian.view.NavigationContext;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -46,6 +47,12 @@ public class ChatController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         loadFriends();
         pollExecutor.scheduleAtFixedRate(this::pollMessages, 2, 2, TimeUnit.SECONDS);
+        String partnerId = NavigationContext.getChatPartnerUserId();
+        String partnerName = NavigationContext.getChatPartnerName();
+        if (partnerId != null && !partnerId.isBlank()) {
+            NavigationContext.clearChatPartner();
+            selectPartner(partnerId, partnerName != null ? partnerName : "Chat");
+        }
     }
 
     private void loadFriends() {

@@ -28,6 +28,11 @@ public class HomeController implements Initializable {
     @FXML private Button marketplaceBtn;
     @FXML private Button lostFoundBtn;
     @FXML private Button bloodSearchBtn;
+    @FXML private Button resourceBtn;
+    @FXML private Button confessionBtn;
+    @FXML private Button eventsBtn;
+    @FXML private Button studyPartnerBtn;
+    @FXML private Button facultyBtn;
     @FXML private Button profileBtn;
     @FXML private Button notificationsBtn;
     @FXML private Button chatBtn;
@@ -94,6 +99,36 @@ public class HomeController implements Initializable {
     }
 
     @FXML
+    protected void onResourceClick() {
+        loadView(ViewPaths.RESOURCE_VIEW);
+        updateSidebarActive(resourceBtn);
+    }
+
+    @FXML
+    protected void onConfessionClick() {
+        loadView(ViewPaths.CONFESSION_VIEW);
+        updateSidebarActive(confessionBtn);
+    }
+
+    @FXML
+    protected void onEventsClick() {
+        loadView(ViewPaths.EVENTS_VIEW);
+        updateSidebarActive(eventsBtn);
+    }
+
+    @FXML
+    protected void onStudyPartnerClick() {
+        loadView(ViewPaths.STUDY_PARTNER_VIEW);
+        updateSidebarActive(studyPartnerBtn);
+    }
+
+    @FXML
+    protected void onFacultyClick() {
+        loadView(ViewPaths.FACULTY_VIEW);
+        updateSidebarActive(facultyBtn);
+    }
+
+    @FXML
     protected void onProfileClick() {
         NavigationContext.clearViewingProfile();
         loadView(ViewPaths.PROFILE_VIEW);
@@ -136,6 +171,13 @@ public class HomeController implements Initializable {
         updateSidebarActive(profileBtn);
     }
 
+    /** Loads chat view with a pre-selected partner (from Study Partner Message). */
+    public void loadChatWithPartner(String userId, String userName) {
+        NavigationContext.setChatPartner(userId, userName);
+        loadView(ViewPaths.CHAT_VIEW);
+        updateSidebarActive(chatBtn);
+    }
+
     private void clearSidebarActive() {
         if (feedBtn != null) feedBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (peopleBtn != null) peopleBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
@@ -143,6 +185,11 @@ public class HomeController implements Initializable {
         if (marketplaceBtn != null) marketplaceBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (lostFoundBtn != null) lostFoundBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (bloodSearchBtn != null) bloodSearchBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (resourceBtn != null) resourceBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (confessionBtn != null) confessionBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (eventsBtn != null) eventsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (studyPartnerBtn != null) studyPartnerBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (facultyBtn != null) facultyBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (profileBtn != null) profileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
