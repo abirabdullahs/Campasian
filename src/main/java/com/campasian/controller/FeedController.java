@@ -2,6 +2,7 @@ package com.campasian.controller;
 
 import com.campasian.model.Comment;
 import com.campasian.model.Post;
+import com.campasian.view.AppRouter;
 import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
 import com.campasian.view.SceneManager;
@@ -105,6 +106,8 @@ public class FeedController implements Initializable {
 
         Label meta = new Label(userName + university + " · " + timeStr);
         meta.getStyleClass().add("post-meta");
+        meta.setCursor(javafx.scene.Cursor.HAND);
+        meta.setOnMouseClicked(e -> AppRouter.navigateToProfile(post.getUserId()));
 
         Label content = new Label(post.getContent() != null ? post.getContent() : "");
         content.getStyleClass().add("post-content");

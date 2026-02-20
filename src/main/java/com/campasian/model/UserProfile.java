@@ -9,6 +9,7 @@ public class UserProfile {
     private String fullName;
     private String universityName;
     private String einNumber;
+    private String bio;
 
     public UserProfile() {}
 
@@ -30,4 +31,7 @@ public class UserProfile {
 
     public String getEinNumber() { return einNumber; }
     public void setEinNumber(String einNumber) { this.einNumber = einNumber; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 }

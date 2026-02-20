@@ -1,6 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.service.AuthService;
+import com.campasian.view.AppRouter;
+import com.campasian.view.NavigationContext;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.fxml.FXML;
@@ -21,6 +23,7 @@ public class HomeController implements Initializable {
 
     @FXML private StackPane contentArea;
     @FXML private Button feedBtn;
+    @FXML private Button peopleBtn;
     @FXML private Button communityBtn;
     @FXML private Button profileBtn;
     @FXML private Button notificationsBtn;
@@ -30,6 +33,7 @@ public class HomeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        AppRouter.setHomeController(this);
         loadView(ViewPaths.FEED_VIEW);
         updateSidebarActive(feedBtn);
     }
@@ -56,6 +60,12 @@ public class HomeController implements Initializable {
     }
 
     @FXML
+    protected void onPeopleClick() {
+        loadView(ViewPaths.PEOPLE_VIEW);
+        updateSidebarActive(peopleBtn);
+    }
+
+    @FXML
     protected void onCommunityClick() {
         loadView(ViewPaths.COMMUNITY_VIEW);
         updateSidebarActive(communityBtn);
@@ -63,6 +73,7 @@ public class HomeController implements Initializable {
 
     @FXML
     protected void onProfileClick() {
+        NavigationContext.clearViewingProfile();
         loadView(ViewPaths.PROFILE_VIEW);
         updateSidebarActive(profileBtn);
     }
@@ -90,8 +101,16 @@ public class HomeController implements Initializable {
         if (active != null) active.getStyleClass().add(SIDEBAR_ACTIVE);
     }
 
+    /** Loads profile view for a specific user (for navigation from People/Post). */
+    public void loadProfileView(String userId) {
+        NavigationContext.setViewingProfileUserId(userId);
+        loadView(ViewPaths.PROFILE_VIEW);
+        updateSidebarActive(profileBtn);
+    }
+
     private void clearSidebarActive() {
         if (feedBtn != null) feedBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (peopleBtn != null) peopleBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (communityBtn != null) communityBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (profileBtn != null) profileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);

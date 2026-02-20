@@ -40,8 +40,13 @@ public final class AuthService {
                 try {
                     apiService.createProfile(userId, fullName, universityName, number, department);
                 } catch (ApiException e) {
-                    // Profile table may not exist or RLS may block; user_metadata is already stored
-                    System.err.println("Profile insert failed (user_metadata is stored): " + e.getMessage());
+                    // Profile insert failed - log full Supabase error for debugging
+                    System.err.println("[Campasian] Profile insert failed (user_metadata is stored in Auth): " + e.getMessage());
+                    if (e.getResponseBody() != null && !e.getResponseBody().isBlank()) {
+                        System.err.println("[Campasian] Supabase response: " + e.getResponseBody());
+                    }
+                    System.err.println("[Campasian] Run with -Dcampasian.log.api=true to log all API errors.");
+                    // User can still log in; profile can be created later or fixed via migration
                 }
             }
         }
@@ -74,5 +79,18 @@ public final class AuthService {
      */
     public void logout() {
         apiService.clearSession();
+    }
+
+    /**
+     * Tries to restore session from TokenManager. Returns true if valid session restored.
+     */
+    public boolean tryRestoreSession() {
+        if (!apiService.restoreSession()) return false;
+        try {
+            return getCurrentUserProfile() != null;
+        } catch (Exception e) {
+            apiService.clearSession();
+            return false;
+        }
     }
 }

@@ -1,11 +1,13 @@
 package com.campasian.controller;
 
 import com.campasian.model.User;
+import com.campasian.service.ApiService;
 import com.campasian.service.AuthService;
 import com.campasian.service.ApiException;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -26,6 +28,9 @@ public class LoginController {
     private Label errorLabel;
 
     @FXML
+    private CheckBox rememberMeCheck;
+
+    @FXML
     protected void onLoginClick() {
         String email = emailField.getText();
         String password = passwordField.getText();
@@ -38,6 +43,9 @@ public class LoginController {
         try {
             User user = AuthService.getInstance().login(email, password);
             if (user != null) {
+                if (rememberMeCheck != null && rememberMeCheck.isSelected()) {
+                    ApiService.getInstance().persistSession();
+                }
                 SceneManager.navigateTo(ViewPaths.HOME_VIEW);
             } else {
                 showError("Invalid email or password.");

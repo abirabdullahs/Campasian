@@ -13,6 +13,8 @@ module com.campasian {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires kotlin.stdlib;
+    requires java.prefs; // এই লাইনটি যোগ করুন
+    requires java.sql;   // যদি ডাটাবেস ব্যবহার করেন তবে এটিও লাগতে পারে
 
     opens com.campasian.controller to javafx.fxml;
     opens com.campasian to javafx.fxml;

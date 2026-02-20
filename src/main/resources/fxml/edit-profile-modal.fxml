@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.EditProfileModalController"
+      styleClass="modal-root"
+      stylesheets="@../styles/app.css"
+      prefWidth="420" prefHeight="380">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    <Label text="Edit Profile" styleClass="modal-title"/>
+    <Label text="Full Name" styleClass="profile-label"/>
+    <TextField fx:id="fullNameField" styleClass="material-input" promptText="Full name"/>
+    <Label text="University" styleClass="profile-label"/>
+    <TextField fx:id="universityField" styleClass="material-input" promptText="University"/>
+    <Label text="Bio" styleClass="profile-label"/>
+    <TextArea fx:id="bioField" styleClass="modal-text-area" promptText="About you..." wrapText="true" prefRowCount="3"/>
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancelClick"/>
+        <Button text="Save" styleClass="btn-primary" onAction="#onSaveClick"/>
+    </HBox>
+</VBox>

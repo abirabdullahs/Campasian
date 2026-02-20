@@ -67,6 +67,28 @@ public final class ApiService {
         accessToken = null;
         refreshToken = null;
         currentUserId = null;
+        TokenManager.clearTokens();
+    }
+
+    /**
+     * Restores session from TokenManager. Call on app start for Remember Me.
+     */
+    public boolean restoreSession() {
+        String at = TokenManager.getAccessToken();
+        String rt = TokenManager.getRefreshToken();
+        String uid = TokenManager.getUserId();
+        if (at == null || at.isBlank() || uid == null || uid.isBlank()) return false;
+        accessToken = at;
+        refreshToken = rt != null && !rt.isBlank() ? rt : null;
+        currentUserId = uid;
+        return true;
+    }
+
+    /**
+     * Persists current session to TokenManager (for Remember Me).
+     */
+    public void persistSession() {
+        TokenManager.saveTokens(accessToken, refreshToken, currentUserId);
     }
 
     /**
@@ -107,6 +129,7 @@ public final class ApiService {
                         p.setFullName(asString(obj.get("full_name")));
                         p.setUniversityName(asString(obj.get("university_name")));
                         p.setEinNumber(asString(obj.get("ein_number")));
+                        p.setBio(asString(obj.get("bio")));
                         return p;
                     }
                 }
@@ -139,6 +162,10 @@ public final class ApiService {
     /**
      * Inserts profile data into the public.profiles table via Supabase REST.
      * Column names must match the table schema: id, full_name, university_name, ein_number, department.
+     */
+    /**
+     * Inserts profile into public.profiles. Matches base schema: id, full_name, university_name, ein_number, department.
+     * (bio is omitted - add via social_extensions if that migration was run)
      */
     public void createProfile(String userId, String fullName, String universityName, String einNumber,
                               String department) throws ApiException {
@@ -281,10 +308,17 @@ public final class ApiService {
                 .GET()
                 .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return response.body();
+            int status = response.statusCode();
+            String body = response.body();
+            if (status >= 200 && status < 300) {
+                return body;
             }
-            return null;
+            if ("true".equalsIgnoreCase(System.getProperty("campasian.log.api"))) {
+                System.err.println("[Campasian API Error] GET " + url + " -> " + status + " " + (body != null ? body : ""));
+            }
+            throw new ApiException(status, "HTTP " + status, null, null, body);
+        } catch (ApiException e) {
+            throw e;
         } catch (Exception e) {
             if (e instanceof InterruptedException) Thread.currentThread().interrupt();
             throw new ApiException(-1, "Request failed: " + e.getMessage(), null, null, null);
@@ -513,6 +547,158 @@ public final class ApiService {
         }
     }
 
+    /**
+     * Fetches all profiles (for People discovery). Requires RLS policy allowing read.
+     * Table: public.profiles. Select uses base schema; bio optional (run social_extensions to add).
+     */
+    public List<UserProfile> getAllProfiles() throws ApiException {
+        String url = restUrl("/profiles?select=id,full_name,university_name,ein_number,department");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getProfilesList(url, token);
+    }
+
+    /**
+     * Searches profiles by name or university. Uses ilike for partial match.
+     */
+    public List<UserProfile> searchProfiles(String nameQuery, String universityQuery) throws ApiException {
+        StringBuilder q = new StringBuilder("/profiles?select=id,full_name,university_name,ein_number,department");
+        if (nameQuery != null && !nameQuery.isBlank()) {
+            q.append("&full_name=ilike.*").append(encode(nameQuery)).append("*");
+        }
+        if (universityQuery != null && !universityQuery.isBlank()) {
+            q.append("&university_name=ilike.*").append(encode(universityQuery)).append("*");
+        }
+        String url = restUrl(q.toString());
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getProfilesList(url, token);
+    }
+
+    private static String encode(String s) {
+        if (s == null) return "";
+        return s.replace(" ", "%20").replace("&", "%26");
+    }
+
+    private List<UserProfile> getProfilesList(String url, String bearerToken) throws ApiException {
+        try {
+            String body = getRawWithAuth(url, bearerToken);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<UserProfile> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    UserProfile p = new UserProfile();
+                    p.setId(asString(o.get("id")));
+                    p.setFullName(asString(o.get("full_name")));
+                    p.setUniversityName(asString(o.get("university_name")));
+                    p.setEinNumber(asString(o.get("ein_number")));
+                    p.setBio(asString(o.get("bio")));
+                    list.add(p);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Profiles fetch failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Sends a friend request to target user. Creates record in friend_requests table.
+     */
+    public void sendFriendRequest(String targetId) throws ApiException {
+        if (targetId == null || targetId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        if (targetId.equals(currentUserId)) return;
+        JsonObject payload = new JsonObject();
+        payload.addProperty("from_id", currentUserId);
+        payload.addProperty("to_id", targetId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/friend_requests"), payload, token);
+    }
+
+    /**
+     * Fetches posts by a specific user.
+     */
+    public List<Post> getPostsByUserId(String userId) throws ApiException {
+        if (userId == null || userId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/posts?user_id=eq." + userId + "&order=created_at.desc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        List<Post> posts = getPostsWithAuth(url, token);
+        enrichPostsWithLikes(posts);
+        return posts;
+    }
+
+    /**
+     * Updates current user's profile. Pass only fields to update.
+     */
+    public void updateProfile(String fullName, String universityName, String bio) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Not logged in", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        if (fullName != null) payload.addProperty("full_name", fullName);
+        if (universityName != null) payload.addProperty("university_name", universityName);
+        if (bio != null) payload.addProperty("bio", bio);
+        if (payload.size() == 0) return;
+        String url = restUrl("/profiles?id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
+    }
+
+    private void patchJsonWithAuth(String url, JsonObject payload, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            String body = gson.toJson(payload);
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Prefer", "return=minimal")
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new ApiException(response.statusCode(), "Update failed", null, null, response.body());
+            }
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Update failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Deletes a post. Only for posts owned by current user.
+     */
+    public void deletePost(Long postId) throws ApiException {
+        if (postId == null || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String url = restUrl("/posts?id=eq." + postId + "&user_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        deleteWithAuth(url, token);
+    }
+
+    /**
+     * Updates a post's content. Only for posts owned by current user.
+     */
+    public void updatePost(Long postId, String content) throws ApiException {
+        if (postId == null || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("content", content != null ? content : "");
+        String url = restUrl("/posts?id=eq." + postId + "&user_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
+    }
+
     private List<Post> getPostsWithAuth(String url, String bearerToken) throws ApiException {
         try {
             String anonKey = SupabaseConfig.getAnonKey();
@@ -613,7 +799,23 @@ public final class ApiService {
                 }
             } catch (Exception ignored) {}
         }
+        logApiError("POST", url, body, status, responseBody);
         throw new ApiException(status, message, null, message, responseBody);
+    }
+
+    /**
+     * Logs Supabase API errors for debugging. Enable via system property: -Dcampasian.log.api=true
+     */
+    private static void logApiError(String method, String url, String requestBody, int status, String responseBody) {
+        if (!"true".equalsIgnoreCase(System.getProperty("campasian.log.api"))) return;
+        System.err.println("[Campasian API Error] " + method + " " + url);
+        System.err.println("  Status: " + status);
+        if (requestBody != null && !requestBody.isBlank()) {
+            System.err.println("  Request: " + requestBody);
+        }
+        if (responseBody != null && !responseBody.isBlank()) {
+            System.err.println("  Response: " + responseBody);
+        }
     }
 
     public User login(String email, String password) throws ApiException {

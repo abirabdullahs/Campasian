@@ -651,3 +651,36 @@
 .sidebar-btn-active:hover {
     -fx-background-color: #ECECF1;
 }
+
+/* Material-like input */
+.material-input {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-pref-height: 44px;
+}
+
+.material-input:focused {
+    -fx-border-color: #3b82f6;
+}
+
+/* People discovery - user card */
+.user-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-color: #e4e4e7;
+    -fx-border-width: 1px;
+    -fx-padding: 16 20;
+}
+
+.user-card .profile-value {
+    -fx-cursor: hand;
+}
+
+.user-card .profile-value:hover {
+    -fx-text-fill: #3b82f6;
+}
