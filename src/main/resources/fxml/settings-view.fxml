@@ -7,15 +7,15 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.SettingsController"
       styleClass="dashboard-main"
-      stylesheets="@../styles/app.css"
+      stylesheets="@../styles/style.css"
       spacing="24" maxWidth="Infinity" maxHeight="Infinity">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <!-- Page header -->
-    <VBox styleClass="page-header" spacing="4">
-        <Label text="Settings" styleClass="page-title"/>
-        <Label text="Manage preferences and account options. Personalize your CampusConnect experience." styleClass="page-subtitle" wrapText="true"/>
+    <VBox styleClass="cc-header" spacing="4">
+        <Label text="Settings" styleClass="cc-headline"/>
+        <Label text="Manage preferences and account options. Personalize your CampusConnect experience." styleClass="cc-description" wrapText="true"/>
     </VBox>
     <VBox styleClass="profile-card" spacing="16" maxWidth="600">
         <Label text="Preferences" styleClass="profile-card-title"/>

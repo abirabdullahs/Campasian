@@ -32,6 +32,15 @@ CREATE POLICY "Users can send friend requests"
     ON public.friend_requests FOR INSERT TO authenticated
     WITH CHECK (auth.uid() = from_id);
 
+CREATE POLICY "Recipients can update or delete friend requests sent to them"
+    ON public.friend_requests FOR UPDATE TO authenticated
+    USING (auth.uid() = to_id)
+    WITH CHECK (auth.uid() = to_id);
+
+CREATE POLICY "Recipients can delete friend requests sent to them"
+    ON public.friend_requests FOR DELETE TO authenticated
+    USING (auth.uid() = to_id);
+
 -- Allow users to update/delete own posts
 CREATE POLICY "Users can update own posts"
     ON public.posts FOR UPDATE TO authenticated

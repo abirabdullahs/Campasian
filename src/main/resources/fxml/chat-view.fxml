@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.campasian.controller.ChatController"
+      styleClass="dashboard-main"
+      stylesheets="@../styles/app.css"
+      maxWidth="Infinity" maxHeight="Infinity">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <VBox styleClass="page-header" spacing="4">
+        <Label text="Messages" styleClass="page-title"/>
+        <Label text="Chat with your friends. Messages appear here instantly." styleClass="page-subtitle" wrapText="true"/>
+    </VBox>
+
+    <HBox spacing="24" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+        <VBox styleClass="profile-card" minWidth="220" maxWidth="260" spacing="8">
+            <Label text="Friends" styleClass="profile-card-title"/>
+            <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+                <VBox fx:id="friendsList" spacing="4" styleClass="feed-container"/>
+            </ScrollPane>
+        </VBox>
+        <VBox styleClass="profile-card" HBox.hgrow="ALWAYS" spacing="12">
+            <Label fx:id="chatPartnerLabel" text="Select a friend to chat" styleClass="profile-card-title"/>
+            <ScrollPane fx:id="messagesScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+                <VBox fx:id="messagesVBox" spacing="8" styleClass="feed-container"/>
+            </ScrollPane>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <TextField fx:id="messageField" promptText="Type a message..." styleClass="material-input" HBox.hgrow="ALWAYS" onAction="#onSendMessage"/>
+                <javafx.scene.control.Button text="Send" styleClass="btn-primary" onAction="#onSendMessage"/>
+            </HBox>
+        </VBox>
+    </HBox>
+</VBox>

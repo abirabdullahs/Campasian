@@ -83,14 +83,19 @@ public final class AuthService {
 
     /**
      * Tries to restore session from TokenManager. Returns true if valid session restored.
+     * If access token is expired, attempts refresh via refresh token before failing.
      */
     public boolean tryRestoreSession() {
         if (!apiService.restoreSession()) return false;
         try {
-            return getCurrentUserProfile() != null;
+            if (getCurrentUserProfile() != null) return true;
         } catch (Exception e) {
+            // Profile fetch may fail if access token expired; try refresh
+            try {
+                if (apiService.refreshAccessToken() && getCurrentUserProfile() != null) return true;
+            } catch (Exception ignored) {}
             apiService.clearSession();
-            return false;
         }
+        return false;
     }
 }

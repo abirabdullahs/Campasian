@@ -11,15 +11,22 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.EditProfileModalController"
       styleClass="modal-root"
-      stylesheets="@../styles/app.css"
+      stylesheets="@../styles/style.css"
       prefWidth="420" prefHeight="380">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <VBox spacing="4">
-        <Label text="Edit Profile" styleClass="modal-title"/>
-        <Label text="Update your profile details visible to other students." styleClass="modal-subtitle" wrapText="true"/>
+        <Label text="Edit Profile" styleClass="cc-headline"/>
+        <Label text="Update your profile details visible to other students." styleClass="cc-description" wrapText="true"/>
     </VBox>
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <javafx.scene.image.ImageView fx:id="avatarPreview" fitWidth="64" fitHeight="64" preserveRatio="true" styleClass="avatar-preview"/>
+        <VBox spacing="4">
+            <javafx.scene.control.Button text="Change Photo" styleClass="btn-secondary" onAction="#onChangePhoto"/>
+            <Label fx:id="avatarLabel" text="" styleClass="profile-label"/>
+        </VBox>
+    </HBox>
     <Label text="Full Name" styleClass="profile-label"/>
     <TextField fx:id="fullNameField" styleClass="material-input" promptText="Full name"/>
     <Label text="University" styleClass="profile-label"/>

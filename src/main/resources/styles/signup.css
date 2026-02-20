@@ -1,0 +1,246 @@
+/* ─────────────────────────────────────────
+   Campasian — Auth Pages  |  signup.css
+   shadcn-inspired: black · gray · white
+   Used by: signup.fxml, login.fxml
+───────────────────────────────────────── */
+
+/* Fonts — import in your app or preload */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Geist:wght@300;400;500;600;700&display=swap');
+
+/* ── Root / Canvas ── */
+.root {
+    -fx-background-color: #09090b;
+    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+}
+
+/* ── Left info panel ── */
+.info-panel {
+    -fx-background-color: #0f0f11;
+    -fx-border-color: #27272a;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 56 52 56 56;
+}
+
+.brand-name {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Geist Mono', monospace;
+    -fx-letter-spacing: 0.5px;
+}
+
+.brand-tagline {
+    -fx-text-fill: #71717a;
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+    -fx-font-family: 'Geist Mono', monospace;
+}
+
+.divider {
+    -fx-background-color: #27272a;
+    -fx-border-color: #27272a;
+    -fx-opacity: 1;
+    -fx-pref-height: 1;
+    -fx-max-width: Infinity;
+}
+
+.page-title {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-line-spacing: 2;
+}
+
+.page-description {
+    -fx-text-fill: #a1a1aa;
+    -fx-font-size: 14px;
+    -fx-font-weight: 300;
+    -fx-line-spacing: 4;
+    -fx-wrap-text: true;
+    -fx-max-width: 380;
+}
+
+.features-list {
+    -fx-padding: 4 0 0 0;
+}
+
+.bullet {
+    -fx-text-fill: #52525b;
+    -fx-font-size: 8px;
+}
+
+.feature-text {
+    -fx-text-fill: #d4d4d8;
+    -fx-font-size: 14px;
+}
+
+.terms-text {
+    -fx-text-fill: #52525b;
+    -fx-font-size: 12px;
+    -fx-wrap-text: true;
+    -fx-max-width: 380;
+}
+
+/* ── Right form panel ── */
+.form-panel {
+    -fx-background-color: #09090b;
+    -fx-padding: 0;
+}
+
+.form-scroll {
+    -fx-background: #09090b;
+    -fx-background-color: #09090b;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.form-scroll .viewport {
+    -fx-background-color: #09090b;
+}
+
+.form-scroll .scroll-bar:vertical {
+    -fx-background-color: #18181b;
+    -fx-pref-width: 6;
+}
+
+.form-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #3f3f46;
+    -fx-background-radius: 3;
+}
+
+.form-inner {
+    -fx-padding: 56 56 56 52;
+    -fx-max-width: 480;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ── Form heading ── */
+.form-title {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 24px;
+    -fx-font-weight: 600;
+}
+
+.form-subtitle {
+    -fx-text-fill: #71717a;
+    -fx-font-size: 13.5px;
+    -fx-wrap-text: true;
+    -fx-padding: 0 0 6 0;
+}
+
+/* ── Inputs ── */
+.input-field,
+.combo-field {
+    -fx-background-color: #18181b;
+    -fx-background-radius: 6;
+    -fx-border-color: #27272a;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #52525b;
+    -fx-font-size: 14px;
+    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+    -fx-padding: 10 14 10 14;
+    -fx-pref-height: 40;
+}
+
+.input-field:focused,
+.combo-field:focused {
+    -fx-border-color: #71717a;
+    -fx-background-color: #1c1c1f;
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.04), 0, 0, 0, 0);
+}
+
+.combo-field .combo-box-base {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.combo-field .list-view {
+    -fx-background-color: #18181b;
+    -fx-border-color: #3f3f46;
+    -fx-border-radius: 6;
+}
+
+.combo-field .list-cell {
+    -fx-text-fill: #d4d4d8;
+    -fx-background-color: #18181b;
+    -fx-padding: 8 12;
+}
+
+.combo-field .list-cell:hover {
+    -fx-background-color: #27272a;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 6;
+    -fx-text-fill: #09090b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+    -fx-padding: 10 0;
+    -fx-cursor: hand;
+    -fx-pref-height: 40;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #e4e4e7;
+    -fx-effect: dropshadow(gaussian, rgba(250,250,250,0.08), 8, 0, 0, 0);
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #d4d4d8;
+    -fx-effect: none;
+}
+
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #71717a;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+    -fx-cursor: hand;
+    -fx-padding: 4 0 0 0;
+    -fx-border-color: transparent;
+}
+
+.btn-link:hover {
+    -fx-text-fill: #a1a1aa;
+}
+
+/* ── CheckBox ── */
+.check-box-style {
+    -fx-text-fill: #a1a1aa;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Geist', 'Segoe UI', sans-serif;
+}
+
+.check-box-style .box {
+    -fx-background-color: #18181b;
+    -fx-border-color: #27272a;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+}
+
+.check-box-style:selected .box {
+    -fx-background-color: #fafafa;
+    -fx-border-color: #fafafa;
+}
+
+.check-box-style:selected .mark {
+    -fx-background-color: #09090b;
+}
+
+.check-box-style:hover .box {
+    -fx-border-color: #71717a;
+}
+
+/* ── Error label ── */
+.error-label {
+    -fx-text-fill: #f87171;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}

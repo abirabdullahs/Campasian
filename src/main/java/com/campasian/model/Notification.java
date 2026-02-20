@@ -1,16 +1,17 @@
 package com.campasian.model;
 
 /**
- * Notification for a user (like, comment, follow).
+ * Notification for a user (like, comment, follow, friend_request, friend_accepted).
  */
 public class Notification {
     private String id;
     private String userId;
-    private String type;       // like, comment, follow
+    private String type;       // like, comment, follow, friend_request, friend_accepted
     private String actorId;
     private String actorName;
     private Long postId;
     private String createdAt;
+    private String readAt;     // null = unread
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -32,4 +33,8 @@ public class Notification {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getReadAt() { return readAt; }
+    public void setReadAt(String readAt) { this.readAt = readAt; }
+    public boolean isRead() { return readAt != null && !readAt.isBlank(); }
 }

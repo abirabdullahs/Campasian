@@ -4,15 +4,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox maxHeight="Infinity" maxWidth="Infinity" prefHeight="409.0" prefWidth="771.0" spacing="24" styleClass="dashboard-main" stylesheets="@../styles/app.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.campasian.controller.FeedController">
+<VBox maxHeight="Infinity" maxWidth="Infinity" prefHeight="409.0" prefWidth="771.0" spacing="24" styleClass="dashboard-main" stylesheets="@../styles/style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.campasian.controller.FeedController">
     <padding>
         <Insets bottom="24" left="24" right="24" top="24" />
     </padding>
 
     <!-- Page header -->
-    <VBox styleClass="page-header" maxWidth="600" spacing="4">
-        <Label text="Your Feed" styleClass="page-title"/>
-        <Label text="Read posts from students across campus and share your own updates." styleClass="page-subtitle" wrapText="true"/>
+    <VBox styleClass="cc-header" maxWidth="600" spacing="4">
+        <Label text="Your Feed" styleClass="cc-headline"/>
+        <Label text="Read posts from students across campus and share your own updates." styleClass="cc-description" wrapText="true"/>
     </VBox>
     
     <!-- Main Feed Column -->

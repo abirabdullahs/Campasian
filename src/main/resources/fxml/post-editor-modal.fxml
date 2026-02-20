@@ -10,7 +10,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.PostEditorModalController"
       styleClass="modal-root"
-      stylesheets="@../styles/app.css"
+      stylesheets="@../styles/style.css"
       prefWidth="560" prefHeight="480"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding>
@@ -18,14 +18,18 @@
     </padding>
 
     <VBox spacing="4">
-        <Label text="Create a Post" styleClass="modal-title"/>
-        <Label text="Share an update, question, or proposal with your campus community." styleClass="modal-subtitle" wrapText="true"/>
+        <Label text="Create a Post" styleClass="cc-headline"/>
+        <Label text="Share an update, question, or proposal with your campus community." styleClass="cc-description" wrapText="true"/>
     </VBox>
 
-    <VBox VBox.vgrow="ALWAYS" spacing="4" style="-fx-padding: 16 0 0 0;">
+    <VBox VBox.vgrow="ALWAYS" spacing="8" style="-fx-padding: 16 0 0 0;">
         <TextArea fx:id="contentArea" styleClass="modal-text-area"
                   promptText="Share your proposal or post..."
                   wrapText="true" prefRowCount="10" VBox.vgrow="ALWAYS"/>
+        <HBox spacing="8">
+            <javafx.scene.control.Button fx:id="attachImageBtn" text="Add Image" styleClass="btn-secondary" onAction="#onAttachImage"/>
+            <Label fx:id="imageLabel" text="" styleClass="profile-label"/>
+        </HBox>
     </VBox>
 
     <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">

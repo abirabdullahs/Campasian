@@ -27,6 +27,7 @@ public class HomeController implements Initializable {
     @FXML private Button communityBtn;
     @FXML private Button profileBtn;
     @FXML private Button notificationsBtn;
+    @FXML private Button chatBtn;
     @FXML private Button settingsBtn;
 
     private static final String SIDEBAR_ACTIVE = "sidebar-btn-active";
@@ -85,6 +86,12 @@ public class HomeController implements Initializable {
     }
 
     @FXML
+    protected void onChatClick() {
+        loadView(ViewPaths.CHAT_VIEW);
+        updateSidebarActive(chatBtn);
+    }
+
+    @FXML
     protected void onSettingsClick() {
         loadView(ViewPaths.SETTINGS_VIEW);
         updateSidebarActive(settingsBtn);
@@ -114,6 +121,7 @@ public class HomeController implements Initializable {
         if (communityBtn != null) communityBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (profileBtn != null) profileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (settingsBtn != null) settingsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
     }
 }

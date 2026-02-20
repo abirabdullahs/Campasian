@@ -9,6 +9,7 @@ import com.campasian.service.ApiException;
 import com.campasian.view.AppRouter;
 import com.campasian.view.NavigationContext;
 import com.campasian.view.SceneManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -29,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Controller for the profile sub-view. Supports viewing self or other users.
@@ -36,6 +38,7 @@ import java.util.ResourceBundle;
 public class ProfileController implements Initializable {
 
     @FXML private Label fullNameLabel;
+    @FXML private javafx.scene.image.ImageView avatarImageView;
     @FXML private Label universityLabel;
     @FXML private Label einLabel;
     @FXML private Label bioLabel;
@@ -68,6 +71,7 @@ public class ProfileController implements Initializable {
             Parent root = loader.load();
             EditProfileModalController ctrl = loader.getController();
             ctrl.setInitialData(p.getFullName(), p.getUniversityName(), p.getBio());
+            ctrl.setInitialAvatarUrl(p.getAvatarUrl());
             ctrl.setOnSaved(this::loadProfile);
 
             Stage stage = new Stage();
@@ -132,28 +136,46 @@ public class ProfileController implements Initializable {
     }
 
     private void loadProfile() {
-        try {
-            UserProfile profile = viewingUserId != null
-                ? ApiService.getInstance().getProfile(viewingUserId)
-                : AuthService.getInstance().getCurrentUserProfile();
-            if (profile != null) {
-                fullNameLabel.setText(profile.getFullName() != null ? profile.getFullName() : "—");
-                universityLabel.setText(profile.getUniversityName() != null ? profile.getUniversityName() : "—");
-                einLabel.setText(profile.getEinNumber() != null ? profile.getEinNumber() : "—");
-                bioLabel.setText(profile.getBio() != null && !profile.getBio().isBlank() ? profile.getBio() : "—");
-                String uid = profile.getId();
+        new Thread(() -> {
+            try {
+                UserProfile profile = viewingUserId != null
+                    ? ApiService.getInstance().getProfile(viewingUserId)
+                    : AuthService.getInstance().getCurrentUserProfile();
+                String uid = profile != null ? profile.getId() : null;
+                final AtomicInteger followers = new AtomicInteger(0);
+                final AtomicInteger following = new AtomicInteger(0);
                 if (uid != null) {
-                    int followers = ApiService.getInstance().getFollowerCount(uid);
-                    int following = ApiService.getInstance().getFollowingCount(uid);
-                    if (followersCountLabel != null) followersCountLabel.setText(String.valueOf(followers));
-                    if (followingCountLabel != null) followingCountLabel.setText(String.valueOf(following));
+                    try {
+                        followers.set(ApiService.getInstance().getFollowerCount(uid));
+                        following.set(ApiService.getInstance().getFollowingCount(uid));
+                    } catch (ApiException ignored) {}
                 }
+                UserProfile finalProfile = profile;
+                Platform.runLater(() -> {
+                    if (finalProfile != null) {
+                        fullNameLabel.setText(finalProfile.getFullName() != null ? finalProfile.getFullName() : "—");
+                        if (avatarImageView != null && finalProfile.getAvatarUrl() != null && !finalProfile.getAvatarUrl().isBlank()) {
+                            try { avatarImageView.setImage(new javafx.scene.image.Image(finalProfile.getAvatarUrl(), true)); } catch (Exception ignored) {}
+                        }
+                        universityLabel.setText(finalProfile.getUniversityName() != null ? finalProfile.getUniversityName() : "—");
+                        einLabel.setText(finalProfile.getEinNumber() != null ? finalProfile.getEinNumber() : "—");
+                        bioLabel.setText(finalProfile.getBio() != null && !finalProfile.getBio().isBlank() ? finalProfile.getBio() : "—");
+                        if (followersCountLabel != null) followersCountLabel.setText(String.valueOf(followers.get()));
+                        if (followingCountLabel != null) followingCountLabel.setText(String.valueOf(following.get()));
+                    } else {
+                        fullNameLabel.setText("—");
+                        universityLabel.setText("—");
+                        einLabel.setText("—");
+                    }
+                });
+            } catch (ApiException e) {
+                Platform.runLater(() -> {
+                    fullNameLabel.setText("—");
+                    universityLabel.setText("—");
+                    einLabel.setText("—");
+                });
             }
-        } catch (ApiException e) {
-            fullNameLabel.setText("—");
-            universityLabel.setText("—");
-            einLabel.setText("—");
-        }
+        }).start();
     }
 
     private void loadPosts() {
@@ -161,23 +183,33 @@ public class ProfileController implements Initializable {
         postsVBox.getChildren().clear();
         if (viewingUserId == null || viewingUserId.isBlank()) return;
 
-        try {
-            List<Post> posts = ApiService.getInstance().getPostsByUserId(viewingUserId);
-            String currentId = ApiService.getInstance().getCurrentUserId();
-            boolean isSelf = viewingUserId.equals(currentId);
-            for (Post post : posts) {
-                postsVBox.getChildren().add(buildPostCard(post, isSelf));
+        new Thread(() -> {
+            try {
+                List<Post> posts = ApiService.getInstance().getPostsByUserId(viewingUserId);
+                String currentId = ApiService.getInstance().getCurrentUserId();
+                boolean isSelf = viewingUserId.equals(currentId);
+                Platform.runLater(() -> {
+                    if (postsVBox == null) return;
+                    postsVBox.getChildren().clear();
+                    for (Post post : posts) {
+                        postsVBox.getChildren().add(buildPostCard(post, isSelf));
+                    }
+                    if (posts.isEmpty()) {
+                        Label empty = new Label("No posts yet.");
+                        empty.getStyleClass().add("profile-label");
+                        postsVBox.getChildren().add(empty);
+                    }
+                });
+            } catch (ApiException e) {
+                Platform.runLater(() -> {
+                    if (postsVBox != null) {
+                        Label err = new Label("Unable to load posts.");
+                        err.getStyleClass().add("profile-label");
+                        postsVBox.getChildren().add(err);
+                    }
+                });
             }
-            if (posts.isEmpty()) {
-                Label empty = new Label("No posts yet.");
-                empty.getStyleClass().add("profile-label");
-                postsVBox.getChildren().add(empty);
-            }
-        } catch (ApiException e) {
-            Label err = new Label("Unable to load posts.");
-            err.getStyleClass().add("profile-label");
-            postsVBox.getChildren().add(err);
-        }
+        }).start();
     }
 
     private VBox buildPostCard(Post post, boolean canEdit) {
@@ -191,12 +223,23 @@ public class ProfileController implements Initializable {
         content.getStyleClass().add("post-content");
         content.setWrapText(true);
 
+        javafx.scene.image.ImageView postImageView = null;
+        if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
+            try {
+                postImageView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(post.getImageUrl(), true));
+                postImageView.setFitWidth(400);
+                postImageView.setFitHeight(300);
+                postImageView.setPreserveRatio(true);
+            } catch (Exception ignored) {}
+        }
+
         int likeCount = post.getLikeCount();
+        int commentCount = post.getCommentCount();
         boolean liked = post.isLikedByMe();
         Button likeBtn = new Button((liked ? "♥ " : "♡ ") + (likeCount > 0 ? String.valueOf(likeCount) : ""));
         likeBtn.getStyleClass().add("post-action-btn");
         if (liked) likeBtn.getStyleClass().add("post-action-btn-liked");
-        Button commentBtn = new Button("Comment");
+        Button commentBtn = new Button("💬 " + (commentCount > 0 ? String.valueOf(commentCount) : ""));
         commentBtn.getStyleClass().add("post-action-btn");
 
         likeBtn.setOnAction(e -> {
@@ -224,15 +267,17 @@ public class ProfileController implements Initializable {
             boolean show = !commentsContainer.isVisible();
             commentsContainer.setVisible(show);
             commentsContainer.setManaged(show);
-            if (show) loadCommentsInto(post.getId(), commentsContainer, commentField, submitComment);
+            if (show) loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
         });
         submitComment.setOnAction(e -> {
             String c = commentField.getText();
             if (c != null && !c.isBlank()) {
                 try {
                     ApiService.getInstance().addComment(post.getId(), c.trim());
+                    post.setCommentCount(post.getCommentCount() + 1);
+                    commentBtn.setText("💬 " + (post.getCommentCount() > 0 ? String.valueOf(post.getCommentCount()) : ""));
                     commentField.clear();
-                    loadCommentsInto(post.getId(), commentsContainer, commentField, submitComment);
+                    loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
                 } catch (ApiException ex) { /* ignore */ }
             }
         });
@@ -279,17 +324,24 @@ public class ProfileController implements Initializable {
 
         VBox card = new VBox(8);
         card.getStyleClass().add("post-card");
-        card.getChildren().addAll(meta, content, actions, commentsContainer);
+        card.getChildren().add(meta);
+        card.getChildren().add(content);
+        if (postImageView != null) card.getChildren().add(postImageView);
+        card.getChildren().addAll(actions, commentsContainer);
         return card;
     }
 
-    private void loadCommentsInto(Long postId, VBox container, TextField commentField, Button submitBtn) {
+    private void loadCommentsInto(Post post, VBox container, TextField commentField, Button submitBtn, Button commentBtn) {
         container.getChildren().clear();
         HBox inputRow = new HBox(8);
         inputRow.getChildren().addAll(commentField, submitBtn);
         container.getChildren().add(inputRow);
         try {
-            List<Comment> comments = ApiService.getInstance().fetchComments(postId);
+            List<Comment> comments = ApiService.getInstance().fetchComments(post.getId());
+            if (commentBtn != null && post != null) {
+                post.setCommentCount(comments.size());
+                commentBtn.setText("💬 " + (comments.size() > 0 ? String.valueOf(comments.size()) : ""));
+            }
             for (Comment c : comments) {
                 String line = (c.getUserName() != null ? c.getUserName() : "Anonymous") + ": " + (c.getContent() != null ? c.getContent() : "");
                 Label lbl = new Label(line);

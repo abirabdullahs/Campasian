@@ -6,6 +6,7 @@ import com.campasian.view.AppRouter;
 import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
 import com.campasian.view.SceneManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -14,6 +15,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -86,16 +89,27 @@ public class FeedController implements Initializable {
         if (feedVBox == null) return;
         feedVBox.getChildren().clear();
 
-        try {
-            List<Post> posts = ApiService.getInstance().getFeed(feedFollowingOnly);
-            for (Post post : posts) {
-                feedVBox.getChildren().add(buildPostCard(post));
+        new Thread(() -> {
+            try {
+                List<Post> posts = ApiService.getInstance().getFeed(feedFollowingOnly);
+                Platform.runLater(() -> {
+                    if (feedVBox == null) return;
+                    feedVBox.getChildren().clear();
+                    for (Post post : posts) {
+                        feedVBox.getChildren().add(buildPostCard(post));
+                    }
+                });
+            } catch (ApiException e) {
+                Platform.runLater(() -> {
+                    if (feedVBox != null) {
+                        feedVBox.getChildren().clear();
+                        Label placeholder = new Label("Unable to load feed.");
+                        placeholder.getStyleClass().add("profile-label");
+                        feedVBox.getChildren().add(placeholder);
+                    }
+                });
             }
-        } catch (ApiException e) {
-            Label placeholder = new Label("Unable to load feed.");
-            placeholder.getStyleClass().add("profile-label");
-            feedVBox.getChildren().add(placeholder);
-        }
+        }).start();
     }
 
     private VBox buildPostCard(Post post) {
@@ -113,13 +127,24 @@ public class FeedController implements Initializable {
         content.getStyleClass().add("post-content");
         content.setWrapText(true);
 
+        javafx.scene.image.ImageView postImageView = null;
+        if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
+            try {
+                postImageView = new ImageView(new Image(post.getImageUrl(), true));
+                postImageView.setFitWidth(400);
+                postImageView.setFitHeight(300);
+                postImageView.setPreserveRatio(true);
+            } catch (Exception ignored) {}
+        }
+
         int likeCount = post.getLikeCount();
+        int commentCount = post.getCommentCount();
         boolean liked = post.isLikedByMe();
         Button likeBtn = new Button((liked ? "♥ " : "♡ ") + (likeCount > 0 ? String.valueOf(likeCount) : ""));
         likeBtn.getStyleClass().add("post-action-btn");
         if (liked) likeBtn.getStyleClass().add("post-action-btn-liked");
 
-        Button commentBtn = new Button("Comment");
+        Button commentBtn = new Button("💬 " + (commentCount > 0 ? String.valueOf(commentCount) : ""));
         commentBtn.getStyleClass().add("post-action-btn");
 
         VBox commentsContainer = new VBox(8);
@@ -150,7 +175,7 @@ public class FeedController implements Initializable {
             boolean show = !commentsContainer.isVisible();
             commentsContainer.setVisible(show);
             commentsContainer.setManaged(show);
-            if (show) loadCommentsInto(post.getId(), commentsContainer, commentField, submitComment);
+            if (show) loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
         });
 
         submitComment.setOnAction(e -> {
@@ -158,8 +183,10 @@ public class FeedController implements Initializable {
             if (c != null && !c.isBlank()) {
                 try {
                     ApiService.getInstance().addComment(post.getId(), c.trim());
+                    post.setCommentCount(post.getCommentCount() + 1);
+                    commentBtn.setText("💬 " + (post.getCommentCount() > 0 ? String.valueOf(post.getCommentCount()) : ""));
                     commentField.clear();
-                    loadCommentsInto(post.getId(), commentsContainer, commentField, submitComment);
+                    loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
                 } catch (ApiException ex) { /* ignore */ }
             }
         });
@@ -174,17 +201,24 @@ public class FeedController implements Initializable {
         VBox card = new VBox(8);
         card.getStyleClass().add("post-card");
         card.setUserData(post);
-        card.getChildren().addAll(meta, content, actions, commentsContainer);
+        card.getChildren().add(meta);
+        card.getChildren().add(content);
+        if (postImageView != null) card.getChildren().add(postImageView);
+        card.getChildren().addAll(actions, commentsContainer);
         return card;
     }
 
-    private void loadCommentsInto(Long postId, VBox container, TextField commentField, Button submitBtn) {
+    private void loadCommentsInto(Post post, VBox container, TextField commentField, Button submitBtn, Button commentBtn) {
         container.getChildren().clear();
         HBox inputRow = new HBox(8);
         inputRow.getChildren().addAll(commentField, submitBtn);
         container.getChildren().add(inputRow);
         try {
-            List<Comment> comments = ApiService.getInstance().fetchComments(postId);
+            List<Comment> comments = ApiService.getInstance().fetchComments(post.getId());
+            if (commentBtn != null && post != null) {
+                post.setCommentCount(comments.size());
+                commentBtn.setText("💬 " + (comments.size() > 0 ? String.valueOf(comments.size()) : ""));
+            }
             for (Comment c : comments) {
                 String line = (c.getUserName() != null ? c.getUserName() : "Anonymous") + ": "
                     + (c.getContent() != null ? c.getContent() : "");

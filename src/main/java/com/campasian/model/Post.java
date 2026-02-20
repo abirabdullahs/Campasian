@@ -13,6 +13,8 @@ public class Post {
     private String createdAt;
     private int likeCount;
     private boolean likedByMe;
+    private int commentCount;
+    private String imageUrl;
 
     public Post() {}
 
@@ -48,4 +50,10 @@ public class Post {
 
     public boolean isLikedByMe() { return likedByMe; }
     public void setLikedByMe(boolean likedByMe) { this.likedByMe = likedByMe; }
+
+    public int getCommentCount() { return commentCount; }
+    public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

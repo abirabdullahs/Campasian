@@ -11,56 +11,79 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 
 <GridPane xmlns:fx="http://javafx.com/fxml"
           fx:controller="com.campasian.controller.SignupController"
           styleClass="root"
-          stylesheets="@../styles/app.css"
+          stylesheets="@../styles/signup.css"
           minWidth="900" minHeight="600"
           prefWidth="1200" prefHeight="700"
           maxWidth="Infinity" maxHeight="Infinity">
     <columnConstraints>
-        <ColumnConstraints percentWidth="45" halignment="CENTER"/>
-        <ColumnConstraints percentWidth="55" halignment="CENTER"/>
+        <ColumnConstraints percentWidth="50" halignment="CENTER"/>
+        <ColumnConstraints percentWidth="50" halignment="CENTER"/>
     </columnConstraints>
     <rowConstraints>
         <RowConstraints vgrow="ALWAYS"/>
     </rowConstraints>
 
-    <!-- Left: Branding panel -->
-    <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
-        <VBox spacing="8">
-            <Label text="CampusConnect" styleClass="hero-title"/>
-            <Label text="Your campus, your connections." styleClass="hero-subtitle"/>
+    <!-- Left: Heading + Description panel -->
+    <VBox styleClass="info-panel" alignment="CENTER_LEFT" spacing="32"
+          GridPane.columnIndex="0">
+        <VBox spacing="6">
+            <Label text="Campasian" styleClass="brand-name"/>
+            <Label text="Campus life, connected." styleClass="brand-tagline"/>
         </VBox>
-        <VBox spacing="10">
-            <Label text="Meet classmates and new friends" styleClass="hero-subtitle"/>
-            <Label text="Follow updates that matter to you" styleClass="hero-subtitle"/>
-            <Label text="Join communities around campus" styleClass="hero-subtitle"/>
+
+        <Separator styleClass="divider"/>
+
+        <VBox spacing="20">
+            <Label text="Create your account" styleClass="page-title"/>
+            <Label text="Join thousands of students already connecting, sharing, and growing together on Campasian — the social platform built for campus life."
+                   styleClass="page-description" wrapText="true"/>
         </VBox>
-        <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
-            <Label text="[Illustration]"/>
+
+        <VBox spacing="14" styleClass="features-list">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="●" styleClass="bullet"/>
+                <Label text="Meet classmates across departments" styleClass="feature-text"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="●" styleClass="bullet"/>
+                <Label text="Follow campus updates in real time" styleClass="feature-text"/>
+            </HBox>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="●" styleClass="bullet"/>
+                <Label text="Join communities that matter to you" styleClass="feature-text"/>
+            </HBox>
         </VBox>
+
+        <Label text="By signing up, you agree to our Terms of Service and Privacy Policy."
+               styleClass="terms-text" wrapText="true"/>
     </VBox>
 
-    <!-- Right: Form panel with scroll -->
-    <StackPane styleClass="auth-right" GridPane.columnIndex="1">
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="feed-scroll">
-            <VBox styleClass="auth-card" alignment="CENTER" spacing="16" maxWidth="480">
-                <VBox spacing="4">
-                    <Label text="Create your account" styleClass="form-title"/>
-                    <Label text="Join CampusConnect to meet people, share posts, and grow your campus network." styleClass="form-subtitle" wrapText="true"/>
-                </VBox>
-                <TextField fx:id="fullNameField" promptText="Full Name" prefWidth="320"/>
-                <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
-                <ComboBox fx:id="universityCombo" promptText="Search or select university..." editable="true" prefWidth="320"/>
-                <TextField fx:id="numberField" promptText="Student/ID Number" prefWidth="320"/>
-                <TextField fx:id="departmentField" promptText="Department" prefWidth="320"/>
-                <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
-                <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" prefWidth="320"/>
-                <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
-                <Button text="Sign up" onAction="#onSignupClick" styleClass="btn-primary" prefWidth="320"/>
+    <!-- Right: Signup Form -->
+    <StackPane styleClass="form-panel" GridPane.columnIndex="1">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" styleClass="form-scroll">
+            <VBox spacing="14" styleClass="form-inner">
+                <Label text="Get started for free" styleClass="form-title"/>
+                <Label text="Fill in your details below to create your Campasian account." styleClass="form-subtitle" wrapText="true"/>
+
+                <TextField fx:id="fullNameField" promptText="Full Name" styleClass="input-field" prefWidth="360"/>
+                <TextField fx:id="emailField" promptText="Email address" styleClass="input-field" prefWidth="360"/>
+                <ComboBox fx:id="universityCombo" promptText="Search or select university..." editable="true"
+                          styleClass="combo-field" prefWidth="360"/>
+                <TextField fx:id="numberField" promptText="Student / ID Number" styleClass="input-field" prefWidth="360"/>
+                <TextField fx:id="departmentField" promptText="Department" styleClass="input-field" prefWidth="360"/>
+                <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field" prefWidth="360"/>
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm Password" styleClass="input-field" prefWidth="360"/>
+
+                <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="360"/>
+
+                <Button text="Create Account" onAction="#onSignupClick" styleClass="btn-primary" prefWidth="360"/>
                 <Button text="Already have an account? Sign in" onAction="#onLoginLinkClick" styleClass="btn-link"/>
             </VBox>
         </ScrollPane>

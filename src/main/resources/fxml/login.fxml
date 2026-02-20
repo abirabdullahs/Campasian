@@ -1,61 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml"
-          fx:controller="com.campasian.controller.LoginController"
-          styleClass="root"
-          stylesheets="@../styles/app.css"
-          minWidth="900" minHeight="600"
-          prefWidth="1200" prefHeight="700"
-          maxWidth="Infinity" maxHeight="Infinity">
+<GridPane maxHeight="Infinity" maxWidth="Infinity" minHeight="600" minWidth="900" prefHeight="700" prefWidth="1200" styleClass="root" stylesheets="@../styles/signup.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.campasian.controller.LoginController">
     <columnConstraints>
-        <ColumnConstraints percentWidth="45" halignment="CENTER"/>
-        <ColumnConstraints percentWidth="55" halignment="CENTER"/>
+        <ColumnConstraints halignment="CENTER" percentWidth="50" />
+        <ColumnConstraints halignment="CENTER" percentWidth="50" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints vgrow="ALWAYS"/>
+        <RowConstraints vgrow="ALWAYS" />
     </rowConstraints>
 
-    <!-- Left: Branding panel -->
-    <VBox styleClass="side-panel" alignment="CENTER_LEFT" spacing="24" GridPane.columnIndex="0">
-        <VBox spacing="8">
-            <Label text="CampusConnect" styleClass="hero-title"/>
-            <Label text="Your campus, your connections." styleClass="hero-subtitle"/>
+    <!-- Left: Branding + Info panel -->
+    <VBox alignment="CENTER_LEFT" spacing="32" styleClass="info-panel" GridPane.columnIndex="0">
+        <VBox spacing="6">
+            <Label styleClass="brand-name" text="Campasian">
+            <font>
+               <Font name="Poppins Bold" size="24.0" />
+            </font></Label>
+            <Label styleClass="brand-tagline" text="Campus life, connected." />
         </VBox>
-        <VBox spacing="10">
-            <Label text="Share updates with classmates" styleClass="hero-subtitle"/>
-            <Label text="Discover people across campus" styleClass="hero-subtitle"/>
-            <Label text="Build your network in minutes" styleClass="hero-subtitle"/>
+
+        <Separator styleClass="divider" />
+
+        <VBox spacing="20">
+            <Label styleClass="page-title" text="Welcome back." />
+            <Label styleClass="page-description" text="Sign in to reconnect with your campus — your classmates, communities, and everything happening around you." wrapText="true" />
         </VBox>
-        <VBox styleClass="illustration-placeholder" alignment="CENTER" minHeight="220">
-            <Label text="[Illustration]"/>
+
+        <VBox spacing="14" styleClass="features-list">
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="bullet" text="●" />
+                <Label styleClass="feature-text" text="Share updates with classmates" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="bullet" text="●" />
+                <Label styleClass="feature-text" text="Discover people across campus" />
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="bullet" text="●" />
+                <Label styleClass="feature-text" text="Build your network in minutes" />
+            </HBox>
         </VBox>
+
+        <Label styleClass="terms-text" text="Your campus, your connections — all in one place." wrapText="true" />
     </VBox>
 
-    <!-- Right: Form panel -->
-    <StackPane styleClass="auth-right" GridPane.columnIndex="1">
-        <VBox styleClass="auth-card" alignment="CENTER" spacing="16" maxWidth="420">
-            <VBox spacing="4">
-                <Label text="Welcome back" styleClass="form-title"/>
-                <Label text="Sign in to continue connecting with your campus." styleClass="form-subtitle" wrapText="true"/>
-            </VBox>
-            <TextField fx:id="emailField" promptText="Email" prefWidth="320"/>
-            <PasswordField fx:id="passwordField" promptText="Password" prefWidth="320"/>
-            <CheckBox fx:id="rememberMeCheck" text="Remember me" prefWidth="320"/>
-            <Label fx:id="errorLabel" styleClass="error-label" managed="false" prefWidth="320"/>
-            <Button text="Sign in" onAction="#onLoginClick" styleClass="btn-primary" prefWidth="320"/>
-            <Button text="Don't have an account? Sign up" onAction="#onSignupLinkClick" styleClass="btn-link"/>
+    <!-- Right: Login Form -->
+    <StackPane styleClass="form-panel" GridPane.columnIndex="1">
+        <VBox alignment="CENTER_LEFT" maxWidth="480" spacing="14" styleClass="form-inner">
+            <Label styleClass="form-title" text="Sign in to your account" />
+            <Label styleClass="form-subtitle" text="Enter your credentials to access your Campasian account." wrapText="true" />
+
+            <TextField fx:id="emailField" prefWidth="360" promptText="Email address" styleClass="input-field" />
+            <PasswordField fx:id="passwordField" prefWidth="360" promptText="Password" styleClass="input-field" />
+            <CheckBox fx:id="rememberMeCheck" prefWidth="360" styleClass="check-box-style" text="Remember me" />
+
+            <Label fx:id="errorLabel" managed="false" prefWidth="360" styleClass="error-label" />
+
+            <Button onAction="#onLoginClick" prefWidth="360" styleClass="btn-primary" text="Sign in" />
+            <Button onAction="#onSignupLinkClick" styleClass="btn-link" text="Don't have an account? Sign up" />
         </VBox>
     </StackPane>
 </GridPane>

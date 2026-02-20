@@ -9,26 +9,19 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.NotificationsController"
       styleClass="dashboard-main"
-      stylesheets="@../styles/app.css"
+      stylesheets="@../styles/style.css"
       spacing="24" maxWidth="Infinity" maxHeight="Infinity">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
     <!-- Page header -->
-    <VBox styleClass="page-header" spacing="4">
-        <Label text="Notifications" styleClass="page-title"/>
-        <Label text="Keep up with likes, comments, and new connections in one place." styleClass="page-subtitle" wrapText="true"/>
+    <VBox styleClass="cc-header" spacing="4">
+        <Label text="Notifications" styleClass="cc-headline"/>
+        <Label text="Friend requests and activity — likes, comments, follows." styleClass="cc-description" wrapText="true"/>
     </VBox>
     
-    <!-- Empty State (shown by default) -->
-    <VBox fx:id="emptyStateContainer" styleClass="empty-state-container" VBox.vgrow="ALWAYS">
-        <Label text="🎉" styleClass="empty-state-icon"/>
-        <Label text="All caught up!" styleClass="empty-state-title"/>
-        <Label text="You're all set. No new notifications at the moment." styleClass="empty-state-message"/>
-    </VBox>
-    
-    <!-- Notifications List (hidden by default) -->
-    <ScrollPane fx:id="notificationsScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" visible="false" managed="false">
+    <!-- Notifications List -->
+    <ScrollPane fx:id="notificationsScroll" fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
         <VBox fx:id="notificationsVBox" spacing="8" styleClass="feed-container"/>
     </ScrollPane>
 </VBox>

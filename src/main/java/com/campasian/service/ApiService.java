@@ -2,6 +2,8 @@ package com.campasian.service;
 
 import com.campasian.config.SupabaseConfig;
 import com.campasian.model.Comment;
+import com.campasian.model.FriendRequest;
+import com.campasian.model.Message;
 import com.campasian.model.Notification;
 import com.campasian.model.Post;
 import com.campasian.model.User;
@@ -92,6 +94,26 @@ public final class ApiService {
     }
 
     /**
+     * Refreshes access token using stored refresh token. Call when access token may be expired.
+     * Updates in-memory tokens and TokenManager. Returns true if refresh succeeded.
+     */
+    public boolean refreshAccessToken() throws ApiException {
+        String rt = refreshToken != null ? refreshToken : TokenManager.getRefreshToken();
+        if (rt == null || rt.isBlank()) return false;
+        JsonObject payload = new JsonObject();
+        payload.addProperty("refresh_token", rt);
+        JsonObject root = postJson(authUrl("/token?grant_type=refresh_token"), payload);
+        storeTokensIfPresent(root);
+        String at = root != null ? asString(root.get("access_token")) : null;
+        if (at != null && !at.isBlank()) {
+            accessToken = at;
+            persistSession();
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Fetches profile from /rest/v1/profiles?id=eq.{userId}.
      * Returns null if not found or error.
      */
@@ -130,6 +152,7 @@ public final class ApiService {
                         p.setUniversityName(asString(obj.get("university_name")));
                         p.setEinNumber(asString(obj.get("ein_number")));
                         p.setBio(asString(obj.get("bio")));
+                        p.setAvatarUrl(asString(obj.get("avatar_url")));
                         return p;
                     }
                 }
@@ -183,8 +206,9 @@ public final class ApiService {
 
     /**
      * Creates a new post. Uses current user's id, name, and university from profile.
+     * @param imageUrl optional public URL from Supabase Storage (post-images bucket)
      */
-    public void sendPost(String content) throws ApiException {
+    public void sendPost(String content, String imageUrl) throws ApiException {
         String userId = currentUserId;
         if (userId == null || userId.isBlank()) {
             throw new ApiException(-1, "Not logged in", null, null, null);
@@ -198,10 +222,18 @@ public final class ApiService {
         body.addProperty("user_name", userName);
         body.addProperty("content", content != null ? content : "");
         body.addProperty("university", university);
+        if (imageUrl != null && !imageUrl.isBlank()) body.addProperty("image_url", imageUrl);
 
         String url = restUrl("/posts");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         postJsonWithAuth(url, body, token);
+    }
+
+    /**
+     * Creates a new post without image. Convenience for sendPost(content, null).
+     */
+    public void sendPost(String content) throws ApiException {
+        sendPost(content, null);
     }
 
     /**
@@ -293,6 +325,36 @@ public final class ApiService {
             Long pid = p.getId();
             p.setLikeCount(countByPost.getOrDefault(pid, 0));
             p.setLikedByMe(Boolean.TRUE.equals(likedByPost.get(pid)));
+        }
+    }
+
+    private void enrichPostsWithCommentCount(List<Post> posts) throws ApiException {
+        if (posts == null || posts.isEmpty()) return;
+        List<Long> postIds = new ArrayList<>();
+        for (Post p : posts) {
+            if (p.getId() != null) postIds.add(p.getId());
+        }
+        if (postIds.isEmpty()) return;
+        Map<Long, Integer> countByPost = new HashMap<>();
+        try {
+            String idsParam = postIds.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+            String url = restUrl("/comments?post_id=in.(" + idsParam + ")&select=post_id");
+            String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+            String body = getRawWithAuth(url, token);
+            if (body != null && !body.isBlank()) {
+                var parsed = JsonParser.parseString(body);
+                if (parsed != null && parsed.isJsonArray()) {
+                    for (JsonElement el : parsed.getAsJsonArray()) {
+                        if (el != null && el.isJsonObject()) {
+                            Long pid = asLong(el.getAsJsonObject().get("post_id"));
+                            if (pid != null) countByPost.merge(pid, 1, Integer::sum);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        for (Post p : posts) {
+            p.setCommentCount(countByPost.getOrDefault(p.getId(), 0));
         }
     }
 
@@ -518,7 +580,7 @@ public final class ApiService {
      */
     public List<Notification> fetchNotifications() throws ApiException {
         if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
-        String url = restUrl("/notifications?user_id=eq." + currentUserId + "&order=created_at.desc");
+        String url = restUrl("/notifications?user_id=eq." + currentUserId + "&order=created_at.desc&select=id,user_id,type,actor_id,actor_name,post_id,created_at,read_at");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         try {
             String body = getRawWithAuth(url, token);
@@ -537,6 +599,7 @@ public final class ApiService {
                     n.setActorName(asString(o.get("actor_name")));
                     n.setPostId(asLong(o.get("post_id")));
                     n.setCreatedAt(asString(o.get("created_at")));
+                    n.setReadAt(asString(o.get("read_at")));
                     list.add(n);
                 }
             }
@@ -552,7 +615,7 @@ public final class ApiService {
      * Table: public.profiles. Select uses base schema; bio optional (run social_extensions to add).
      */
     public List<UserProfile> getAllProfiles() throws ApiException {
-        String url = restUrl("/profiles?select=id,full_name,university_name,ein_number,department");
+        String url = restUrl("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url");
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         return getProfilesList(url, token);
     }
@@ -561,7 +624,7 @@ public final class ApiService {
      * Searches profiles by name or university. Uses ilike for partial match.
      */
     public List<UserProfile> searchProfiles(String nameQuery, String universityQuery) throws ApiException {
-        StringBuilder q = new StringBuilder("/profiles?select=id,full_name,university_name,ein_number,department");
+        StringBuilder q = new StringBuilder("/profiles?select=id,full_name,university_name,ein_number,department,avatar_url");
         if (nameQuery != null && !nameQuery.isBlank()) {
             q.append("&full_name=ilike.*").append(encode(nameQuery)).append("*");
         }
@@ -594,6 +657,7 @@ public final class ApiService {
                     p.setUniversityName(asString(o.get("university_name")));
                     p.setEinNumber(asString(o.get("ein_number")));
                     p.setBio(asString(o.get("bio")));
+                    p.setAvatarUrl(asString(o.get("avatar_url")));
                     list.add(p);
                 }
             }
@@ -602,6 +666,64 @@ public final class ApiService {
             if (e instanceof InterruptedException) Thread.currentThread().interrupt();
             throw new ApiException(-1, "Profiles fetch failed: " + e.getMessage(), null, null, null);
         }
+    }
+
+    /**
+     * Marks a notification as read.
+     */
+    public void markNotificationAsRead(String notificationId) throws ApiException {
+        if (notificationId == null || notificationId.isBlank() || currentUserId == null || currentUserId.isBlank()) return;
+        JsonObject payload = new JsonObject();
+        payload.addProperty("read_at", java.time.OffsetDateTime.now().toString());
+        String url = restUrl("/notifications?id=eq." + notificationId + "&user_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
+    }
+
+    /**
+     * Uploads bytes to Supabase Storage and returns the public URL.
+     * Bucket and path are required (e.g. avatars, avatars/userId/avatar.png).
+     */
+    public String uploadToStorage(String bucket, String path, byte[] data, String contentType) throws ApiException {
+        if (bucket == null || path == null || data == null) {
+            throw new ApiException(-1, "Invalid storage params", null, null, null);
+        }
+        String base = SupabaseConfig.getSupabaseUrl();
+        String storageUrl = base + "/storage/v1/object/" + bucket + "/" + path.replace(" ", "%20");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String anonKey = SupabaseConfig.getAnonKey();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(storageUrl))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", contentType != null ? contentType : "image/png")
+                .header("x-upsert", "true")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(data))
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return base + "/storage/v1/object/public/" + bucket + "/" + path;
+            }
+            throw new ApiException(response.statusCode(), "Upload failed", null, null, response.body());
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Upload failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
+    /**
+     * Updates profile avatar_url after upload.
+     */
+    public void updateProfileAvatar(String avatarUrl) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return;
+        JsonObject payload = new JsonObject();
+        payload.addProperty("avatar_url", avatarUrl != null ? avatarUrl : "");
+        String url = restUrl("/profiles?id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
     }
 
     /**
@@ -628,7 +750,180 @@ public final class ApiService {
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         List<Post> posts = getPostsWithAuth(url, token);
         enrichPostsWithLikes(posts);
+        enrichPostsWithCommentCount(posts);
         return posts;
+    }
+
+    /**
+     * Returns friend request status between current user and target: "none", "pending", or "accepted".
+     */
+    public String getFriendRequestStatus(String targetId) throws ApiException {
+        if (targetId == null || targetId.isBlank() || currentUserId == null || currentUserId.isBlank()) return "none";
+        String url = restUrl("/friend_requests?or=(and(from_id.eq." + currentUserId + ",to_id.eq." + targetId + "),and(from_id.eq." + targetId + ",to_id.eq." + currentUserId + "))&select=from_id,status");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return "none";
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return "none";
+            var arr = parsed.getAsJsonArray();
+            if (arr.isEmpty()) return "none";
+            for (JsonElement el : arr) {
+                if (el != null && el.isJsonObject()) {
+                    String status = asString(el.getAsJsonObject().get("status"));
+                    if ("accepted".equalsIgnoreCase(status)) return "accepted";
+                    if ("pending".equalsIgnoreCase(status)) return "pending";
+                }
+            }
+            return "none";
+        } catch (ApiException e) {
+            return "none";
+        }
+    }
+
+    /**
+     * Fetches incoming friend requests (to_id = current user, status = pending).
+     */
+    public List<FriendRequest> getIncomingFriendRequests() throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/friend_requests?to_id=eq." + currentUserId + "&status=eq.pending&order=created_at.desc&select=id,from_id,to_id,status,created_at");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<FriendRequest> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    FriendRequest fr = new FriendRequest();
+                    fr.setId(asString(o.get("id")));
+                    fr.setFromId(asString(o.get("from_id")));
+                    fr.setToId(asString(o.get("to_id")));
+                    fr.setStatus(asString(o.get("status")));
+                    fr.setCreatedAt(asString(o.get("created_at")));
+                    UserProfile p = getProfile(fr.getFromId());
+                    fr.setFromName(p != null && p.getFullName() != null ? p.getFullName() : "Someone");
+                    list.add(fr);
+                }
+            }
+            return list;
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Accepts a friend request. Recipient (to_id) can update status to accepted.
+     */
+    public void acceptFriendRequest(String requestId) throws ApiException {
+        if (requestId == null || requestId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("status", "accepted");
+        String url = restUrl("/friend_requests?id=eq." + requestId + "&to_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
+    }
+
+    /**
+     * Returns list of accepted friends (users with status=accepted in friend_requests).
+     */
+    public List<UserProfile> getFriends() throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/friend_requests?or=(from_id.eq." + currentUserId + ",to_id.eq." + currentUserId + ")&status=eq.accepted&select=from_id,to_id");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<String> friendIds = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    String from = asString(o.get("from_id"));
+                    String to = asString(o.get("to_id"));
+                    String other = from != null && from.equals(currentUserId) ? to : from;
+                    if (other != null && !other.isBlank() && !friendIds.contains(other)) friendIds.add(other);
+                }
+            }
+            List<UserProfile> friends = new ArrayList<>();
+            for (String fid : friendIds) {
+                UserProfile p = getProfile(fid);
+                if (p != null) friends.add(p);
+            }
+            return friends;
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Fetches messages between current user and partner (either direction).
+     */
+    public List<Message> getMessages(String partnerId) throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank() || partnerId == null || partnerId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/messages?or=(and(sender_id.eq." + currentUserId + ",receiver_id.eq." + partnerId + "),and(sender_id.eq." + partnerId + ",receiver_id.eq." + currentUserId + "))&order=created_at.asc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<Message> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    Message m = new Message();
+                    m.setId(asString(o.get("id")));
+                    m.setSenderId(asString(o.get("sender_id")));
+                    m.setReceiverId(asString(o.get("receiver_id")));
+                    m.setContent(asString(o.get("content")));
+                    m.setCreatedAt(asString(o.get("created_at")));
+                    list.add(m);
+                }
+            }
+            return list;
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Sends a message to another user.
+     */
+    public void sendMessage(String receiverId, String content) throws ApiException {
+        if (receiverId == null || receiverId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("sender_id", currentUserId);
+        payload.addProperty("receiver_id", receiverId);
+        payload.addProperty("content", content != null ? content : "");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/messages"), payload, token);
+    }
+
+    /**
+     * Rejects a friend request (deletes the pending record).
+     */
+    public void rejectFriendRequest(String requestId) throws ApiException {
+        if (requestId == null || requestId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String url = restUrl("/friend_requests?id=eq." + requestId + "&to_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        deleteWithAuth(url, token);
     }
 
     /**
@@ -730,6 +1025,7 @@ public final class ApiService {
                             p.setContent(asString(obj.get("content")));
                             p.setUniversity(asString(obj.get("university")));
                             p.setCreatedAt(asString(obj.get("created_at")));
+                            p.setImageUrl(asString(obj.get("image_url")));
                             posts.add(p);
                         }
                     }
