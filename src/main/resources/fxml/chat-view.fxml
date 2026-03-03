@@ -17,29 +17,26 @@
       stylesheets="@../styles/chat.css"
       maxWidth="Infinity" maxHeight="Infinity">
 
-    <!-- ── Top Bar ── -->
-    <HBox styleClass="chat-topbar" alignment="CENTER_LEFT" spacing="12">
+    <HBox styleClass="chat-topbar" alignment="CENTER_LEFT" spacing="16">
         <Label text="⊟" styleClass="chat-topbar-icon"/>
-        <VBox spacing="1" HBox.hgrow="ALWAYS">
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
             <Label text="Messages" styleClass="chat-topbar-title"/>
             <Label text="Chat with friends — messages appear instantly." styleClass="chat-topbar-sub"/>
         </VBox>
-        <!-- Online indicator -->
         <HBox styleClass="chat-online-badge" spacing="6" alignment="CENTER">
             <Label text="●" styleClass="chat-online-dot"/>
             <Label text="Online" styleClass="chat-online-text"/>
         </HBox>
     </HBox>
 
-    <!-- ── Body ── -->
+    <Separator styleClass="chat-divider"/>
+
     <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity">
 
-        <!-- ══ Friends Sidebar ══ -->
-        <VBox styleClass="chat-friends-panel" minWidth="240" prefWidth="256" maxWidth="256" spacing="0">
+        <VBox styleClass="chat-friends-panel" minWidth="260" prefWidth="280" maxWidth="280" spacing="0">
 
-            <!-- Search bar -->
             <VBox styleClass="chat-friends-search-wrap">
-                <TextField promptText="⊕  Search friends…"
+                <TextField promptText="Search friends…"
                            styleClass="chat-search-field"
                            maxWidth="Infinity"/>
             </VBox>
@@ -53,32 +50,27 @@
                         VBox.vgrow="ALWAYS"
                         hbarPolicy="NEVER"
                         vbarPolicy="AS_NEEDED">
-                <VBox fx:id="friendsList" spacing="0" styleClass="chat-friends-list"/>
+                <VBox fx:id="friendsList" spacing="4" styleClass="chat-friends-list"/>
             </ScrollPane>
         </VBox>
 
-        <!-- ══ Chat Window ══ -->
         <VBox HBox.hgrow="ALWAYS" maxHeight="Infinity" spacing="0" styleClass="chat-window">
 
-            <!-- Chat header -->
-            <HBox styleClass="chat-window-header" alignment="CENTER_LEFT" spacing="12">
+            <HBox styleClass="chat-window-header" alignment="CENTER_LEFT" spacing="16">
                 <StackPane styleClass="chat-avatar-circle">
                     <Label text="◉" styleClass="chat-avatar-icon"/>
                 </StackPane>
-                <VBox spacing="1" HBox.hgrow="ALWAYS">
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
                     <Label fx:id="chatPartnerLabel"
                            text="Select a friend to start chatting"
                            styleClass="chat-partner-name"/>
                     <Label text="Tap a name on the left to open a conversation"
                            styleClass="chat-partner-status"/>
                 </VBox>
-                <!-- Action icons -->
-                <Button text="⊙" styleClass="chat-icon-btn" disable="true"/>
             </HBox>
 
             <Separator styleClass="chat-divider"/>
 
-            <!-- Messages area -->
             <ScrollPane fx:id="messagesScroll"
                         fitToWidth="true"
                         styleClass="chat-scroll chat-messages-scroll"
@@ -86,20 +78,23 @@
                         hbarPolicy="NEVER"
                         vbarPolicy="AS_NEEDED">
                 <VBox fx:id="messagesVBox"
-                      spacing="10"
-                      styleClass="chat-messages-container"/>
+                      spacing="12"
+                      styleClass="chat-messages-container">
+                    <padding>
+                        <Insets top="20" right="24" bottom="20" left="24"/>
+                    </padding>
+                </VBox>
             </ScrollPane>
 
             <Separator styleClass="chat-divider"/>
 
-            <!-- Input bar -->
-            <HBox styleClass="chat-input-bar" spacing="10" alignment="CENTER">
+            <HBox styleClass="chat-input-bar" spacing="12" alignment="CENTER">
                 <TextField fx:id="messageField"
                            promptText="Type a message and press Enter…"
                            styleClass="chat-input-field"
                            HBox.hgrow="ALWAYS"
                            onAction="#onSendMessage"/>
-                <Button text="⊞  Send"
+                <Button text="Send"
                         styleClass="chat-send-btn"
                         onAction="#onSendMessage"/>
             </HBox>

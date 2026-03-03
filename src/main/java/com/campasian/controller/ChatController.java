@@ -103,7 +103,7 @@ public class ChatController implements Initializable {
                     String currentId = ApiService.getInstance().getCurrentUserId();
                     for (Message m : msgs) {
                         boolean fromMe = currentId != null && currentId.equals(m.getSenderId());
-                        VBox bubble = buildMessageBubble(m, fromMe);
+                        HBox bubble = buildMessageBubble(m, fromMe);
                         messagesVBox.getChildren().add(bubble);
                     }
                     scrollToBottom();
@@ -116,18 +116,36 @@ public class ChatController implements Initializable {
         if (selectedPartnerId != null) loadMessages();
     }
 
-    private VBox buildMessageBubble(Message m, boolean fromMe) {
+    private HBox buildMessageBubble(Message m, boolean fromMe) {
+        // 1. Message Text Content
         Label content = new Label(m.getContent() != null ? m.getContent() : "");
-        content.getStyleClass().add("comment-text");
         content.setWrapText(true);
-        content.setMaxWidth(400);
+        content.setMaxWidth(350); // Ekta nirdishto poriman boro hobe (Messenger style)
+
+        // 2. Timestamp
         Label time = new Label(formatTime(m.getCreatedAt()));
-        time.getStyleClass().add("post-meta");
-        VBox bubble = new VBox(4);
-        bubble.getStyleClass().add("comment-card");
-        if (fromMe) bubble.setStyle("-fx-alignment: center-right; -fx-background-color: #E4E4E7;");
+        time.getStyleClass().add("chat-partner-status"); // CSS theke muted text style nichhe
+        time.setStyle("-fx-font-size: 9px;");
+
+        // 3. Message Bubble (Vertical container for text + time)
+        VBox bubble = new VBox(2);
         bubble.getChildren().addAll(content, time);
-        return bubble;
+
+        // 4. Main Container (HBox) to handle Left/Right alignment
+        HBox container = new HBox();
+        container.setFillHeight(true);
+        container.setMaxWidth(Double.MAX_VALUE);
+
+        if (fromMe) {
+            bubble.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+            container.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        } else {
+            bubble.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+            container.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        }
+
+        container.getChildren().add(bubble);
+        return container;
     }
 
     @FXML

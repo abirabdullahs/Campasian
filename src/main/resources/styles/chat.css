@@ -1,346 +1,237 @@
-/* ════════════════════════════════════════════
-   Campasian — Chat View  |  chat.css
-   Poppins · black · gray · white
-════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-/* ── Root ── */
-.chat-root {
-    -fx-background-color: #09090b;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+/* * SHADCN/UI DARK THEME - MESSENGER STYLE
+ * Base Palette:
+ * Background: #09090b (Zinc 950)
+ * Card/Input: #18181b (Zinc 900)
+ * Borders: #27272a (Zinc 800)
+ * Muted Text: #a1a1aa (Zinc 400)
+ * Primary Text: #fafafa (Zinc 50)
+ */
+/* Main containers */
+.chat-root, .chat-window, .chat-friends-panel {
+    -fx-background-color: #09090b !important; /* Shadcn Dark */
 }
 
-/* ════════════════════
-   TOP BAR
-════════════════════ */
-.chat-topbar {
-    -fx-background-color: #0f0f11;
-    -fx-border-color:     #1e1e23;
-    -fx-border-width:     0 0 1 0;
-    -fx-padding:          16 24 16 24;
-    -fx-min-height:       64;
-}
-
-.chat-topbar-icon {
-    -fx-text-fill:  #52525b;
-    -fx-font-size:  20px;
-}
-
-.chat-topbar-title {
-    -fx-text-fill:   #fafafa;
-    -fx-font-size:   18px;
-    -fx-font-weight: 600;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-.chat-topbar-sub {
-    -fx-text-fill:   #52525b;
-    -fx-font-size:   12px;
-    -fx-font-weight: 300;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-.chat-online-badge {
-    -fx-background-color:  #18181b;
-    -fx-background-radius: 20;
-    -fx-border-color:      #27272a;
-    -fx-border-radius:     20;
-    -fx-border-width:      1;
-    -fx-padding:           5 12;
-}
-
-.chat-online-dot {
-    -fx-text-fill:  #4ade80;
-    -fx-font-size:  8px;
-}
-
-.chat-online-text {
-    -fx-text-fill:   #a1a1aa;
-    -fx-font-size:   11px;
-    -fx-font-weight: 500;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-/* ════════════════════
-   FRIENDS PANEL
-════════════════════ */
-.chat-friends-panel {
-    -fx-background-color: #0a0a0c;
-    -fx-border-color:     #1e1e23;
-    -fx-border-width:     0 1 0 0;
-}
-
-.chat-friends-search-wrap {
-    -fx-padding: 14 14 10 14;
-}
-
-.chat-search-field {
-    -fx-background-color:  #18181b;
-    -fx-background-radius: 8;
-    -fx-border-color:      #27272a;
-    -fx-border-radius:     8;
-    -fx-border-width:      1;
-    -fx-text-fill:         #e4e4e7;
-    -fx-prompt-text-fill:  #52525b;
-    -fx-font-size:         13px;
-    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
-    -fx-padding:           9 12;
-    -fx-pref-height:       36;
-}
-
-.chat-search-field:focused {
-    -fx-border-color: #3f3f46;
-}
-
-.chat-section-label {
-    -fx-text-fill:    #3f3f46;
-    -fx-font-size:    10px;
-    -fx-font-weight:  600;
-    -fx-font-family:  'Poppins', 'Segoe UI', sans-serif;
-    -fx-letter-spacing: 1.5px;
-    -fx-padding:      10 0 6 16;
-}
-
-.chat-friends-list {
-    -fx-background-color: #0a0a0c;
-    -fx-padding:          0 0 16 0;
-}
-
-/* Friend item rows — add .chat-friend-row styleClass from controller */
-.chat-friend-row {
-    -fx-background-color:  transparent;
-    -fx-background-radius: 0;
-    -fx-border-color:      transparent;
-    -fx-text-fill:         #a1a1aa;
-    -fx-font-size:         13.5px;
-    -fx-font-weight:       400;
-    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
-    -fx-alignment:         CENTER_LEFT;
-    -fx-padding:           11 16;
-    -fx-cursor:            hand;
-    -fx-pref-height:       48;
-    -fx-max-width:         Infinity;
-}
-
-.chat-friend-row:hover {
-    -fx-background-color: #18181b;
-    -fx-text-fill:        #e4e4e7;
-}
-
-.chat-friend-row-active {
-    -fx-background-color: #18181b;
-    -fx-text-fill:        #fafafa;
-    -fx-font-weight:      500;
-    -fx-border-color:     transparent transparent transparent #fafafa;
-    -fx-border-width:     0 0 0 2;
-}
-
-.chat-friend-name {
-    -fx-text-fill:   #d4d4d8;
-    -fx-font-size:   13px;
-    -fx-font-weight: 500;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-.chat-friend-preview {
-    -fx-text-fill:   #52525b;
-    -fx-font-size:   11.5px;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-/* ════════════════════
-   CHAT WINDOW
-════════════════════ */
-.chat-window {
-    -fx-background-color: #09090b;
-}
-
-/* Header */
-.chat-window-header {
-    -fx-background-color: #0f0f11;
-    -fx-padding:          14 20;
-    -fx-min-height:       60;
-}
-
-.chat-avatar-circle {
-    -fx-background-color:  #18181b;
-    -fx-background-radius: 50%;
-    -fx-border-color:      #27272a;
-    -fx-border-radius:     50%;
-    -fx-border-width:      1;
-    -fx-min-width:         38;
-    -fx-min-height:        38;
-    -fx-max-width:         38;
-    -fx-max-height:        38;
-}
-
-.chat-avatar-icon {
-    -fx-text-fill:  #52525b;
-    -fx-font-size:  18px;
-}
-
-.chat-partner-name {
-    -fx-text-fill:   #fafafa;
-    -fx-font-size:   14px;
-    -fx-font-weight: 600;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-.chat-partner-status {
-    -fx-text-fill:   #52525b;
-    -fx-font-size:   11.5px;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-}
-
-.chat-icon-btn {
-    -fx-background-color:  transparent;
-    -fx-border-color:      transparent;
-    -fx-text-fill:         #3f3f46;
-    -fx-font-size:         16px;
-    -fx-cursor:            hand;
-    -fx-background-radius: 6;
-    -fx-padding:           6 10;
-}
-
-.chat-icon-btn:hover {
-    -fx-background-color: #18181b;
-    -fx-text-fill:        #71717a;
-}
-
-/* Divider */
-.chat-divider {
-    -fx-background-color: #1e1e23;
-    -fx-border-color:     #1e1e23;
-    -fx-pref-height:      1;
-    -fx-opacity:          1;
-}
-
-/* Messages scroll */
+/* ScrollPane Fix - Eita white background dur korbe */
 .chat-scroll {
-    -fx-background:       #09090b;
-    -fx-background-color: #09090b;
-    -fx-border-color:     transparent;
+    -fx-background-color: transparent !important;
+    -fx-background: transparent !important;
 }
 
 .chat-scroll .viewport {
-    -fx-background-color: #09090b;
+    -fx-background-color: #09090b !important; /* Pure Dark */
 }
 
-.chat-scroll .scroll-bar:vertical {
-    -fx-background-color: #0f0f11;
-    -fx-pref-width:       4;
-}
-
-.chat-scroll .scroll-bar:vertical .thumb {
-    -fx-background-color:  #27272a;
-    -fx-background-radius: 3;
-}
-
-.chat-scroll .scroll-bar:vertical .increment-button,
-.chat-scroll .scroll-bar:vertical .decrement-button {
-    -fx-background-color: transparent;
-    -fx-pref-height:      0;
-}
-
-.chat-messages-scroll {
-    -fx-background-color: #09090b;
-}
-
+/* Messages container */
 .chat-messages-container {
     -fx-background-color: #09090b;
-    -fx-padding:          20 20 12 20;
 }
 
-/* ════════════════════
-   MESSAGE BUBBLES
-   (apply from controller)
-════════════════════ */
-
-/* Sent (right-aligned) */
-.msg-bubble-sent {
-    -fx-background-color:  #fafafa;
-    -fx-background-radius: 14 14 4 14;
-    -fx-padding:           10 14;
-    -fx-max-width:         380;
+/* Sent message (Right side) - Pure white text on blue/zinc */
+.chat-bubble-sent {
+    -fx-background-color: #fafafa; /* Shadcn primary */
+    -fx-text-fill: #FFFFFF;
+    -fx-padding: 8 12;
+    -fx-background-radius: 15 15 2 15;
 }
 
-.msg-text-sent {
-    -fx-text-fill:   #09090b;
-    -fx-font-size:   13px;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-    -fx-wrap-text:   true;
+/* Received message (Left side) - Grayish bubble */
+.chat-bubble-received {
+    -fx-background-color: #18181b; /* Zinc 900 */
+    -fx-border-color: #27272a;
+    -fx-text-fill: #fafafa;
+    -fx-padding: 8 12;
+    -fx-background-radius: 15 15 15 2;
+}
+.chat-root {
+    -fx-background-color: #09090b;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
 }
 
-/* Received (left-aligned) */
-.msg-bubble-received {
-    -fx-background-color:  #18181b;
-    -fx-background-radius: 14 14 14 4;
-    -fx-border-color:      #27272a;
-    -fx-border-radius:     14 14 14 4;
-    -fx-border-width:      1;
-    -fx-padding:           10 14;
-    -fx-max-width:         380;
+/* ── Top Bar ── */
+.chat-topbar {
+    -fx-background-color: #09090b;
+    -fx-padding: 12 24 12 24;
+}
+.chat-topbar-title {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.chat-topbar-sub {
+    -fx-text-fill: #a1a1aa;
+    -fx-font-size: 12px;
+}
+.chat-topbar-icon {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 18px;
 }
 
-.msg-text-received {
-    -fx-text-fill:   #d4d4d8;
-    -fx-font-size:   13px;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-    -fx-wrap-text:   true;
+/* Online Badge */
+.chat-online-badge {
+    -fx-background-color: rgba(16, 185, 129, 0.1); /* Emerald tint */
+    -fx-border-color: rgba(16, 185, 129, 0.2);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 4 12 4 12;
+}
+.chat-online-dot {
+    -fx-text-fill: #10b981; /* Emerald 500 */
+    -fx-font-size: 10px;
+}
+.chat-online-text {
+    -fx-text-fill: #10b981;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
 }
 
-.msg-timestamp {
-    -fx-text-fill:   #3f3f46;
-    -fx-font-size:   10.5px;
-    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+/* ── Sidebar (Friends Panel) ── */
+.chat-friends-panel {
+    -fx-background-color: #09090b;
+    -fx-border-color: #27272a;
+    -fx-border-width: 0 1 0 0; /* Right border only */
+}
+.chat-friends-search-wrap {
+    -fx-padding: 16;
+}
+.chat-search-field {
+    -fx-background-color: #18181b;
+    -fx-border-color: #27272a;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #71717a;
+    -fx-padding: 8 12 8 12;
+}
+.chat-search-field:focused {
+    -fx-border-color: #fafafa; /* Shadcn ring effect */
+}
+.chat-section-label {
+    -fx-text-fill: #71717a;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 16 16 8 16;
+}
+.chat-friends-list {
+    -fx-padding: 0 8 0 8;
 }
 
-/* ════════════════════
-   INPUT BAR
-════════════════════ */
+/* ── Chat Window ── */
+.chat-window {
+    -fx-background-color: #09090b;
+}
+.chat-window-header {
+    -fx-padding: 16 24 16 24;
+    -fx-background-color: #09090b;
+}
+.chat-partner-name {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+.chat-partner-status {
+    -fx-text-fill: #a1a1aa;
+    -fx-font-size: 12px;
+}
+.chat-avatar-circle {
+    -fx-background-color: #18181b;
+    -fx-border-color: #27272a;
+    -fx-border-width: 1;
+    -fx-border-radius: 50%;
+    -fx-background-radius: 50%;
+    -fx-min-width: 40px;
+    -fx-min-height: 40px;
+    -fx-max-width: 40px;
+    -fx-max-height: 40px;
+}
+.chat-avatar-icon {
+    -fx-text-fill: #fafafa;
+}
+
+/* ── Input Area (Messenger Style) ── */
 .chat-input-bar {
-    -fx-background-color: #0f0f11;
-    -fx-padding:          14 20;
-    -fx-min-height:       60;
+    -fx-padding: 16 24 16 24;
+    -fx-background-color: #09090b;
 }
-
 .chat-input-field {
-    -fx-background-color:  #18181b;
-    -fx-background-radius: 10;
-    -fx-border-color:      #27272a;
-    -fx-border-radius:     10;
-    -fx-border-width:      1;
-    -fx-text-fill:         #fafafa;
-    -fx-prompt-text-fill:  #3f3f46;
-    -fx-font-size:         13.5px;
-    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
-    -fx-padding:           10 14;
-    -fx-pref-height:       42;
+    -fx-background-color: #18181b;
+    -fx-border-color: #27272a;
+    -fx-border-radius: 24; /* Pill shape like Messenger */
+    -fx-background-radius: 24;
+    -fx-text-fill: #fafafa;
+    -fx-prompt-text-fill: #71717a;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 13px;
 }
-
 .chat-input-field:focused {
-    -fx-border-color:     #3f3f46;
-    -fx-background-color: #1c1c1f;
+    -fx-border-color: #fafafa;
 }
-
 .chat-send-btn {
-    -fx-background-color:  #fafafa;
-    -fx-background-radius: 10;
-    -fx-text-fill:         #09090b;
-    -fx-font-size:         13px;
-    -fx-font-weight:       600;
-    -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
-    -fx-padding:           10 20;
-    -fx-cursor:            hand;
-    -fx-pref-height:       42;
-    -fx-border-color:      transparent;
+    -fx-background-color: #fafafa; /* Shadcn primary button */
+    -fx-text-fill: #09090b;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 24;
+    -fx-cursor: hand;
 }
-
 .chat-send-btn:hover {
     -fx-background-color: #e4e4e7;
 }
 
-.chat-send-btn:pressed {
-    -fx-background-color: #d4d4d8;
+/* ── Global UI Elements ── */
+/* Custom Separators */
+.chat-divider {
+    -fx-background-color: transparent;
+}
+.chat-divider *.line {
+    -fx-border-color: #27272a;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Dark Mode Scrollbars */
+.chat-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #09090b;
+}
+.chat-scroll .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
+    -fx-background-color: #27272a;
+    -fx-background-radius: 4;
+}
+.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #3f3f46;
+}
+.scroll-bar .increment-button, .scroll-bar .decrement-button,
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+/* ── Programmatic Message Bubbles (For your Java Controller) ── */
+/* Apply these classes dynamically in your Java code when building the VBox messages */
+.chat-bubble-sent {
+    -fx-background-color: #fafafa;
+    -fx-text-fill: #09090b;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 18 18 4 18; /* Messenger style tail */
+    -fx-font-size: 13px;
+}
+.chat-bubble-received {
+    -fx-background-color: #18181b;
+    -fx-border-color: #27272a;
+    -fx-border-width: 1;
+    -fx-text-fill: #fafafa;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 18 18 18 4; /* Messenger style tail */
+    -fx-border-radius: 18 18 18 4;
+    -fx-font-size: 13px;
 }
