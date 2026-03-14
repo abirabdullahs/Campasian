@@ -64,8 +64,8 @@
                     <Label fx:id="chatPartnerLabel"
                            text="Select a friend to start chatting"
                            styleClass="chat-partner-name"/>
-                    <Label text="Tap a name on the left to open a conversation"
-                           styleClass="chat-partner-status"/>
+                    <!--<Label text="Tap a name on the left to open a conversation"
+                           styleClass="chat-partner-status"/>-->
                 </VBox>
             </HBox>
 

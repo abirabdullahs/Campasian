@@ -116,37 +116,80 @@ public class ChatController implements Initializable {
         if (selectedPartnerId != null) loadMessages();
     }
 
+//    private HBox buildMessageBubble(Message m, boolean fromMe) {
+//        // 1. Message Text Content
+//        Label content = new Label(m.getContent() != null ? m.getContent() : "");
+//        content.setWrapText(true);
+//        content.setMaxWidth(350); // Ekta nirdishto poriman boro hobe (Messenger style)
+//
+//        // 2. Timestamp
+//        Label time = new Label(formatTime(m.getCreatedAt()));
+//        time.getStyleClass().add("chat-partner-status"); // CSS theke muted text style nichhe
+//        time.setStyle("-fx-font-size: 9px;");
+//
+//        // 3. Message Bubble (Vertical container for text + time)
+//        VBox bubble = new VBox(2);
+//        bubble.getChildren().addAll(content, time);
+//
+//        // 4. Main Container (HBox) to handle Left/Right alignment
+//        HBox container = new HBox();
+//        container.setFillHeight(true);
+//        container.setMaxWidth(Double.MAX_VALUE);
+//
+//        if (fromMe) {
+//            bubble.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+//            container.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+//        } else {
+//            bubble.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+//            container.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+//        }
+//
+//        container.getChildren().add(bubble);
+//        return container;
+//    }
+
+
     private HBox buildMessageBubble(Message m, boolean fromMe) {
         // 1. Message Text Content
         Label content = new Label(m.getContent() != null ? m.getContent() : "");
         content.setWrapText(true);
-        content.setMaxWidth(350); // Ekta nirdishto poriman boro hobe (Messenger style)
+        content.setMaxWidth(350);
 
         // 2. Timestamp
         Label time = new Label(formatTime(m.getCreatedAt()));
-        time.getStyleClass().add("chat-partner-status"); // CSS theke muted text style nichhe
-        time.setStyle("-fx-font-size: 9px;");
+        time.getStyleClass().add("chat-partner-status");
+        time.setStyle("-fx-font-size: 9px; -fx-text-fill: #71717a;"); // Muted color
 
-        // 3. Message Bubble (Vertical container for text + time)
+        // 3. Message Bubble Container
         VBox bubble = new VBox(2);
         bubble.getChildren().addAll(content, time);
 
+        // --- DESIGN CHANGE START ---
+        if (fromMe) {
+            // Jodi ami pathai: Bubble hobe Messenger Blue/White r alignment hobe Right
+            content.getStyleClass().add("sent-bubble");
+            bubble.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+        } else {
+            // Jodi friend pathay: Bubble hobe Dark Gray r alignment hobe Left
+            content.getStyleClass().add("received-bubble");
+            bubble.setAlignment(javafx.geometry.Pos.TOP_LEFT);
+        }
+        // --- DESIGN CHANGE END ---
+
         // 4. Main Container (HBox) to handle Left/Right alignment
         HBox container = new HBox();
-        container.setFillHeight(true);
-        container.setMaxWidth(Double.MAX_VALUE);
+        container.getChildren().add(bubble);
 
         if (fromMe) {
-            bubble.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
             container.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
         } else {
-            bubble.setAlignment(javafx.geometry.Pos.TOP_LEFT);
             container.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         }
 
-        container.getChildren().add(bubble);
         return container;
     }
+
+
 
     @FXML
     protected void onSendMessage() {
