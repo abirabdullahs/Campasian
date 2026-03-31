@@ -2,6 +2,7 @@ package com.campasian.controller;
 
 import com.campasian.service.AuthService;
 import com.campasian.service.ApiException;
+import com.campasian.service.CommunityService;
 import com.campasian.service.UniversityService;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
@@ -160,6 +161,7 @@ public class SignupController implements Initializable {
 
         try {
             authService.signup(fullName, email, university, number, department, password);
+            CommunityService.getInstance().ensureAutoJoin(email, email, university, department, number, fullName);
             SceneManager.navigateTo(ViewPaths.LOGIN_VIEW);
         } catch (ApiException e) {
             if (e.isUserAlreadyRegistered()) {

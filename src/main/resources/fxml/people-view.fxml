@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
@@ -16,7 +17,6 @@
       stylesheets="@../styles/people.css"
       spacing="0" maxWidth="Infinity" maxHeight="Infinity">
 
-    <!-- ── Top Bar ── -->
     <HBox styleClass="people-topbar" alignment="CENTER_LEFT" spacing="12">
         <Label text="⊕" styleClass="people-topbar-icon"/>
         <VBox spacing="1" HBox.hgrow="ALWAYS">
@@ -31,26 +31,21 @@
 
     <Separator styleClass="people-divider"/>
 
-    <!-- ── Body ── -->
     <HBox VBox.vgrow="ALWAYS" maxHeight="Infinity">
-
-        <!-- ══ Main content ══ -->
         <VBox HBox.hgrow="ALWAYS" maxHeight="Infinity" spacing="0">
             <padding>
                 <Insets top="22" right="20" bottom="20" left="24"/>
             </padding>
 
-            <!-- Search bar -->
             <HBox styleClass="people-search-wrap" spacing="10" alignment="CENTER_LEFT">
                 <Label text="⊕" styleClass="people-search-icon"/>
                 <TextField fx:id="searchField"
-                           promptText="Search by name or university…"
+                           promptText="Search by name or university..."
                            styleClass="people-search-field"
                            HBox.hgrow="ALWAYS"
                            onKeyReleased="#onSearchKeyReleased"/>
             </HBox>
 
-            <!-- Filter chips -->
             <HBox spacing="8" alignment="CENTER_LEFT" styleClass="people-filter-row">
                 <Button fx:id="allDeptBtn" styleClass="people-chip people-chip-active" text="Everyone" onAction="#onFilterAll"/>
                 <Button fx:id="cseDeptBtn" styleClass="people-chip" text="CSE" onAction="#onFilterCSE"/>
@@ -60,28 +55,35 @@
                 <Label text="Browse all students" styleClass="people-sort-label"/>
             </HBox>
 
-            <Separator styleClass="people-divider" style="-fx-margin: 0 0 14 0;"/>
+            <Separator styleClass="people-divider"/>
 
-            <!-- People grid / list -->
-            <ScrollPane fitToWidth="true"
-                        styleClass="people-scroll"
-                        VBox.vgrow="ALWAYS"
-                        hbarPolicy="NEVER"
-                        vbarPolicy="AS_NEEDED">
-                <VBox fx:id="peopleVBox"
-                      spacing="10"
-                      styleClass="people-list"/>
-            </ScrollPane>
+            <StackPane VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true"
+                            styleClass="people-scroll"
+                            VBox.vgrow="ALWAYS"
+                            hbarPolicy="NEVER"
+                            vbarPolicy="AS_NEEDED">
+                    <VBox fx:id="peopleVBox"
+                          spacing="14"
+                          styleClass="people-list"/>
+                </ScrollPane>
+                <VBox fx:id="peopleLoadingOverlay"
+                      alignment="CENTER"
+                      spacing="12"
+                      styleClass="people-loader-overlay"
+                      visible="false" managed="false">
+                    <ProgressIndicator styleClass="people-loader-spinner"/>
+                    <Label text="Loading students..." styleClass="people-loader-text"/>
+                </VBox>
+            </StackPane>
         </VBox>
 
-        <!-- ══ Right panel ══ -->
         <VBox styleClass="people-right-panel" spacing="20"
               minWidth="224" prefWidth="240" maxWidth="240">
             <padding>
                 <Insets top="22" right="18" bottom="20" left="16"/>
             </padding>
 
-            <!-- Tips card -->
             <VBox styleClass="people-widget-card" spacing="12">
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <Label text="⬡" styleClass="people-widget-icon"/>
@@ -103,7 +105,6 @@
                 </VBox>
             </VBox>
 
-            <!-- Stats card -->
             <VBox styleClass="people-widget-card" spacing="10">
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <Label text="◎" styleClass="people-widget-icon"/>
@@ -122,8 +123,6 @@
                     </HBox>
                 </VBox>
             </VBox>
-
         </VBox>
-
     </HBox>
 </VBox>

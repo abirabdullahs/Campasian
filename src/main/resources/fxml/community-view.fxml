@@ -1,24 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.campasian.controller.CommunityController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/style.css"
-      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
-    <!-- Page header -->
-    <VBox styleClass="cc-header" spacing="4">
-        <Label text="Community" styleClass="cc-headline"/>
-        <Label text="Find groups, events, and campus conversations. More features coming soon." styleClass="cc-description" wrapText="true"/>
-    </VBox>
-    <VBox styleClass="profile-card" spacing="16" maxWidth="600">
-        <Label text="Join Campus Groups" styleClass="profile-card-title"/>
-        <Label text="Discover and connect with communities on campus. Coming soon!" styleClass="profile-label"/>
-    </VBox>
-</VBox>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.campasian.controller.CommunityController"
+            styleClass="dashboard-main community-root"
+            stylesheets="@../styles/app.css,@../styles/community.css"
+            prefWidth="1200.0" prefHeight="760.0">
+
+    <left>
+        <VBox styleClass="community-sidebar" prefWidth="320.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="24.0" right="20.0" bottom="24.0" left="24.0"/>
+            </padding>
+            <children>
+                <Label text="Communities" styleClass="community-sidebar-title"/>
+                <Label text="Verified student rooms built from university identity and department membership."
+                       styleClass="community-sidebar-subtitle"
+                       wrapText="true"/>
+                <ListView fx:id="communityListView" VBox.vgrow="ALWAYS" styleClass="community-room-list"/>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox styleClass="community-main" spacing="18.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+            </padding>
+            <children>
+                <VBox styleClass="community-header" spacing="8.0">
+                    <Label fx:id="titleLabel" text="Community" styleClass="community-title"/>
+                    <Label fx:id="subtitleLabel"
+                           text="Structured community chat for university students."
+                           styleClass="community-subtitle"
+                           wrapText="true"/>
+                    <HBox spacing="10.0">
+                        <Label fx:id="verificationLabel" text="Verified university room" styleClass="community-pill"/>
+                        <Label fx:id="memberCountLabel" text="0 students" styleClass="community-pill community-pill-secondary"/>
+                    </HBox>
+                </VBox>
+
+                <ListView fx:id="messageListView" VBox.vgrow="ALWAYS" styleClass="community-message-list"/>
+
+                <Separator/>
+
+                <VBox spacing="10.0" styleClass="community-composer-card">
+                    <Label fx:id="communityHintLabel"
+                           text="Auto-join is triggered from signup; use ObservableList to refresh the room instantly."
+                           styleClass="community-hint"
+                           wrapText="true"/>
+                    <HBox spacing="12.0" alignment="CENTER_LEFT">
+                        <TextField fx:id="messageField"
+                                   promptText="Write to your university community..."
+                                   HBox.hgrow="ALWAYS"
+                                   styleClass="community-input"/>
+                        <Button fx:id="sendButton"
+                                text="Send"
+                                onAction="#onSendClick"
+                                styleClass="community-send-btn"/>
+                    </HBox>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

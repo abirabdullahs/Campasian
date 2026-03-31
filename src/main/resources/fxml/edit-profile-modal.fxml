@@ -3,137 +3,150 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.campasian.controller.EditProfileModalController"
-      styleClass="modal-root"
-      stylesheets="@../styles/profile.css"
-      prefWidth="460" spacing="0">
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.campasian.controller.EditProfileModalController"
+            styleClass="modal-root"
+            stylesheets="@../styles/profile.css"
+            prefWidth="460"
+            prefHeight="640"
+            minWidth="420"
+            minHeight="520"
+            maxHeight="760">
 
-    <!-- ── Modal Header ── -->
-    <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
-        <Label text="✎" styleClass="modal-header-icon"/>
-        <VBox spacing="1" HBox.hgrow="ALWAYS">
-            <Label text="Edit Profile" styleClass="modal-title"/>
-            <Label text="Update your details visible to other students." styleClass="modal-subtitle" wrapText="true"/>
-        </VBox>
-    </HBox>
-
-    <Separator styleClass="profile-field-divider"/>
-
-    <!-- ── Body ── -->
-    <VBox spacing="20" styleClass="modal-body">
-        <padding>
-            <Insets top="22" right="24" bottom="24" left="24"/>
-        </padding>
-
-        <!-- Avatar row -->
-        <HBox spacing="16" alignment="CENTER_LEFT" styleClass="modal-avatar-row">
-            <StackPane styleClass="modal-avatar-wrap">
-                <ImageView fx:id="avatarPreview"
-                           fitWidth="64" fitHeight="64"
-                           preserveRatio="true"
-                           styleClass="profile-avatar-img"/>
-                <Label text="◉" styleClass="modal-avatar-fallback"/>
-            </StackPane>
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="Profile Photo" styleClass="modal-field-label"/>
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Button text="⊕  Change Photo" styleClass="btn-secondary"
-                            onAction="#onChangePhoto"/>
-                    <Label fx:id="avatarLabel" text="" styleClass="modal-avatar-hint"/>
-                </HBox>
-                <Label text="JPG or PNG recommended · Max 2 MB" styleClass="modal-field-hint"/>
-            </VBox>
-        </HBox>
-
-        <Separator styleClass="profile-field-divider"/>
-
-        <!-- Full Name -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="◉" styleClass="modal-field-icon"/>
-                <Label text="Full Name" styleClass="modal-field-label"/>
+    <top>
+        <VBox>
+            <HBox styleClass="modal-header" alignment="CENTER_LEFT" spacing="10">
+                <Label text="✎" styleClass="modal-header-icon"/>
+                <VBox spacing="1" HBox.hgrow="ALWAYS">
+                    <Label text="Edit Profile" styleClass="modal-title"/>
+                    <Label text="Update your details visible to other students." styleClass="modal-subtitle" wrapText="true"/>
+                </VBox>
             </HBox>
-            <TextField fx:id="fullNameField"
-                       styleClass="modal-input"
-                       promptText="Enter your full name"/>
+            <Separator styleClass="profile-field-divider"/>
         </VBox>
+    </top>
 
-        <!-- University -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="⬡" styleClass="modal-field-icon"/>
-                <Label text="University" styleClass="modal-field-label"/>
+    <center>
+        <ScrollPane fitToWidth="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="modal-scroll">
+            <content>
+                <VBox spacing="20" styleClass="modal-body">
+                    <padding>
+                        <Insets top="22" right="24" bottom="24" left="24"/>
+                    </padding>
+
+                    <HBox spacing="16" alignment="CENTER_LEFT" styleClass="modal-avatar-row">
+                        <StackPane styleClass="modal-avatar-wrap">
+                            <ImageView fx:id="avatarPreview"
+                                       fitWidth="64" fitHeight="64"
+                                       preserveRatio="true"
+                                       styleClass="profile-avatar-img"/>
+                            <Label text="◉" styleClass="modal-avatar-fallback"/>
+                        </StackPane>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Profile Photo" styleClass="modal-field-label"/>
+                            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="modal-avatar-actions">
+                                <Button text="⊕  Change Photo" styleClass="btn-secondary"
+                                        onAction="#onChangePhoto"/>
+                                <Label fx:id="avatarLabel" text="" styleClass="modal-avatar-hint"/>
+                            </HBox>
+                            <Label text="JPG or PNG recommended · Max 2 MB" styleClass="modal-field-hint"/>
+                        </VBox>
+                    </HBox>
+
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="◉" styleClass="modal-field-icon"/>
+                            <Label text="Full Name" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextField fx:id="fullNameField"
+                                   styleClass="modal-input"
+                                   promptText="Enter your full name"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="⬡" styleClass="modal-field-icon"/>
+                            <Label text="University" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextField fx:id="universityField"
+                                   styleClass="modal-input"
+                                   promptText="Enter your university"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="⊟" styleClass="modal-field-icon"/>
+                            <Label text="Bio" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextArea fx:id="bioField"
+                                  styleClass="modal-textarea"
+                                  promptText="Write a short bio about yourself..."
+                                  wrapText="true"
+                                  prefRowCount="3"/>
+                        <Label text="Tell other students a little about yourself." styleClass="modal-field-hint"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="🩸" styleClass="modal-field-icon"/>
+                            <Label text="Blood Group" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextField fx:id="bloodGroupField"
+                                   styleClass="modal-input"
+                                   promptText="e.g. A+, O-"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="📓" styleClass="modal-field-icon"/>
+                            <Label text="Session" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextField fx:id="sessionField"
+                                   styleClass="modal-input"
+                                   promptText="e.g. 2022-23"/>
+                    </VBox>
+
+                    <VBox spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="6">
+                            <Label text="◍" styleClass="modal-field-icon"/>
+                            <Label text="Batch" styleClass="modal-field-label"/>
+                        </HBox>
+                        <TextField fx:id="batchField"
+                                   styleClass="modal-input"
+                                   promptText="e.g. 22"/>
+                    </VBox>
+
+                    <Region minHeight="4"/>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <VBox>
+            <Separator styleClass="profile-field-divider"/>
+            <HBox styleClass="modal-footer" spacing="10" alignment="CENTER_RIGHT">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Cancel" styleClass="btn-ghost" onAction="#onCancelClick"/>
+                <Button text="⊾  Save Changes" styleClass="btn-primary" onAction="#onSaveClick"/>
             </HBox>
-            <TextField fx:id="universityField"
-                       styleClass="modal-input"
-                       promptText="Enter your university"/>
         </VBox>
+    </bottom>
 
-        <!-- Bio -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="⊟" styleClass="modal-field-icon"/>
-                <Label text="Bio" styleClass="modal-field-label"/>
-            </HBox>
-            <TextArea fx:id="bioField"
-                      styleClass="modal-textarea"
-                      promptText="Write a short bio about yourself…"
-                      wrapText="true"
-                      prefRowCount="3"/>
-            <Label text="Tell other students a little about yourself." styleClass="modal-field-hint"/>
-        </VBox>
-
-        <!-- Blood Group -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="🩸" styleClass="modal-field-icon"/>
-                <Label text="Blood Group" styleClass="modal-field-label"/>
-            </HBox>
-            <TextField fx:id="bloodGroupField"
-                        styleClass="modal-input"
-                        promptText="e.g. A+, O-"/>
-        </VBox>
-
-        <!-- Session -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="📅" styleClass="modal-field-icon"/>
-                <Label text="Session" styleClass="modal-field-label"/>
-            </HBox>
-            <TextField fx:id="sessionField"
-                        styleClass="modal-input"
-                        promptText="e.g. 2022-23"/>
-        </VBox>
-
-        <!-- Batch -->
-        <VBox spacing="6">
-            <HBox alignment="CENTER_LEFT" spacing="6">
-                <Label text="◉" styleClass="modal-field-icon"/>
-                <Label text="Batch" styleClass="modal-field-label"/>
-            </HBox>
-            <TextField fx:id="batchField"
-                        styleClass="modal-input"
-                        promptText="e.g. 22"/>
-        </VBox>
-
-    </VBox>
-
-    <Separator styleClass="profile-field-divider"/>
-
-    <!-- ── Footer / Actions ── -->
-    <HBox styleClass="modal-footer" spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Cancel" styleClass="btn-ghost" onAction="#onCancelClick"/>
-        <Button text="⊞  Save Changes" styleClass="btn-primary" onAction="#onSaveClick"/>
-    </HBox>
-
-</VBox>
+</BorderPane>

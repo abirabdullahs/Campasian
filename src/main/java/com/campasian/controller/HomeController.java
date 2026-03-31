@@ -5,11 +5,13 @@ import com.campasian.view.AppRouter;
 import com.campasian.view.NavigationContext;
 import com.campasian.view.SceneManager;
 import com.campasian.view.ViewPaths;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.util.ResourceBundle;
 public class HomeController implements Initializable {
 
     @FXML private StackPane contentArea;
+    @FXML private VBox loadingOverlay;
     @FXML private Button feedBtn;
     @FXML private Button peopleBtn;
     @FXML private Button communityBtn;
@@ -53,13 +56,18 @@ public class HomeController implements Initializable {
      */
     public void loadView(String fxmlPath) {
         if (contentArea == null || fxmlPath == null || fxmlPath.isBlank()) return;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent view = loader.load();
-            contentArea.getChildren().setAll(view);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load view: " + fxmlPath, e);
-        }
+        showLoading(true);
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+                Parent view = loader.load();
+                contentArea.getChildren().setAll(view);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load view: " + fxmlPath, e);
+            } finally {
+                showLoading(false);
+            }
+        });
     }
 
     @FXML
@@ -162,6 +170,15 @@ public class HomeController implements Initializable {
     private void updateSidebarActive(Button active) {
         clearSidebarActive();
         if (active != null) active.getStyleClass().add(SIDEBAR_ACTIVE);
+    }
+
+    private void showLoading(boolean show) {
+        if (loadingOverlay == null) return;
+        loadingOverlay.setVisible(show);
+        loadingOverlay.setManaged(show);
+        if (show) {
+            loadingOverlay.toFront();
+        }
     }
 
     /** Loads profile view for a specific user (for navigation from People/Post). */

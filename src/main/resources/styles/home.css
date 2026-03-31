@@ -14,6 +14,33 @@
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
+.home-sidebar-scroll {
+    -fx-background-color: #0f0f11;
+    -fx-border-color: #1e1e23;
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 0;
+}
+
+.home-sidebar-scroll > .viewport {
+    -fx-background-color: #0f0f11;
+}
+
+.home-sidebar-scroll .scroll-bar:vertical {
+    -fx-background-color: #0f0f11;
+    -fx-pref-width: 6;
+}
+
+.home-sidebar-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #27272a;
+    -fx-background-radius: 999;
+}
+
+.home-sidebar-scroll .scroll-bar:vertical .increment-button,
+.home-sidebar-scroll .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}
+
 /* ════════════════════
    SIDEBAR
 ════════════════════ */
@@ -171,6 +198,20 @@ VBox > .sidebar-divider {
     -fx-background-color: #09090b;
 }
 
+.home-loader-overlay {
+    -fx-background-color: rgba(9, 9, 11, 0.72);
+}
+
+.home-loader-spinner {
+    -fx-progress-color: #fafafa;
+}
+
+.home-loader-text {
+    -fx-text-fill: #e4e4e7;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
 /* ════════════════════
    SCROLL PANE (reusable)
 ════════════════════ */
@@ -198,4 +239,9 @@ VBox > .sidebar-divider {
 .feed-scroll .scroll-bar:vertical .decrement-button {
     -fx-background-color: transparent;
     -fx-pref-height: 0;
+}
+
+.sidebar {
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 }

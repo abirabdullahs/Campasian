@@ -377,3 +377,133 @@
     -fx-font-weight: 600;
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
+
+.people-list {
+    -fx-padding: 8 4 28 0;
+}
+
+.people-profile-card {
+    -fx-background-color: linear-gradient(to bottom right, #101014, #15151b);
+    -fx-background-radius: 16;
+    -fx-border-color: #20202a;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 18 18 16 18;
+    -fx-spacing: 12;
+}
+
+.people-profile-card:hover {
+    -fx-background-color: linear-gradient(to bottom right, #14141a, #1a1a21);
+    -fx-border-color: #31313c;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 18, 0.14, 0, 6);
+}
+
+.people-card-header {
+    -fx-alignment: center-left;
+}
+
+.people-card-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #fafafa, #d4d4d8);
+    -fx-background-radius: 999;
+    -fx-min-width: 48;
+    -fx-min-height: 48;
+    -fx-max-width: 48;
+    -fx-max-height: 48;
+}
+
+.people-card-avatar-text {
+    -fx-text-fill: #09090b;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.people-card-name {
+    -fx-text-fill: #fafafa;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.people-card-name:hover {
+    -fx-text-fill: #ffffff;
+}
+
+.people-card-university {
+    -fx-text-fill: #8f8f99;
+    -fx-font-size: 12px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.people-card-badges {
+    -fx-padding: 2 0 0 0;
+}
+
+.people-meta-badge {
+    -fx-background-color: #20202a;
+    -fx-background-radius: 999;
+    -fx-border-color: #2f2f3a;
+    -fx-border-radius: 999;
+    -fx-border-width: 1;
+    -fx-padding: 4 10;
+    -fx-text-fill: #d4d4d8;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.people-card-actions {
+    -fx-padding: 4 0 0 0;
+}
+
+.people-action-primary {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 10;
+    -fx-text-fill: #09090b;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 7 16;
+}
+
+.people-action-primary:hover {
+    -fx-background-color: #e7e7ea;
+}
+
+.people-action-secondary {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+    -fx-border-color: #32323d;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-text-fill: #c4c4cc;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 7 16;
+}
+
+.people-action-secondary:hover {
+    -fx-background-color: #1b1b22;
+    -fx-text-fill: #fafafa;
+}
+
+.people-friend-status {
+    -fx-background-color: #172554;
+    -fx-background-radius: 999;
+    -fx-padding: 5 10;
+    -fx-text-fill: #bfdbfe;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.people-loader-overlay {
+    -fx-background-color: rgba(9, 9, 11, 0.68);
+    -fx-background-radius: 14;
+}
+
+.people-loader-spinner {
+    -fx-progress-color: #fafafa;
+}
+
+.people-loader-text {
+    -fx-text-fill: #d4d4d8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}

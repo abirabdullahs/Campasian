@@ -390,6 +390,31 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 32, 0, 0, 8);
 }
 
+.modal-body {
+    -fx-fill-width: true;
+}
+
+.modal-scroll {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.modal-scroll > .viewport {
+    -fx-background-color: #0f0f11;
+}
+
+.modal-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8;
+}
+
+.modal-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #27272a;
+    -fx-background-radius: 999;
+}
+
 /* ── Modal Header ── */
 .modal-header {
     -fx-background-color:  #0a0a0c;
@@ -425,6 +450,10 @@
     -fx-border-radius:     10;
     -fx-border-width:      1;
     -fx-padding:           14 16;
+}
+
+.modal-avatar-actions {
+    -fx-alignment: center-left;
 }
 
 .modal-avatar-wrap {
