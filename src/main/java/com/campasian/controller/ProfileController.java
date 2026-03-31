@@ -3,9 +3,9 @@ package com.campasian.controller;
 import com.campasian.model.Comment;
 import com.campasian.model.Post;
 import com.campasian.model.UserProfile;
+import com.campasian.service.ApiException;
 import com.campasian.service.ApiService;
 import com.campasian.service.AuthService;
-import com.campasian.service.ApiException;
 import com.campasian.view.AppRouter;
 import com.campasian.view.NavigationContext;
 import com.campasian.view.SceneManager;
@@ -32,14 +32,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Controller for the profile sub-view. Supports viewing self or other users.
- */
 public class ProfileController implements Initializable {
 
     @FXML private Label fullNameLabel;
+    @FXML private Label fullNameLabel2;
     @FXML private javafx.scene.image.ImageView avatarImageView;
     @FXML private Label universityLabel;
+    @FXML private Label universityLabel2;
+    @FXML private Label departmentLabel;
     @FXML private Label einLabel;
     @FXML private Label bioLabel;
     @FXML private Label bloodGroupLabel;
@@ -47,6 +47,7 @@ public class ProfileController implements Initializable {
     @FXML private Label batchLabel;
     @FXML private Label followersCountLabel;
     @FXML private Label followingCountLabel;
+    @FXML private Label postCountLabel;
     @FXML private Button editProfileBtn;
     @FXML private Button followBtn;
     @FXML private Button unfollowBtn;
@@ -68,13 +69,13 @@ public class ProfileController implements Initializable {
     @FXML
     protected void onEditProfileClick() {
         try {
-            UserProfile p = AuthService.getInstance().getCurrentUserProfile();
-            if (p == null) return;
+            UserProfile profile = AuthService.getInstance().getCurrentUserProfile();
+            if (profile == null) return;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit-profile-modal.fxml"));
             Parent root = loader.load();
             EditProfileModalController ctrl = loader.getController();
-            ctrl.setInitialData(p.getFullName(), p.getUniversityName(), p.getBio(), p.getBloodGroup(), p.getSession(), p.getBatch());
-            ctrl.setInitialAvatarUrl(p.getAvatarUrl());
+            ctrl.setInitialData(profile.getFullName(), profile.getUniversityName(), profile.getBio(), profile.getBloodGroup(), profile.getSession(), profile.getBatch());
+            ctrl.setInitialAvatarUrl(profile.getAvatarUrl());
             ctrl.setOnSaved(this::loadProfile);
 
             Stage stage = new Stage();
@@ -95,7 +96,8 @@ public class ProfileController implements Initializable {
             ApiService.getInstance().followUser(viewingUserId);
             updateActionButtons();
             loadProfile();
-        } catch (ApiException e) { /* ignore */ }
+        } catch (ApiException ignored) {
+        }
     }
 
     @FXML
@@ -104,7 +106,8 @@ public class ProfileController implements Initializable {
             ApiService.getInstance().unfollowUser(viewingUserId);
             updateActionButtons();
             loadProfile();
-        } catch (ApiException e) { /* ignore */ }
+        } catch (ApiException ignored) {
+        }
     }
 
     private void updateActionButtons() {
@@ -145,43 +148,44 @@ public class ProfileController implements Initializable {
                     ? ApiService.getInstance().getProfile(viewingUserId)
                     : AuthService.getInstance().getCurrentUserProfile();
                 String uid = profile != null ? profile.getId() : null;
-                final AtomicInteger followers = new AtomicInteger(0);
-                final AtomicInteger following = new AtomicInteger(0);
+                AtomicInteger followers = new AtomicInteger(0);
+                AtomicInteger following = new AtomicInteger(0);
                 if (uid != null) {
                     try {
                         followers.set(ApiService.getInstance().getFollowerCount(uid));
                         following.set(ApiService.getInstance().getFollowingCount(uid));
-                    } catch (ApiException ignored) {}
+                    } catch (ApiException ignored) {
+                    }
                 }
                 UserProfile finalProfile = profile;
                 Platform.runLater(() -> {
                     if (finalProfile != null) {
-                        fullNameLabel.setText(finalProfile.getFullName() != null ? finalProfile.getFullName() : "—");
+                        setLabel(fullNameLabel, finalProfile.getFullName());
+                        setLabel(fullNameLabel2, finalProfile.getFullName());
                         if (avatarImageView != null && finalProfile.getAvatarUrl() != null && !finalProfile.getAvatarUrl().isBlank()) {
-                            try { avatarImageView.setImage(new javafx.scene.image.Image(finalProfile.getAvatarUrl(), true)); } catch (Exception ignored) {}
+                            try {
+                                avatarImageView.setImage(new javafx.scene.image.Image(finalProfile.getAvatarUrl(), true));
+                            } catch (Exception ignored) {
+                            }
                         }
-                        universityLabel.setText(finalProfile.getUniversityName() != null ? finalProfile.getUniversityName() : "—");
-                        einLabel.setText(finalProfile.getEinNumber() != null ? finalProfile.getEinNumber() : "—");
-                        bioLabel.setText(finalProfile.getBio() != null && !finalProfile.getBio().isBlank() ? finalProfile.getBio() : "—");
-                        if (bloodGroupLabel != null) bloodGroupLabel.setText(finalProfile.getBloodGroup() != null && !finalProfile.getBloodGroup().isBlank() ? finalProfile.getBloodGroup() : "—");
-                        if (sessionLabel != null) sessionLabel.setText(finalProfile.getSession() != null && !finalProfile.getSession().isBlank() ? finalProfile.getSession() : "—");
-                        if (batchLabel != null) batchLabel.setText(finalProfile.getBatch() != null && !finalProfile.getBatch().isBlank() ? finalProfile.getBatch() : "—");
+                        setLabel(universityLabel, finalProfile.getUniversityName());
+                        setLabel(universityLabel2, finalProfile.getUniversityName());
+                        setLabel(departmentLabel, finalProfile.getDepartment());
+                        setLabel(einLabel, finalProfile.getEinNumber());
+                        setLabel(bioLabel, finalProfile.getBio());
+                        setLabel(bloodGroupLabel, finalProfile.getBloodGroup());
+                        setLabel(sessionLabel, finalProfile.getSession());
+                        setLabel(batchLabel, finalProfile.getBatch());
                         if (followersCountLabel != null) followersCountLabel.setText(String.valueOf(followers.get()));
                         if (followingCountLabel != null) followingCountLabel.setText(String.valueOf(following.get()));
                     } else {
-                        fullNameLabel.setText("—");
-                        universityLabel.setText("—");
-                        einLabel.setText("—");
+                        clearProfileLabels();
                     }
                 });
             } catch (ApiException e) {
-                Platform.runLater(() -> {
-                    fullNameLabel.setText("—");
-                    universityLabel.setText("—");
-                    einLabel.setText("—");
-                });
+                Platform.runLater(this::clearProfileLabels);
             }
-        }).start();
+        }, "profile-load").start();
     }
 
     private void loadPosts() {
@@ -205,6 +209,7 @@ public class ProfileController implements Initializable {
                         empty.getStyleClass().add("profile-label");
                         postsVBox.getChildren().add(empty);
                     }
+                    if (postCountLabel != null) postCountLabel.setText(String.valueOf(posts.size()));
                 });
             } catch (ApiException e) {
                 Platform.runLater(() -> {
@@ -213,9 +218,10 @@ public class ProfileController implements Initializable {
                         err.getStyleClass().add("profile-label");
                         postsVBox.getChildren().add(err);
                     }
+                    if (postCountLabel != null) postCountLabel.setText("0");
                 });
             }
-        }).start();
+        }, "profile-posts-load").start();
     }
 
     private VBox buildPostCard(Post post, boolean canEdit) {
@@ -236,7 +242,8 @@ public class ProfileController implements Initializable {
                 postImageView.setFitWidth(400);
                 postImageView.setFitHeight(300);
                 postImageView.setPreserveRatio(true);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
 
         int likeCount = post.getLikeCount();
@@ -256,7 +263,8 @@ public class ProfileController implements Initializable {
                 likeBtn.setText((post.isLikedByMe() ? "♥ " : "♡ ") + (post.getLikeCount() > 0 ? String.valueOf(post.getLikeCount()) : ""));
                 likeBtn.getStyleClass().remove("post-action-btn-liked");
                 if (post.isLikedByMe()) likeBtn.getStyleClass().add("post-action-btn-liked");
-            } catch (ApiException ex) { /* ignore */ }
+            } catch (ApiException ignored) {
+            }
         });
 
         VBox commentsContainer = new VBox(8);
@@ -284,14 +292,14 @@ public class ProfileController implements Initializable {
                     commentBtn.setText("💬 " + (post.getCommentCount() > 0 ? String.valueOf(post.getCommentCount()) : ""));
                     commentField.clear();
                     loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
-                } catch (ApiException ex) { /* ignore */ }
+                } catch (ApiException ignored) {
+                }
             }
         });
 
         HBox actions = new HBox(16);
         actions.getStyleClass().add("post-actions");
-        actions.getChildren().add(likeBtn);
-        actions.getChildren().add(commentBtn);
+        actions.getChildren().addAll(likeBtn, commentBtn);
 
         if (canEdit) {
             Button editBtn = new Button("Edit");
@@ -304,21 +312,23 @@ public class ProfileController implements Initializable {
                 d.setTitle("Edit Post");
                 d.setHeaderText("Edit your post");
                 d.showAndWait().ifPresent(newContent -> {
-                if (!newContent.equals(post.getContent())) {
-                    try {
-                        ApiService.getInstance().updatePost(post.getId(), newContent);
-                        post.setContent(newContent);
-                        content.setText(newContent);
-                        loadPosts();
-                    } catch (ApiException ex) { /* ignore */ }
-                }
+                    if (!newContent.equals(post.getContent())) {
+                        try {
+                            ApiService.getInstance().updatePost(post.getId(), newContent);
+                            post.setContent(newContent);
+                            content.setText(newContent);
+                            loadPosts();
+                        } catch (ApiException ignored) {
+                        }
+                    }
                 });
             });
             deleteBtn.setOnAction(ev -> {
                 try {
                     ApiService.getInstance().deletePost(post.getId());
                     loadPosts();
-                } catch (ApiException ex) { /* ignore */ }
+                } catch (ApiException ignored) {
+                }
             });
             actions.getChildren().addAll(editBtn, deleteBtn);
         }
@@ -365,6 +375,27 @@ public class ProfileController implements Initializable {
             err.getStyleClass().add("profile-label");
             container.getChildren().add(err);
         }
+    }
+
+    private void setLabel(Label label, String value) {
+        if (label != null) {
+            label.setText(value != null && !value.isBlank() ? value : "—");
+        }
+    }
+
+    private void clearProfileLabels() {
+        setLabel(fullNameLabel, null);
+        setLabel(fullNameLabel2, null);
+        setLabel(universityLabel, null);
+        setLabel(universityLabel2, null);
+        setLabel(departmentLabel, null);
+        setLabel(einLabel, null);
+        setLabel(bioLabel, null);
+        setLabel(bloodGroupLabel, null);
+        setLabel(sessionLabel, null);
+        setLabel(batchLabel, null);
+        if (followersCountLabel != null) followersCountLabel.setText("0");
+        if (followingCountLabel != null) followingCountLabel.setText("0");
     }
 
     private static String formatCreatedAt(String iso) {

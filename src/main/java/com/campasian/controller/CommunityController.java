@@ -7,6 +7,8 @@ import com.campasian.service.ApiException;
 import com.campasian.service.ApiService;
 import com.campasian.service.AuthService;
 import com.campasian.service.CommunityService;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,23 +23,26 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
-/**
- * Controller for university community rooms.
- */
 public class CommunityController implements Initializable {
 
+    private static final Duration REFRESH_INTERVAL = Duration.seconds(4);
+
+    @FXML private BorderPane communityRoot;
     @FXML private SplitPane communitySplitPane;
     @FXML private VBox communityRightPanel;
     @FXML private Button panelToggleButton;
@@ -65,6 +70,9 @@ public class CommunityController implements Initializable {
     private String currentUserId;
     private CommunityRoom selectedRoom;
     private boolean rightPanelCollapsed;
+    private boolean suppressSelectionHandler;
+    private volatile boolean refreshInFlight;
+    private Timeline refreshTimeline;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -75,7 +83,7 @@ public class CommunityController implements Initializable {
             communityListView.setItems(availableRooms);
             communityListView.setCellFactory(list -> new CommunityRoomCell());
             communityListView.getSelectionModel().selectedItemProperty().addListener((obs, oldRoom, newRoom) -> {
-                if (newRoom != null) {
+                if (!suppressSelectionHandler && newRoom != null) {
                     onRoomSelected(newRoom);
                 }
             });
@@ -91,6 +99,15 @@ public class CommunityController implements Initializable {
         if (sendButton != null) {
             sendButton.setDisable(true);
         }
+        if (communityRoot != null) {
+            communityRoot.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (oldScene != null && newScene == null) {
+                    stopRealtimeRefresh();
+                } else if (newScene != null) {
+                    startRealtimeRefresh();
+                }
+            });
+        }
         resetCommunityEditor();
         loadCommunityData();
     }
@@ -100,65 +117,21 @@ public class CommunityController implements Initializable {
             try {
                 currentUserId = ApiService.getInstance().getCurrentUserId();
                 currentUserProfile = AuthService.getInstance().getCurrentUserProfile();
-                List<UserProfile> allProfiles = ApiService.getInstance().getAllProfiles();
-                if (currentUserProfile == null) {
-                    allProfiles = Collections.emptyList();
-                }
-                UserProfile profile = currentUserProfile;
-                List<UserProfile> finalAllProfiles = allProfiles;
-                List<CommunityRoom> rooms = communityService.buildCommunities(profile, finalAllProfiles);
-                Platform.runLater(() -> applyRooms(profile, rooms));
+                List<UserProfile> allProfiles = currentUserProfile == null
+                    ? Collections.emptyList()
+                    : ApiService.getInstance().getAllProfiles();
+                List<CommunityRoom> rooms = communityService.buildCommunities(currentUserProfile, allProfiles);
+                Platform.runLater(() -> applyRooms(currentUserProfile, rooms, null));
             } catch (ApiException e) {
                 Platform.runLater(this::showLoadError);
             }
         }, "community-load").start();
     }
 
-    private void applyRooms(UserProfile profile, List<CommunityRoom> rooms) {
-        if (profile == null) {
-            showLoadError();
-            return;
-        }
-        availableRooms.setAll(rooms);
-        if (!availableRooms.isEmpty()) {
-            if (selectedRoom != null) {
-                availableRooms.stream()
-                    .filter(room -> room.getId().equals(selectedRoom.getId()))
-                    .findFirst()
-                    .ifPresentOrElse(room -> communityListView.getSelectionModel().select(room),
-                        () -> communityListView.getSelectionModel().selectFirst());
-            } else {
-                communityListView.getSelectionModel().selectFirst();
-            }
-        } else {
-            titleLabel.setText("Community");
-            subtitleLabel.setText("No verified student communities are available yet.");
-            verificationLabel.setText("Verification unavailable");
-            memberCountLabel.setText("0 students");
-            communityHintLabel.setText("Students are grouped by university name and ID/email rules.");
-        }
-    }
-
     private void onRoomSelected(CommunityRoom room) {
         selectedRoom = room;
-        titleLabel.setText(room.getName());
-        subtitleLabel.setText(room.getDescription());
-        verificationLabel.setText(room.isCustom() ? "Custom community" : (room.isVerified() ? "Verified university room" : "Verification pending"));
-        memberCountLabel.setText(room.getMemberCount() + (room.getMemberCount() == 1 ? " student" : " students"));
-        communityHintLabel.setText(room.isAutoJoined()
-            ? "Auto-joined from signup using university identity rules."
-            : room.isCustom()
-                ? "Custom community created by a student. You can edit or delete your own rooms."
-                : "Joined from your verified university and department profile.");
-
-        try {
-            visibleMessages.setAll(communityService.getMessages(room.getId()));
-            scrollMessagesToBottom();
-        } catch (ApiException e) {
-            visibleMessages.clear();
-        }
-        if (sendButton != null) sendButton.setDisable(false);
-        populateCommunityEditor(room);
+        renderRoomDetails(room, true);
+        loadMessagesAsync(room, false);
     }
 
     @FXML
@@ -226,6 +199,7 @@ public class CommunityController implements Initializable {
             if (communityService.deleteCustomRoom(selectedRoom.getId(), currentUserId)) {
                 selectedRoom = null;
                 resetCommunityEditor();
+                visibleMessages.clear();
                 reloadRooms(null);
             }
         } catch (ApiException ignored) {
@@ -247,11 +221,105 @@ public class CommunityController implements Initializable {
         }
     }
 
+    private void applyRooms(UserProfile profile, List<CommunityRoom> rooms, String roomIdToSelect) {
+        if (profile == null) {
+            showLoadError();
+            return;
+        }
+
+        String selectedId = roomIdToSelect != null ? roomIdToSelect : selectedRoom != null ? selectedRoom.getId() : null;
+        suppressSelectionHandler = true;
+        availableRooms.setAll(rooms);
+        if (!availableRooms.isEmpty()) {
+            CommunityRoom roomToUse = availableRooms.stream()
+                .filter(room -> selectedId != null && room.getId().equals(selectedId))
+                .findFirst()
+                .orElse(availableRooms.get(0));
+            selectedRoom = roomToUse;
+            if (communityListView != null) {
+                communityListView.getSelectionModel().select(roomToUse);
+                communityListView.scrollTo(roomToUse);
+            }
+            renderRoomDetails(roomToUse, false);
+        } else {
+            selectedRoom = null;
+            titleLabel.setText("Community");
+            subtitleLabel.setText("No verified student communities are available yet.");
+            verificationLabel.setText("Verification unavailable");
+            memberCountLabel.setText("0 students");
+            communityHintLabel.setText("Students are grouped by university name and ID/email rules.");
+        }
+        suppressSelectionHandler = false;
+
+        if (selectedRoom != null) {
+            loadMessagesAsync(selectedRoom, false);
+        }
+    }
+
+    private void renderRoomDetails(CommunityRoom room, boolean updateEditor) {
+        if (room == null) return;
+        titleLabel.setText(room.getName());
+        subtitleLabel.setText(room.getDescription());
+        verificationLabel.setText(room.isCustom() ? "Custom community" : (room.isVerified() ? "Verified university room" : "Verification pending"));
+        memberCountLabel.setText(room.getMemberCount() + (room.getMemberCount() == 1 ? " student" : " students"));
+        communityHintLabel.setText(room.isAutoJoined()
+            ? "Auto-joined from signup using university identity rules."
+            : room.isCustom()
+                ? "Custom community created by a student. You can edit or delete your own rooms."
+                : "Joined from your verified university and department profile.");
+        if (sendButton != null) sendButton.setDisable(false);
+        if (updateEditor) {
+            populateCommunityEditor(room);
+        } else if (selectedRoom != null && Objects.equals(selectedRoom.getId(), room.getId())) {
+            populateCommunityEditor(room);
+        }
+    }
+
+    private void loadMessagesAsync(CommunityRoom room, boolean preserveScrollPosition) {
+        if (room == null) return;
+        String roomId = room.getId();
+        new Thread(() -> {
+            try {
+                List<CommunityMessage> messages = communityService.getMessages(roomId);
+                Platform.runLater(() -> {
+                    if (selectedRoom == null || !roomId.equals(selectedRoom.getId())) return;
+                    boolean changed = messagesChanged(messages);
+                    if (changed) {
+                        visibleMessages.setAll(messages);
+                        if (!preserveScrollPosition || roomId.equals(selectedRoom.getId())) {
+                            scrollMessagesToBottom();
+                        }
+                    }
+                });
+            } catch (ApiException ignored) {
+            }
+        }, "community-messages-" + roomId).start();
+    }
+
+    private boolean messagesChanged(List<CommunityMessage> messages) {
+        if (messages.size() != visibleMessages.size()) return true;
+        for (int i = 0; i < messages.size(); i++) {
+            CommunityMessage incoming = messages.get(i);
+            CommunityMessage current = visibleMessages.get(i);
+            if (!Objects.equals(incoming.getCreatedAt(), current.getCreatedAt())
+                || !Objects.equals(incoming.getSenderId(), current.getSenderId())
+                || !Objects.equals(incoming.getContent(), current.getContent())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void populateCommunityEditor(CommunityRoom room) {
         if (communityNameField == null || communityDescriptionField == null) return;
         boolean canManage = communityService.canManage(room, currentUserId);
-        communityNameField.setText(room != null && room.isCustom() ? room.getName() : "");
-        communityDescriptionField.setText(room != null && room.isCustom() ? room.getDescription() : "");
+        if (room != null && room.isCustom()) {
+            communityNameField.setText(room.getName());
+            communityDescriptionField.setText(room.getDescription());
+        } else if (room == null || !room.isCustom()) {
+            communityNameField.clear();
+            communityDescriptionField.clear();
+        }
         communityNameField.setDisable(!canManage && room != null && room.isCustom());
         communityDescriptionField.setDisable(!canManage && room != null && room.isCustom());
         if (communityEditorLabel != null) {
@@ -259,15 +327,9 @@ public class CommunityController implements Initializable {
                 ? (canManage ? "Edit your custom community" : "Custom community details")
                 : "Create a new custom community");
         }
-        if (saveCommunityButton != null) {
-            saveCommunityButton.setDisable(room == null || !canManage);
-        }
-        if (deleteCommunityButton != null) {
-            deleteCommunityButton.setDisable(room == null || !canManage);
-        }
-        if (createCommunityButton != null) {
-            createCommunityButton.setDisable(false);
-        }
+        if (saveCommunityButton != null) saveCommunityButton.setDisable(room == null || !canManage);
+        if (deleteCommunityButton != null) deleteCommunityButton.setDisable(room == null || !canManage);
+        if (createCommunityButton != null) createCommunityButton.setDisable(false);
     }
 
     private void resetCommunityEditor() {
@@ -288,19 +350,50 @@ public class CommunityController implements Initializable {
             try {
                 List<UserProfile> allProfiles = ApiService.getInstance().getAllProfiles();
                 List<CommunityRoom> rooms = communityService.buildCommunities(currentUserProfile, allProfiles);
-                Platform.runLater(() -> {
-                    applyRooms(currentUserProfile, rooms);
-                    if (roomIdToSelect != null) {
-                        availableRooms.stream()
-                            .filter(room -> roomIdToSelect.equals(room.getId()))
-                            .findFirst()
-                            .ifPresent(room -> communityListView.getSelectionModel().select(room));
-                    }
-                });
+                Platform.runLater(() -> applyRooms(currentUserProfile, rooms, roomIdToSelect));
             } catch (ApiException e) {
                 Platform.runLater(this::showLoadError);
             }
         }, "community-refresh").start();
+    }
+
+    private void startRealtimeRefresh() {
+        if (refreshTimeline != null) return;
+        refreshTimeline = new Timeline(new KeyFrame(REFRESH_INTERVAL, event -> refreshCommunityState()));
+        refreshTimeline.setCycleCount(Timeline.INDEFINITE);
+        refreshTimeline.play();
+    }
+
+    private void stopRealtimeRefresh() {
+        if (refreshTimeline != null) {
+            refreshTimeline.stop();
+            refreshTimeline = null;
+        }
+    }
+
+    private void refreshCommunityState() {
+        if (refreshInFlight || currentUserProfile == null) return;
+        refreshInFlight = true;
+        String selectedId = selectedRoom != null ? selectedRoom.getId() : null;
+        new Thread(() -> {
+            try {
+                List<UserProfile> allProfiles = ApiService.getInstance().getAllProfiles();
+                List<CommunityRoom> rooms = communityService.buildCommunities(currentUserProfile, allProfiles);
+                List<CommunityMessage> latestMessages = selectedId != null
+                    ? communityService.getMessages(selectedId)
+                    : List.of();
+                Platform.runLater(() -> {
+                    applyRooms(currentUserProfile, rooms, selectedId);
+                    if (selectedRoom != null && selectedId != null && selectedId.equals(selectedRoom.getId()) && messagesChanged(latestMessages)) {
+                        visibleMessages.setAll(latestMessages);
+                        scrollMessagesToBottom();
+                    }
+                    refreshInFlight = false;
+                });
+            } catch (ApiException e) {
+                Platform.runLater(() -> refreshInFlight = false);
+            }
+        }, "community-live-refresh").start();
     }
 
     private void showLoadError() {

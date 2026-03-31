@@ -135,6 +135,8 @@ public final class CommunityService {
             null,
             universityKey
         ));
+        ensureSeedMessage(roomId(universityKey, "general"), "Campus Community Bot",
+            "Welcome to the " + safeName(universityName) + " university hub. Students can chat here by default.");
 
         api.upsertCommunityRoom(new CommunityRoom(
             roomId(universityKey, "freshers"),
@@ -148,6 +150,8 @@ public final class CommunityService {
             null,
             universityKey
         ));
+        ensureSeedMessage(roomId(universityKey, "freshers"), "Campus Mentor",
+            "Use this room for orientation questions, class routines, and first-week help.");
 
         String cleanedDepartment = normalizeDepartment(department);
         if (!cleanedDepartment.isBlank()) {
@@ -163,6 +167,14 @@ public final class CommunityService {
                 null,
                 universityKey
             ));
+            ensureSeedMessage(roomId(universityKey, cleanedDepartment), "Department Coordinator",
+                "Department space ready for " + safeName(department) + " students.");
+        }
+    }
+
+    private void ensureSeedMessage(String roomId, String senderName, String content) throws ApiException {
+        if (ApiService.getInstance().getCommunityMessages(roomId).isEmpty()) {
+            ApiService.getInstance().sendCommunityMessage(roomId, "system", senderName, content);
         }
     }
 

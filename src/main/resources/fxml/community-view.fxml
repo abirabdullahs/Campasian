@@ -15,6 +15,7 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.campasian.controller.CommunityController"
+            fx:id="communityRoot"
             styleClass="dashboard-main community-root"
             stylesheets="@../styles/app.css,@../styles/community.css"
             prefWidth="1200.0" prefHeight="760.0">
@@ -29,6 +30,12 @@
                 <Label text="Verified student rooms built from university identity and department membership."
                        styleClass="community-sidebar-subtitle"
                        wrapText="true"/>
+                <VBox styleClass="community-sidebar-card" spacing="6">
+                    <Label text="Campus Rooms" styleClass="community-sidebar-card-title"/>
+                    <Label text="Auto-joined general rooms, department lounges, and your own custom communities live here."
+                           styleClass="community-sidebar-card-body"
+                           wrapText="true"/>
+                </VBox>
                 <ListView fx:id="communityListView" VBox.vgrow="ALWAYS" styleClass="community-room-list"/>
             </children>
         </VBox>
@@ -103,6 +110,13 @@
                         <VBox styleClass="community-editor-card" spacing="8">
                             <Label text="Panel controls" styleClass="community-editor-title"/>
                             <Label text="Drag the divider to resize this panel. Use Hide Panel to collapse it and Show Panel to bring it back." styleClass="community-editor-subtitle" wrapText="true"/>
+                        </VBox>
+
+                        <VBox styleClass="community-editor-card community-accent-card" spacing="8">
+                            <Label text="Live sync" styleClass="community-editor-title"/>
+                            <Label text="Community rooms and messages refresh automatically, so new messages from other students appear without reloading the page."
+                                   styleClass="community-editor-subtitle"
+                                   wrapText="true"/>
                         </VBox>
                     </children>
                 </VBox>
