@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
@@ -19,9 +19,9 @@
         <Label text="Search teachers by name or department. Leave helpful tips about teaching style." styleClass="page-subtitle" wrapText="true"/>
     </VBox>
 
-    <HBox spacing="12" alignment="CENTER_LEFT">
+    <FlowPane hgap="12" vgap="12" prefWrapLength="720">
         <TextField fx:id="searchField" promptText="Search by name or department..." styleClass="material-input" prefWidth="320" onKeyReleased="#onSearchKeyReleased"/>
-    </HBox>
+    </FlowPane>
 
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
         <VBox fx:id="facultyVBox" spacing="12" styleClass="feed-container"/>

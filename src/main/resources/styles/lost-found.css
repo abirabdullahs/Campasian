@@ -1,0 +1,83 @@
+.lost-found-root {
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-background-color: linear-gradient(to bottom, #09090b, #111827);
+}
+
+.lost-found-root .page-title,
+.lost-found-root .page-subtitle,
+.lost-found-root .profile-label,
+.lost-found-root .label {
+    -fx-text-fill: #f3f4f6;
+}
+
+.lost-found-root .page-subtitle,
+.lost-found-root .profile-label,
+.lost-found-root .post-meta {
+    -fx-text-fill: #94a3b8;
+}
+
+.lost-found-root .marketplace-filter-btn {
+    -fx-background-color: #111827;
+    -fx-text-fill: #cbd5e1;
+    -fx-border-color: #334155;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 8 16;
+}
+
+.lost-found-root .marketplace-filter-btn:hover,
+.lost-found-root .marketplace-filter-btn-active {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #020617;
+    -fx-border-color: #e2e8f0;
+}
+
+.lost-found-card {
+    -fx-background-color: linear-gradient(to bottom right, #111827, #0f172a);
+    -fx-background-radius: 18;
+    -fx-border-color: #334155;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+    -fx-spacing: 8;
+}
+
+.lost-found-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.42), 22, 0.16, 0, 8);
+}
+
+.lost-found-badge {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-padding: 5 10;
+    -fx-background-radius: 999;
+    -fx-max-width: 84;
+    -fx-alignment: center;
+}
+
+.lost-found-badge-lost {
+    -fx-background-color: rgba(248, 113, 113, 0.18);
+    -fx-text-fill: #fca5a5;
+}
+
+.lost-found-badge-found {
+    -fx-background-color: rgba(74, 222, 128, 0.18);
+    -fx-text-fill: #86efac;
+}
+
+.lost-found-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #f8fafc;
+}
+
+.lost-found-location {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+}
+
+.lost-found-description {
+    -fx-text-fill: #dbe4f0;
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2;
+}

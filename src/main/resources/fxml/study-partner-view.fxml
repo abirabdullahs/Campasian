@@ -20,7 +20,7 @@
 
     <Button fx:id="postBtn" text="+ Post Looking for Partner" styleClass="btn-primary" style="-fx-margin: 0 0 12 0;" onAction="#onPostClick"/>
 
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll study-scroll" VBox.vgrow="ALWAYS">
         <VBox fx:id="itemsVBox" spacing="12" styleClass="feed-container"/>
     </ScrollPane>
 </VBox>

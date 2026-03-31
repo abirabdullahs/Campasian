@@ -18,6 +18,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -33,10 +35,12 @@ import java.util.ResourceBundle;
 
 /**
  * Controller for university community rooms.
- * Uses ObservableList so the selected room and message timeline stay in sync with the UI.
  */
 public class CommunityController implements Initializable {
 
+    @FXML private SplitPane communitySplitPane;
+    @FXML private VBox communityRightPanel;
+    @FXML private Button panelToggleButton;
     @FXML private ListView<CommunityRoom> communityListView;
     @FXML private ListView<CommunityMessage> messageListView;
     @FXML private Label titleLabel;
@@ -46,6 +50,12 @@ public class CommunityController implements Initializable {
     @FXML private Label communityHintLabel;
     @FXML private TextField messageField;
     @FXML private Button sendButton;
+    @FXML private TextField communityNameField;
+    @FXML private TextArea communityDescriptionField;
+    @FXML private Label communityEditorLabel;
+    @FXML private Button createCommunityButton;
+    @FXML private Button saveCommunityButton;
+    @FXML private Button deleteCommunityButton;
 
     private final CommunityService communityService = CommunityService.getInstance();
     private final ObservableList<CommunityRoom> availableRooms = FXCollections.observableArrayList();
@@ -54,9 +64,13 @@ public class CommunityController implements Initializable {
     private UserProfile currentUserProfile;
     private String currentUserId;
     private CommunityRoom selectedRoom;
+    private boolean rightPanelCollapsed;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        if (communitySplitPane != null) {
+            communitySplitPane.setDividerPositions(0.24, 0.78);
+        }
         if (communityListView != null) {
             communityListView.setItems(availableRooms);
             communityListView.setCellFactory(list -> new CommunityRoomCell());
@@ -77,7 +91,7 @@ public class CommunityController implements Initializable {
         if (sendButton != null) {
             sendButton.setDisable(true);
         }
-
+        resetCommunityEditor();
         loadCommunityData();
     }
 
@@ -116,7 +130,15 @@ public class CommunityController implements Initializable {
 
         availableRooms.setAll(communityService.buildCommunities(profile, allProfiles));
         if (!availableRooms.isEmpty()) {
-            communityListView.getSelectionModel().selectFirst();
+            if (selectedRoom != null) {
+                availableRooms.stream()
+                    .filter(room -> room.getId().equals(selectedRoom.getId()))
+                    .findFirst()
+                    .ifPresentOrElse(room -> communityListView.getSelectionModel().select(room),
+                        () -> communityListView.getSelectionModel().selectFirst());
+            } else {
+                communityListView.getSelectionModel().selectFirst();
+            }
         } else {
             titleLabel.setText("Community");
             subtitleLabel.setText("No verified student communities are available yet.");
@@ -130,18 +152,18 @@ public class CommunityController implements Initializable {
         selectedRoom = room;
         titleLabel.setText(room.getName());
         subtitleLabel.setText(room.getDescription());
-        verificationLabel.setText(room.isVerified() ? "Verified university room" : "Verification pending");
+        verificationLabel.setText(room.isCustom() ? "Custom community" : (room.isVerified() ? "Verified university room" : "Verification pending"));
         memberCountLabel.setText(room.getMemberCount() + (room.getMemberCount() == 1 ? " student" : " students"));
         communityHintLabel.setText(room.isAutoJoined()
             ? "Auto-joined from signup using university identity rules."
-            : "Joined from your verified university and department profile.");
+            : room.isCustom()
+                ? "Custom community created by a student. You can edit or delete your own rooms."
+                : "Joined from your verified university and department profile.");
 
         visibleMessages.setAll(communityService.getMessages(room.getId()));
         scrollMessagesToBottom();
-
-        if (sendButton != null) {
-            sendButton.setDisable(false);
-        }
+        if (sendButton != null) sendButton.setDisable(false);
+        populateCommunityEditor(room);
     }
 
     @FXML
@@ -161,6 +183,102 @@ public class CommunityController implements Initializable {
         scrollMessagesToBottom();
     }
 
+    @FXML
+    protected void onCreateCommunityClick() {
+        if (currentUserProfile == null || communityNameField == null || communityDescriptionField == null) return;
+        String roomName = communityNameField.getText();
+        String description = communityDescriptionField.getText();
+        if (roomName == null || roomName.isBlank()) return;
+        communityService.createCustomRoom(
+            currentUserId,
+            currentUserProfile.getUniversityName(),
+            roomName.trim(),
+            description != null ? description.trim() : "",
+            approximateCommunitySize()
+        );
+        populateRooms(currentUserProfile, Collections.emptyList());
+        availableRooms.stream()
+            .filter(room -> room.getName().equals(roomName.trim()) && room.isCustom())
+            .reduce((first, second) -> second)
+            .ifPresent(room -> communityListView.getSelectionModel().select(room));
+        resetCommunityEditor();
+    }
+
+    @FXML
+    protected void onSaveCommunityClick() {
+        if (selectedRoom == null || !communityService.canManage(selectedRoom, currentUserId)) return;
+        CommunityRoom updated = communityService.updateCustomRoom(
+            selectedRoom.getId(),
+            currentUserId,
+            communityNameField != null ? communityNameField.getText() : null,
+            communityDescriptionField != null ? communityDescriptionField.getText() : null
+        );
+        if (updated != null) {
+            selectedRoom = updated;
+            populateRooms(currentUserProfile, Collections.emptyList());
+        }
+    }
+
+    @FXML
+    protected void onDeleteCommunityClick() {
+        if (selectedRoom == null) return;
+        if (communityService.deleteCustomRoom(selectedRoom.getId(), currentUserId)) {
+            selectedRoom = null;
+            resetCommunityEditor();
+            populateRooms(currentUserProfile, Collections.emptyList());
+        }
+    }
+
+    @FXML
+    protected void onTogglePanelClick() {
+        rightPanelCollapsed = !rightPanelCollapsed;
+        if (communityRightPanel != null) {
+            communityRightPanel.setManaged(!rightPanelCollapsed);
+            communityRightPanel.setVisible(!rightPanelCollapsed);
+        }
+        if (communitySplitPane != null) {
+            communitySplitPane.setDividerPositions(rightPanelCollapsed ? 0.98 : 0.78);
+        }
+        if (panelToggleButton != null) {
+            panelToggleButton.setText(rightPanelCollapsed ? "Show Panel" : "Hide Panel");
+        }
+    }
+
+    private void populateCommunityEditor(CommunityRoom room) {
+        if (communityNameField == null || communityDescriptionField == null) return;
+        boolean canManage = communityService.canManage(room, currentUserId);
+        communityNameField.setText(room != null && room.isCustom() ? room.getName() : "");
+        communityDescriptionField.setText(room != null && room.isCustom() ? room.getDescription() : "");
+        communityNameField.setDisable(!canManage && room != null && room.isCustom());
+        communityDescriptionField.setDisable(!canManage && room != null && room.isCustom());
+        if (communityEditorLabel != null) {
+            communityEditorLabel.setText(room != null && room.isCustom()
+                ? (canManage ? "Edit your custom community" : "Custom community details")
+                : "Create a new custom community");
+        }
+        if (saveCommunityButton != null) {
+            saveCommunityButton.setDisable(room == null || !canManage);
+        }
+        if (deleteCommunityButton != null) {
+            deleteCommunityButton.setDisable(room == null || !canManage);
+        }
+        if (createCommunityButton != null) {
+            createCommunityButton.setDisable(false);
+        }
+    }
+
+    private void resetCommunityEditor() {
+        if (communityNameField != null) communityNameField.clear();
+        if (communityDescriptionField != null) communityDescriptionField.clear();
+        if (communityEditorLabel != null) communityEditorLabel.setText("Create a new custom community");
+        if (saveCommunityButton != null) saveCommunityButton.setDisable(true);
+        if (deleteCommunityButton != null) deleteCommunityButton.setDisable(true);
+    }
+
+    private int approximateCommunitySize() {
+        return Math.max(availableRooms.stream().mapToInt(CommunityRoom::getMemberCount).max().orElse(1), 1);
+    }
+
     private void showLoadError() {
         availableRooms.clear();
         visibleMessages.clear();
@@ -169,9 +287,7 @@ public class CommunityController implements Initializable {
         verificationLabel.setText("Verification unavailable");
         memberCountLabel.setText("0 students");
         communityHintLabel.setText("This screen expects a signed-in student profile and can later be backed by Supabase realtime.");
-        if (sendButton != null) {
-            sendButton.setDisable(true);
-        }
+        if (sendButton != null) sendButton.setDisable(true);
     }
 
     private void scrollMessagesToBottom() {
@@ -205,7 +321,7 @@ public class CommunityController implements Initializable {
             description.getStyleClass().add("community-room-description");
             description.setWrapText(true);
 
-            Label badge = new Label(room.isAutoJoined() ? "Auto" : room.getScopeLabel());
+            Label badge = new Label(room.isCustom() ? "Custom" : room.isAutoJoined() ? "Auto" : room.getScopeLabel());
             badge.getStyleClass().add("community-room-badge");
 
             Label count = new Label(room.getMemberCount() + " members");
@@ -252,11 +368,8 @@ public class CommunityController implements Initializable {
             HBox row = new HBox(12);
             row.setPadding(new Insets(4, 0, 4, 0));
             row.setAlignment(fromCurrentUser ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-            if (fromCurrentUser) {
-                row.getChildren().addAll(spacer, bubble);
-            } else {
-                row.getChildren().addAll(bubble, spacer);
-            }
+            if (fromCurrentUser) row.getChildren().addAll(spacer, bubble);
+            else row.getChildren().addAll(bubble, spacer);
 
             setText(null);
             setGraphic(row);

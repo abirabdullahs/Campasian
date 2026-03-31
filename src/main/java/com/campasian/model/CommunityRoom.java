@@ -11,9 +11,13 @@ public class CommunityRoom {
     private final int memberCount;
     private final boolean verified;
     private final boolean autoJoined;
+    private final boolean custom;
+    private final String ownerUserId;
+    private final String universityKey;
 
     public CommunityRoom(String id, String name, String description, String scopeLabel,
-                         int memberCount, boolean verified, boolean autoJoined) {
+                         int memberCount, boolean verified, boolean autoJoined,
+                         boolean custom, String ownerUserId, String universityKey) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -21,6 +25,9 @@ public class CommunityRoom {
         this.memberCount = memberCount;
         this.verified = verified;
         this.autoJoined = autoJoined;
+        this.custom = custom;
+        this.ownerUserId = ownerUserId;
+        this.universityKey = universityKey;
     }
 
     public String getId() {
@@ -49,5 +56,17 @@ public class CommunityRoom {
 
     public boolean isAutoJoined() {
         return autoJoined;
+    }
+
+    public boolean isCustom() {
+        return custom;
+    }
+
+    public String getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public String getUniversityKey() {
+        return universityKey;
     }
 }

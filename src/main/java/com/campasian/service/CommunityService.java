@@ -26,6 +26,7 @@ public final class CommunityService {
 
     private final Map<String, List<CommunityMessage>> messagesByRoom = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> roomMembers = new ConcurrentHashMap<>();
+    private final Map<String, CommunityRoom> customRooms = new ConcurrentHashMap<>();
 
     private CommunityService() {}
 
@@ -92,7 +93,10 @@ public final class CommunityService {
             "University Hub",
             roomMembers.getOrDefault(generalRoomId, Set.of()).size(),
             true,
-            true
+            true,
+            false,
+            null,
+            universityKey
         ));
 
         String department = safeName(currentUser.getDepartment());
@@ -110,7 +114,10 @@ public final class CommunityService {
                 "Department",
                 roomMembers.getOrDefault(departmentRoomId, Set.of()).size(),
                 true,
-                false
+                false,
+                false,
+                null,
+                universityKey
             ));
         }
 
@@ -128,10 +135,73 @@ public final class CommunityService {
             "Support",
             roomMembers.getOrDefault(supportRoomId, Set.of()).size(),
             true,
-            false
+            false,
+            false,
+            null,
+            universityKey
         ));
 
+        List<CommunityRoom> sameUniversityCustomRooms = customRooms.values().stream()
+            .filter(room -> universityKey.equals(room.getUniversityKey()))
+            .sorted(Comparator.comparing(CommunityRoom::getName, String.CASE_INSENSITIVE_ORDER))
+            .toList();
+        rooms.addAll(sameUniversityCustomRooms);
+
         return rooms;
+    }
+
+    public CommunityRoom createCustomRoom(String currentUserId, String universityName, String roomName,
+                                          String description, int memberCount) {
+        String universityKey = normalizeUniversity(universityName);
+        String normalizedName = normalizeDepartment(roomName);
+        String id = roomId(universityKey, "custom-" + normalizedName + "-" + System.currentTimeMillis());
+        CommunityRoom room = new CommunityRoom(
+            id,
+            safeName(roomName, "Custom Community"),
+            safeName(description, "Student-led custom community."),
+            "Custom",
+            Math.max(memberCount, 1),
+            true,
+            false,
+            true,
+            currentUserId,
+            universityKey
+        );
+        customRooms.put(id, room);
+        seedRoom(id, "Community Creator", "Custom community created. Start the discussion here.");
+        return room;
+    }
+
+    public CommunityRoom updateCustomRoom(String roomId, String currentUserId, String roomName, String description) {
+        CommunityRoom existing = customRooms.get(roomId);
+        if (existing == null || !canManage(existing, currentUserId)) return existing;
+        CommunityRoom updated = new CommunityRoom(
+            existing.getId(),
+            safeName(roomName, existing.getName()),
+            safeName(description, existing.getDescription()),
+            existing.getScopeLabel(),
+            existing.getMemberCount(),
+            existing.isVerified(),
+            existing.isAutoJoined(),
+            existing.isCustom(),
+            existing.getOwnerUserId(),
+            existing.getUniversityKey()
+        );
+        customRooms.put(roomId, updated);
+        return updated;
+    }
+
+    public boolean deleteCustomRoom(String roomId, String currentUserId) {
+        CommunityRoom existing = customRooms.get(roomId);
+        if (existing == null || !canManage(existing, currentUserId)) return false;
+        customRooms.remove(roomId);
+        messagesByRoom.remove(roomId);
+        roomMembers.remove(roomId);
+        return true;
+    }
+
+    public boolean canManage(CommunityRoom room, String currentUserId) {
+        return room != null && room.isCustom() && currentUserId != null && currentUserId.equals(room.getOwnerUserId());
     }
 
     public List<CommunityMessage> getMessages(String roomId) {

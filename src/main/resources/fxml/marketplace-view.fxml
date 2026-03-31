@@ -5,7 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
@@ -22,17 +22,17 @@
         <Label text="Buy and sell books, electronics, and stationery with fellow students." styleClass="page-subtitle" wrapText="true"/>
     </VBox>
 
-    <HBox spacing="12" alignment="CENTER_LEFT">
+    <FlowPane hgap="12" vgap="12" prefWrapLength="720">
         <TextField fx:id="searchField" promptText="Search items..." styleClass="material-input" prefWidth="280"/>
         <Button fx:id="sellBtn" text="+ Sell Item" styleClass="btn-primary" onAction="#onSellItemClick"/>
-    </HBox>
+    </FlowPane>
 
-    <HBox spacing="8" style="-fx-padding: 12 0 12 0;">
+    <FlowPane hgap="8" vgap="8" prefWrapLength="720" style="-fx-padding: 12 0 12 0;">
         <Button fx:id="allBtn" text="All" styleClass="marketplace-filter-btn marketplace-filter-btn-active" onAction="#onFilterAll"/>
         <Button fx:id="booksBtn" text="Books" styleClass="marketplace-filter-btn" onAction="#onFilterBooks"/>
         <Button fx:id="electronicsBtn" text="Electronics" styleClass="marketplace-filter-btn" onAction="#onFilterElectronics"/>
         <Button fx:id="stationeryBtn" text="Stationery" styleClass="marketplace-filter-btn" onAction="#onFilterStationery"/>
-    </HBox>
+    </FlowPane>
 
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
         <VBox fx:id="itemsVBox" spacing="12" styleClass="feed-container"/>

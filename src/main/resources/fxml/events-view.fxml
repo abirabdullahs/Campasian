@@ -20,7 +20,7 @@
 
     <Button fx:id="addBtn" text="+ Create Event" styleClass="btn-primary" style="-fx-margin: 0 0 12 0;" onAction="#onAddClick"/>
 
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll events-scroll" VBox.vgrow="ALWAYS">
         <VBox fx:id="eventsVBox" spacing="12" styleClass="feed-container"/>
     </ScrollPane>
 </VBox>

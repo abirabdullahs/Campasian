@@ -4,22 +4,28 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.BloodSearchController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/app.css"
+      styleClass="blood-search-root"
+      stylesheets="@../styles/app.css,@../styles/blood-search.css"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 
     <VBox styleClass="page-header" spacing="4">
-        <Label text="Blood Donation Hub" styleClass="page-title"/>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="+" styleClass="blood-search-icon"/>
+            <Label text="Blood Donation Hub" styleClass="page-title"/>
+        </HBox>
         <Label text="Find blood donors by blood group during emergencies." styleClass="page-subtitle" wrapText="true"/>
     </VBox>
 
-    <Label text="Blood Group" styleClass="profile-label"/>
-    <ComboBox fx:id="bloodGroupCombo" styleClass="material-input" prefWidth="200" onAction="#onBloodGroupChanged"/>
+    <VBox spacing="8" styleClass="blood-filter-card">
+        <Label text="Blood Group" styleClass="profile-label"/>
+        <ComboBox fx:id="bloodGroupCombo" styleClass="material-input blood-filter-combo" prefWidth="220" onAction="#onBloodGroupChanged"/>
+    </VBox>
 
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
         <VBox fx:id="donorsVBox" spacing="12" styleClass="feed-container"/>
