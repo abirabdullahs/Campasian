@@ -11,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -28,7 +27,7 @@ public class PeopleController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private VBox peopleVBox;
-    @FXML private StackPane peopleLoadingOverlay;
+    @FXML private VBox peopleLoadingOverlay;
     @FXML private Button allDeptBtn;
     @FXML private Button cseDeptBtn;
     @FXML private Button eeeDeptBtn;
