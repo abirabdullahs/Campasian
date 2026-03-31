@@ -168,18 +168,18 @@
    POST CARD (used by FeedController dynamically)
 ════════════════════ */
 .post-card {
-    -fx-background-color:  #0f0f11;
-    -fx-background-radius: 10;
-    -fx-border-color:      #1e1e23;
-    -fx-border-radius:     10;
+    -fx-background-color:  linear-gradient(to bottom right, #111827, #0f172a);
+    -fx-background-radius: 18;
+    -fx-border-color:      #334155;
+    -fx-border-radius:     18;
     -fx-border-width:      1;
     -fx-padding:           18 20;
     -fx-spacing:           10;
 }
 
 .post-card:hover {
-    -fx-background-color: #111114;
-    -fx-border-color:     #27272a;
+    -fx-border-color:     #475569;
+    -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.42), 24, 0.16, 0, 8);
 }
 
 .post-author {
@@ -190,34 +190,35 @@
 }
 
 .post-meta {
-    -fx-text-fill:   #3f3f46;
+    -fx-text-fill:   #94a3b8;
     -fx-font-size:   11.5px;
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
 
 .post-body {
-    -fx-text-fill:   #a1a1aa;
-    -fx-font-size:   13px;
-    -fx-font-weight: 300;
+    -fx-text-fill:   #e2e8f0;
+    -fx-font-size:   13.5px;
+    -fx-font-weight: 400;
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
     -fx-wrap-text:   true;
     -fx-line-spacing: 3;
 }
 
 .post-action-btn {
-    -fx-background-color:  transparent;
-    -fx-border-color:      transparent;
-    -fx-text-fill:         #3f3f46;
+    -fx-background-color:  rgba(30, 41, 59, 0.72);
+    -fx-border-color:      #334155;
+    -fx-border-radius:     999;
+    -fx-text-fill:         #cbd5e1;
     -fx-font-size:         12px;
     -fx-font-family:       'Poppins', 'Segoe UI', sans-serif;
     -fx-cursor:            hand;
-    -fx-padding:           4 10;
-    -fx-background-radius: 4;
+    -fx-padding:           6 12;
+    -fx-background-radius: 999;
 }
 
 .post-action-btn:hover {
-    -fx-background-color: #18181b;
-    -fx-text-fill:        #71717a;
+    -fx-background-color: rgba(51, 65, 85, 0.92);
+    -fx-text-fill:        #f8fafc;
 }
 
 /* ════════════════════

@@ -160,22 +160,24 @@
 
 /* Notification row — apply from controller */
 .notif-row {
-    -fx-background-color: #09090b;
-    -fx-padding:          14 4 14 4;
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 16;
+    -fx-padding:          14 14 14 14;
     -fx-cursor:           hand;
-    -fx-border-color:     transparent transparent #18181b transparent;
-    -fx-border-width:     0 0 1 0;
+    -fx-border-color:     #1e293b;
+    -fx-border-radius:    16;
+    -fx-border-width:     1;
 }
 
 .notif-row:hover {
-    -fx-background-color: #0f0f11;
+    -fx-background-color: #111827;
 }
 
 /* Unread row highlight */
 .notif-row-unread {
-    -fx-background-color: #111116;
-    -fx-border-color:     transparent transparent #1e1e23 transparent;
-    -fx-border-width:     0 0 1 0;
+    -fx-background-color: #111827;
+    -fx-border-color:     #334155;
+    -fx-border-width:     1;
 }
 
 .notif-row-unread:hover {

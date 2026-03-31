@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.LostFoundItem;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.AppRouter;
 import com.campasian.view.SceneManager;
 import javafx.application.Platform;
@@ -23,9 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Lost & Found feed. Posts show "Lost" (red) or "Found" (gray). Location required.
- */
 public class LostFoundController implements Initializable {
 
     @FXML private Button allBtn;
@@ -48,8 +45,8 @@ public class LostFoundController implements Initializable {
     @FXML protected void onFilterLost() { setFilter("lost"); }
     @FXML protected void onFilterFound() { setFilter("found"); }
 
-    private void setFilter(String t) {
-        currentFilter = t;
+    private void setFilter(String type) {
+        currentFilter = type;
         updateFilterButtons();
         loadItems();
     }
@@ -77,7 +74,9 @@ public class LostFoundController implements Initializable {
             s.initOwner(SceneManager.getPrimaryStage());
             ctrl.setOnSuccess(this::loadItems);
             s.showAndWait();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadItems() {
@@ -90,8 +89,8 @@ public class LostFoundController implements Initializable {
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
-                    for (LostFoundItem i : items) {
-                        itemsVBox.getChildren().add(buildItemCard(i));
+                    for (LostFoundItem item : items) {
+                        itemsVBox.getChildren().add(buildItemCard(item));
                     }
                     if (items.isEmpty()) {
                         Label empty = new Label("No lost or found posts yet.");
@@ -111,25 +110,30 @@ public class LostFoundController implements Initializable {
         }).start();
     }
 
-    private VBox buildItemCard(LostFoundItem i) {
-        boolean isLost = "lost".equalsIgnoreCase(i.getType());
+    private VBox buildItemCard(LostFoundItem item) {
+        boolean isLost = "lost".equalsIgnoreCase(item.getType());
+
         Label typeLabel = new Label(isLost ? "LOST" : "FOUND");
-        typeLabel.setStyle(isLost ? "-fx-text-fill: #dc2626; -fx-font-weight: bold;" : "-fx-text-fill: #71717A; -fx-font-weight: bold;");
-        Label title = new Label(i.getTitle() != null ? i.getTitle() : "Untitled");
-        title.getStyleClass().add("profile-value");
+        typeLabel.getStyleClass().addAll("lost-found-badge", isLost ? "lost-found-badge-lost" : "lost-found-badge-found");
+
+        Label title = new Label(item.getTitle() != null ? item.getTitle() : "Untitled");
+        title.getStyleClass().add("lost-found-title");
         title.setWrapText(true);
         title.setCursor(javafx.scene.Cursor.HAND);
-        title.setOnMouseClicked(e -> AppRouter.navigateToProfile(i.getUserId()));
-        Label location = new Label("📍 " + (i.getLocation() != null ? i.getLocation() : "—"));
-        location.getStyleClass().add("profile-label");
-        location.setStyle("-fx-text-fill: #09090B;");
-        Label meta = new Label((i.getUserName() != null ? i.getUserName() : "Anonymous") + " · " + formatTime(i.getCreatedAt()));
+        title.setOnMouseClicked(e -> AppRouter.navigateToProfile(item.getUserId()));
+
+        Label location = new Label("Location: " + (item.getLocation() != null ? item.getLocation() : "-"));
+        location.getStyleClass().add("lost-found-location");
+
+        Label meta = new Label((item.getUserName() != null ? item.getUserName() : "Anonymous") + " · " + formatTime(item.getCreatedAt()));
         meta.getStyleClass().add("post-meta");
-        Label desc = new Label(i.getDescription() != null ? i.getDescription() : "");
-        desc.getStyleClass().add("profile-label");
+
+        Label desc = new Label(item.getDescription() != null ? item.getDescription() : "");
+        desc.getStyleClass().add("lost-found-description");
         desc.setWrapText(true);
+
         VBox card = new VBox(6);
-        card.getStyleClass().addAll("content-card", "post-card");
+        card.getStyleClass().add("lost-found-card");
         card.getChildren().addAll(typeLabel, title, location, meta, desc);
         return card;
     }
@@ -138,6 +142,8 @@ public class LostFoundController implements Initializable {
         if (iso == null || iso.isBlank()) return "";
         try {
             return OffsetDateTime.parse(iso).format(DateTimeFormatter.ofPattern("MMM d, HH:mm"));
-        } catch (Exception e) { return iso; }
+        } catch (Exception e) {
+            return iso;
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.Confession;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.SceneManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -21,9 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Anonymous Confession Wall. All posts show "👤 Anonymous Student".
- */
 public class ConfessionController implements Initializable {
 
     @FXML private Button postBtn;
@@ -48,7 +45,9 @@ public class ConfessionController implements Initializable {
             s.initOwner(SceneManager.getPrimaryStage());
             ctrl.setOnSuccess(this::loadConfessions);
             s.showAndWait();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadConfessions() {
@@ -60,8 +59,8 @@ public class ConfessionController implements Initializable {
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
-                    for (Confession c : list) {
-                        itemsVBox.getChildren().add(buildCard(c));
+                    for (Confession confession : list) {
+                        itemsVBox.getChildren().add(buildCard(confession));
                     }
                     if (list.isEmpty()) {
                         Label empty = new Label("No confessions yet.");
@@ -81,16 +80,19 @@ public class ConfessionController implements Initializable {
         }).start();
     }
 
-    private VBox buildCard(Confession c) {
-        Label anon = new Label("👤 Anonymous Student");
+    private VBox buildCard(Confession confession) {
+        Label anon = new Label("Anonymous Student");
         anon.getStyleClass().add("confession-anonymous");
-        Label content = new Label(c.getContent() != null ? c.getContent() : "");
-        content.getStyleClass().add("post-content");
+
+        Label content = new Label(confession.getContent() != null ? confession.getContent() : "");
+        content.getStyleClass().add("confession-content");
         content.setWrapText(true);
-        Label time = new Label(formatTime(c.getCreatedAt()));
+
+        Label time = new Label(formatTime(confession.getCreatedAt()));
         time.getStyleClass().add("post-meta");
+
         VBox card = new VBox(8);
-        card.getStyleClass().addAll("confession-card");
+        card.getStyleClass().add("confession-card");
         card.getChildren().addAll(anon, content, time);
         return card;
     }
@@ -99,6 +101,8 @@ public class ConfessionController implements Initializable {
         if (iso == null || iso.isBlank()) return "";
         try {
             return OffsetDateTime.parse(iso).format(DateTimeFormatter.ofPattern("MMM d, HH:mm"));
-        } catch (Exception e) { return iso; }
+        } catch (Exception e) {
+            return iso;
+        }
     }
 }

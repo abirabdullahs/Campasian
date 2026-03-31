@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.MarketplaceItem;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.AppRouter;
 import com.campasian.view.SceneManager;
 import javafx.animation.PauseTransition;
@@ -27,9 +27,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Controller for Campus Marketplace. Filter by Books, Electronics, Stationery.
- */
 public class MarketplaceController implements Initializable {
 
     @FXML private TextField searchField;
@@ -98,7 +95,9 @@ public class MarketplaceController implements Initializable {
             s.initOwner(SceneManager.getPrimaryStage());
             ctrl.setOnSuccess(this::loadItems);
             s.showAndWait();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadItems() {
@@ -117,12 +116,12 @@ public class MarketplaceController implements Initializable {
                         .toList();
                 }
 
-                final List<MarketplaceItem> finalItems = items;
+                List<MarketplaceItem> finalItems = items;
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
-                    for (MarketplaceItem i : finalItems) {
-                        itemsVBox.getChildren().add(buildItemCard(i));
+                    for (MarketplaceItem item : finalItems) {
+                        itemsVBox.getChildren().add(buildItemCard(item));
                     }
                     if (finalItems.isEmpty()) {
                         Label empty = new Label("No items found.");
@@ -142,24 +141,38 @@ public class MarketplaceController implements Initializable {
         }).start();
     }
 
-    private VBox buildItemCard(MarketplaceItem i) {
-        Label title = new Label(i.getTitle() != null ? i.getTitle() : "Untitled");
-        title.getStyleClass().add("profile-value");
+    private VBox buildItemCard(MarketplaceItem item) {
+        Label seller = new Label(item.getUserName() != null ? item.getUserName() : "Anonymous");
+        seller.getStyleClass().add("marketplace-seller");
+
+        Label category = new Label(item.getCategory() != null ? item.getCategory() : "General");
+        category.getStyleClass().add("marketplace-chip");
+
+        HBox topRow = new HBox(10);
+        topRow.getChildren().addAll(seller, category);
+
+        Label title = new Label(item.getTitle() != null ? item.getTitle() : "Untitled");
+        title.getStyleClass().add("marketplace-card-title");
         title.setWrapText(true);
         title.setCursor(javafx.scene.Cursor.HAND);
-        title.setOnMouseClicked(e -> AppRouter.navigateToProfile(i.getUserId()));
-        Label meta = new Label((i.getUserName() != null ? i.getUserName() : "Anonymous") + " · " + (i.getCategory() != null ? i.getCategory() : "") + " · " + formatTime(i.getCreatedAt()));
+        title.setOnMouseClicked(e -> AppRouter.navigateToProfile(item.getUserId()));
+
+        Label meta = new Label("Listed " + formatTime(item.getCreatedAt()));
         meta.getStyleClass().add("post-meta");
-        Label price = new Label(i.getPrice() != null ? i.getPrice() : "");
-        price.getStyleClass().add("profile-stat-value");
-        Label cond = new Label("Condition: " + (i.getCondition() != null ? i.getCondition() : "—"));
-        cond.getStyleClass().add("profile-label");
-        Label desc = new Label(i.getDescription() != null ? i.getDescription() : "");
-        desc.getStyleClass().add("profile-label");
+
+        Label price = new Label(item.getPrice() != null ? item.getPrice() : "");
+        price.getStyleClass().add("marketplace-price");
+
+        Label condition = new Label("Condition: " + (item.getCondition() != null ? item.getCondition() : "-"));
+        condition.getStyleClass().add("marketplace-condition");
+
+        Label desc = new Label(item.getDescription() != null ? item.getDescription() : "");
+        desc.getStyleClass().add("marketplace-description");
         desc.setWrapText(true);
+
         VBox card = new VBox(8);
         card.getStyleClass().addAll("marketplace-card", "content-card");
-        card.getChildren().addAll(title, meta, price, cond, desc);
+        card.getChildren().addAll(topRow, title, meta, price, condition, desc);
         return card;
     }
 
@@ -167,6 +180,8 @@ public class MarketplaceController implements Initializable {
         if (iso == null || iso.isBlank()) return "";
         try {
             return OffsetDateTime.parse(iso).format(DateTimeFormatter.ofPattern("MMM d"));
-        } catch (Exception e) { return iso; }
+        } catch (Exception e) {
+            return iso;
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.CampusEvent;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.SceneManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -19,9 +20,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Campus Events & Club Management. Interested toggle increments count.
- */
 public class EventsController implements Initializable {
 
     @FXML private Button addBtn;
@@ -46,7 +44,9 @@ public class EventsController implements Initializable {
             s.initOwner(SceneManager.getPrimaryStage());
             ctrl.setOnSuccess(this::loadEvents);
             s.showAndWait();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadEvents() {
@@ -58,8 +58,8 @@ public class EventsController implements Initializable {
                 Platform.runLater(() -> {
                     if (eventsVBox == null) return;
                     eventsVBox.getChildren().clear();
-                    for (CampusEvent ev : list) {
-                        eventsVBox.getChildren().add(buildCard(ev));
+                    for (CampusEvent event : list) {
+                        eventsVBox.getChildren().add(buildCard(event));
                     }
                     if (list.isEmpty()) {
                         Label empty = new Label("No events yet.");
@@ -79,26 +79,36 @@ public class EventsController implements Initializable {
         }).start();
     }
 
-    private VBox buildCard(CampusEvent ev) {
-        Label title = new Label(ev.getTitle() != null ? ev.getTitle() : "Untitled");
-        title.getStyleClass().add("profile-value");
+    private VBox buildCard(CampusEvent event) {
+        Label title = new Label(event.getTitle() != null ? event.getTitle() : "Untitled");
+        title.getStyleClass().add("events-title");
         title.setWrapText(true);
-        Label meta = new Label((ev.getEventDate() != null ? ev.getEventDate() : "") + " · " + (ev.getVenue() != null ? ev.getVenue() : ""));
-        meta.getStyleClass().add("post-meta");
-        Label desc = new Label(ev.getDescription() != null ? ev.getDescription() : "");
-        desc.getStyleClass().add("profile-label");
+
+        Label dateChip = new Label(event.getEventDate() != null ? event.getEventDate() : "TBA");
+        dateChip.getStyleClass().add("events-chip");
+        Label venueChip = new Label(event.getVenue() != null ? event.getVenue() : "Venue TBA");
+        venueChip.getStyleClass().add("events-chip");
+        FlowPane meta = new FlowPane(8, 8);
+        meta.getChildren().addAll(dateChip, venueChip);
+
+        Label desc = new Label(event.getDescription() != null ? event.getDescription() : "");
+        desc.getStyleClass().add("events-description");
         desc.setWrapText(true);
-        Button interestedBtn = new Button(ev.isUserInterested() ? "✓ Interested" : "Interested");
+
+        Button interestedBtn = new Button(event.isUserInterested() ? "Interested" : "Join Interest");
         interestedBtn.getStyleClass().add("btn-interested");
-        if (ev.isUserInterested()) interestedBtn.getStyleClass().add("btn-interested-active");
+        if (event.isUserInterested()) interestedBtn.getStyleClass().add("btn-interested-active");
         interestedBtn.setOnAction(e -> {
             try {
-                ApiService.getInstance().toggleEventInterest(ev.getId());
+                ApiService.getInstance().toggleEventInterest(event.getId());
                 loadEvents();
-            } catch (ApiException ex) { /* ignore */ }
+            } catch (ApiException ignored) {
+            }
         });
-        Label countLbl = new Label(ev.getInterestedCount() + " interested");
-        countLbl.getStyleClass().add("profile-label");
+
+        Label countLbl = new Label(event.getInterestedCount() + " interested");
+        countLbl.getStyleClass().add("events-count");
+
         VBox card = new VBox(8);
         card.getStyleClass().addAll("content-card", "events-card");
         card.getChildren().addAll(title, meta, desc, interestedBtn, countLbl);

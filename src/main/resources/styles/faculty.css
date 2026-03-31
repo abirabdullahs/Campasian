@@ -1,24 +1,58 @@
-/* Campasian Faculty Directory - Shadcn Minimalist */
-/* Poppins · 1px #E4E4E7 · 6px radius · Black/White/Gray */
-
 .faculty-root {
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
-    -fx-background-color: #FAFAFA;
+    -fx-background-color: linear-gradient(to bottom, #09090b, #111827);
+}
+
+.faculty-root .page-title,
+.faculty-root .label {
+    -fx-text-fill: #f8fafc;
+}
+
+.faculty-root .page-subtitle,
+.faculty-root .profile-label {
+    -fx-text-fill: #94a3b8;
+}
+
+.faculty-root .material-input {
+    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-border-color: #334155;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #64748b;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
 }
 
 .faculty-card {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 6;
-    -fx-border-color: #E4E4E7;
-    -fx-border-width: 1;
-    -fx-border-radius: 6;
-    -fx-padding: 16;
+    -fx-background-color: linear-gradient(to bottom right, #111827, #0f172a);
+    -fx-background-radius: 20;
+    -fx-border-color: #334155;
+    -fx-border-radius: 20;
+    -fx-padding: 18;
+    -fx-spacing: 8;
+}
+
+.faculty-name {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+}
+
+.faculty-meta {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+}
+
+.faculty-feedback-title {
+    -fx-text-fill: #93c5fd;
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
 }
 
 .faculty-feedback-card {
-    -fx-background-color: #F4F4F5;
-    -fx-background-radius: 6;
-    -fx-border-color: #E4E4E7;
-    -fx-border-width: 1;
-    -fx-padding: 12;
+    -fx-background-color: rgba(30, 41, 59, 0.82);
+    -fx-background-radius: 14;
+    -fx-border-color: #334155;
+    -fx-border-radius: 14;
+    -fx-padding: 10 12;
+    -fx-text-fill: #dbe4f0;
 }

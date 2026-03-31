@@ -2,8 +2,8 @@ package com.campasian.controller;
 
 import com.campasian.model.Faculty;
 import com.campasian.model.FacultyFeedback;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,9 +18,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Faculty Directory with search and feedback.
- */
 public class FacultyController implements Initializable {
 
     @FXML private TextField searchField;
@@ -58,8 +55,8 @@ public class FacultyController implements Initializable {
                 Platform.runLater(() -> {
                     if (facultyVBox == null) return;
                     facultyVBox.getChildren().clear();
-                    for (Faculty f : list) {
-                        facultyVBox.getChildren().add(buildCard(f));
+                    for (Faculty faculty : list) {
+                        facultyVBox.getChildren().add(buildCard(faculty));
                     }
                     if (list.isEmpty()) {
                         Label empty = new Label("No faculty found. Add faculty via Supabase or run seed script.");
@@ -80,51 +77,59 @@ public class FacultyController implements Initializable {
         }).start();
     }
 
-    private VBox buildCard(Faculty f) {
-        Label name = new Label(f.getName() != null ? f.getName() : "—");
-        name.getStyleClass().add("profile-value");
+    private VBox buildCard(Faculty faculty) {
+        Label name = new Label(faculty.getName() != null ? faculty.getName() : "-");
+        name.getStyleClass().add("faculty-name");
         name.setWrapText(true);
-        Label dept = new Label("Department: " + (f.getDepartment() != null ? f.getDepartment() : "—"));
-        dept.getStyleClass().add("profile-label");
-        Label email = new Label("Email: " + (f.getEmail() != null && !f.getEmail().isBlank() ? f.getEmail() : "—"));
-        email.getStyleClass().add("profile-label");
+
+        Label dept = new Label("Department: " + (faculty.getDepartment() != null ? faculty.getDepartment() : "-"));
+        dept.getStyleClass().add("faculty-meta");
+
+        Label email = new Label("Email: " + (faculty.getEmail() != null && !faculty.getEmail().isBlank() ? faculty.getEmail() : "-"));
+        email.getStyleClass().add("faculty-meta");
+
         VBox feedbackSection = new VBox(8);
         Label feedbackTitle = new Label("Feedback / Tips");
-        feedbackTitle.getStyleClass().add("profile-label");
+        feedbackTitle.getStyleClass().add("faculty-feedback-title");
+
         VBox existingFeedbacks = new VBox(6);
         TextArea feedbackInput = new TextArea();
         feedbackInput.setPromptText("Share tips about teaching style, helpful for other students...");
         feedbackInput.getStyleClass().add("modal-text-area");
         feedbackInput.setPrefRowCount(2);
         feedbackInput.setWrapText(true);
+
         javafx.scene.control.Button submitBtn = new javafx.scene.control.Button("Submit Feedback");
         submitBtn.getStyleClass().add("btn-primary");
         submitBtn.setOnAction(e -> {
             String text = feedbackInput.getText();
             if (text != null && !text.isBlank()) {
                 try {
-                    ApiService.getInstance().createFacultyFeedback(f.getId(), null, text.trim());
+                    ApiService.getInstance().createFacultyFeedback(faculty.getId(), null, text.trim());
                     feedbackInput.clear();
                     loadFaculty();
-                } catch (ApiException ex) { /* ignore */ }
+                } catch (ApiException ignored) {
+                }
             }
         });
+
         feedbackSection.getChildren().addAll(feedbackTitle, existingFeedbacks, feedbackInput, submitBtn);
-        String fid = f.getId();
+        String facultyId = faculty.getId();
         new Thread(() -> {
             try {
-                List<FacultyFeedback> feedbacks = ApiService.getInstance().getFacultyFeedback(fid);
+                List<FacultyFeedback> feedbacks = ApiService.getInstance().getFacultyFeedback(facultyId);
                 Platform.runLater(() -> {
-                    for (FacultyFeedback fb : feedbacks) {
-                        Label fbLbl = new Label(fb.getFeedback() != null ? fb.getFeedback() : "");
-                        fbLbl.getStyleClass().add("profile-label");
-                        fbLbl.setWrapText(true);
-                        fbLbl.setStyle("-fx-background-color: #F4F4F5; -fx-padding: 8; -fx-background-radius: 6;");
-                        existingFeedbacks.getChildren().add(fbLbl);
+                    for (FacultyFeedback feedback : feedbacks) {
+                        Label feedbackLabel = new Label(feedback.getFeedback() != null ? feedback.getFeedback() : "");
+                        feedbackLabel.getStyleClass().add("faculty-feedback-card");
+                        feedbackLabel.setWrapText(true);
+                        existingFeedbacks.getChildren().add(feedbackLabel);
                     }
                 });
-            } catch (ApiException ignored) {}
+            } catch (ApiException ignored) {
+            }
         }).start();
+
         VBox card = new VBox(8);
         card.getStyleClass().addAll("content-card", "faculty-card");
         card.getChildren().addAll(name, dept, email, feedbackSection);

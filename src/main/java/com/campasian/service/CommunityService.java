@@ -4,29 +4,17 @@ import com.campasian.model.CommunityMessage;
 import com.campasian.model.CommunityRoom;
 import com.campasian.model.UserProfile;
 
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * In-memory community room service.
- * The controller uses ObservableList on top of this service so the UI can later be reused with DB-backed data.
+ * Supabase-backed community room service.
  */
 public final class CommunityService {
 
     private static final CommunityService INSTANCE = new CommunityService();
-    private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
-    private final Map<String, List<CommunityMessage>> messagesByRoom = new ConcurrentHashMap<>();
-    private final Map<String, Set<String>> roomMembers = new ConcurrentHashMap<>();
-    private final Map<String, CommunityRoom> customRooms = new ConcurrentHashMap<>();
 
     private CommunityService() {}
 
@@ -35,43 +23,15 @@ public final class CommunityService {
     }
 
     public void ensureAutoJoin(String userKey, String email, String universityName,
-                               String department, String universityId, String displayName) {
-        String normalizedUniversity = normalizeUniversity(universityName);
-        if (normalizedUniversity.isBlank()) return;
+                               String department, String universityId, String displayName) throws ApiException {
+        String universityKey = normalizeUniversity(universityName);
+        if (universityKey.isBlank()) return;
 
-        String memberKey = memberKey(userKey, email, universityId, displayName);
-        String generalRoomId = roomId(normalizedUniversity, "general");
-        addMembership(generalRoomId, memberKey);
-        seedRoom(
-            generalRoomId,
-            "Campus Community Bot",
-            "Welcome to the " + safeName(universityName) + " university hub. " +
-                "Students are auto-joined here after signup."
-        );
-
-        String cleanedDepartment = normalizeDepartment(department);
-        if (!cleanedDepartment.isBlank()) {
-            String deptRoomId = roomId(normalizedUniversity, cleanedDepartment);
-            addMembership(deptRoomId, memberKey);
-            seedRoom(
-                deptRoomId,
-                "Department Coordinator",
-                "Department space ready for " + safeName(department) + " students."
-            );
-        }
+        upsertBuiltInRooms(universityName, department, universityKey, 1, 1);
     }
 
-    public List<CommunityRoom> buildCommunities(UserProfile currentUser, List<UserProfile> allProfiles) {
+    public List<CommunityRoom> buildCommunities(UserProfile currentUser, List<UserProfile> allProfiles) throws ApiException {
         if (currentUser == null) return List.of();
-
-        ensureAutoJoin(
-            currentUser.getId(),
-            null,
-            currentUser.getUniversityName(),
-            currentUser.getDepartment(),
-            currentUser.getEinNumber(),
-            currentUser.getFullName()
-        );
 
         String universityName = safeName(currentUser.getUniversityName());
         String universityKey = normalizeUniversity(universityName);
@@ -82,76 +42,23 @@ public final class CommunityService {
             .sorted(Comparator.comparing(profile -> safeName(profile.getFullName())))
             .toList();
 
-        List<CommunityRoom> rooms = new ArrayList<>();
-
-        String generalRoomId = roomId(universityKey, "general");
-        addMembersFromProfiles(generalRoomId, sameUniversity);
-        rooms.add(new CommunityRoom(
-            generalRoomId,
-            universityName + " Community",
-            "Messenger-style university room for announcements, study help, and cross-department discussion.",
-            "University Hub",
-            roomMembers.getOrDefault(generalRoomId, Set.of()).size(),
-            true,
-            true,
-            false,
-            null,
-            universityKey
-        ));
-
         String department = safeName(currentUser.getDepartment());
-        if (!department.isBlank()) {
-            String departmentKey = normalizeDepartment(department);
-            String departmentRoomId = roomId(universityKey, departmentKey);
-            List<UserProfile> sameDepartment = sameUniversity.stream()
-                .filter(profile -> safeName(profile.getDepartment()).equalsIgnoreCase(department))
-                .toList();
-            addMembersFromProfiles(departmentRoomId, sameDepartment);
-            rooms.add(new CommunityRoom(
-                departmentRoomId,
-                department + " Lounge",
-                "Verified room for " + department + " students from " + universityName + ".",
-                "Department",
-                roomMembers.getOrDefault(departmentRoomId, Set.of()).size(),
-                true,
-                false,
-                false,
-                null,
-                universityKey
-            ));
-        }
+        int universityCount = Math.max(sameUniversity.size(), 1);
+        int departmentCount = Math.max((int) sameUniversity.stream()
+            .filter(profile -> safeName(profile.getDepartment()).equalsIgnoreCase(department))
+            .count(), 1);
 
-        String supportRoomId = roomId(universityKey, "freshers");
-        seedRoom(
-            supportRoomId,
-            "Campus Mentor",
-            "Use this room for orientation questions, class routines, and first-week help."
-        );
-        addMembersFromProfiles(supportRoomId, sameUniversity);
-        rooms.add(new CommunityRoom(
-            supportRoomId,
-            "Freshers Help Desk",
-            "Structured support room for onboarding, campus logistics, and student Q&A.",
-            "Support",
-            roomMembers.getOrDefault(supportRoomId, Set.of()).size(),
-            true,
-            false,
-            false,
-            null,
-            universityKey
-        ));
+        upsertBuiltInRooms(universityName, department, universityKey, universityCount, departmentCount);
 
-        List<CommunityRoom> sameUniversityCustomRooms = customRooms.values().stream()
-            .filter(room -> universityKey.equals(room.getUniversityKey()))
-            .sorted(Comparator.comparing(CommunityRoom::getName, String.CASE_INSENSITIVE_ORDER))
-            .toList();
-        rooms.addAll(sameUniversityCustomRooms);
-
+        List<CommunityRoom> rooms = new ArrayList<>(ApiService.getInstance().getCommunityRooms(universityKey));
+        rooms.sort(Comparator
+            .comparingInt(this::roomPriority)
+            .thenComparing(CommunityRoom::getName, String.CASE_INSENSITIVE_ORDER));
         return rooms;
     }
 
     public CommunityRoom createCustomRoom(String currentUserId, String universityName, String roomName,
-                                          String description, int memberCount) {
+                                          String description, int memberCount) throws ApiException {
         String universityKey = normalizeUniversity(universityName);
         String normalizedName = normalizeDepartment(roomName);
         String id = roomId(universityKey, "custom-" + normalizedName + "-" + System.currentTimeMillis());
@@ -167,13 +74,16 @@ public final class CommunityService {
             currentUserId,
             universityKey
         );
-        customRooms.put(id, room);
-        seedRoom(id, "Community Creator", "Custom community created. Start the discussion here.");
+        ApiService.getInstance().upsertCommunityRoom(room);
+        List<CommunityMessage> messages = ApiService.getInstance().getCommunityMessages(id);
+        if (messages.isEmpty()) {
+            ApiService.getInstance().sendCommunityMessage(id, currentUserId, "Community Creator", "Custom community created. Start the discussion here.");
+        }
         return room;
     }
 
-    public CommunityRoom updateCustomRoom(String roomId, String currentUserId, String roomName, String description) {
-        CommunityRoom existing = customRooms.get(roomId);
+    public CommunityRoom updateCustomRoom(String roomId, String currentUserId, String roomName, String description) throws ApiException {
+        CommunityRoom existing = ApiService.getInstance().getCommunityRoom(roomId);
         if (existing == null || !canManage(existing, currentUserId)) return existing;
         CommunityRoom updated = new CommunityRoom(
             existing.getId(),
@@ -187,16 +97,13 @@ public final class CommunityService {
             existing.getOwnerUserId(),
             existing.getUniversityKey()
         );
-        customRooms.put(roomId, updated);
+        ApiService.getInstance().upsertCommunityRoom(updated);
         return updated;
     }
 
-    public boolean deleteCustomRoom(String roomId, String currentUserId) {
-        CommunityRoom existing = customRooms.get(roomId);
-        if (existing == null || !canManage(existing, currentUserId)) return false;
-        customRooms.remove(roomId);
-        messagesByRoom.remove(roomId);
-        roomMembers.remove(roomId);
+    public boolean deleteCustomRoom(String roomId, String currentUserId) throws ApiException {
+        if (roomId == null || roomId.isBlank()) return false;
+        ApiService.getInstance().deleteCommunityRoom(roomId);
         return true;
     }
 
@@ -204,20 +111,68 @@ public final class CommunityService {
         return room != null && room.isCustom() && currentUserId != null && currentUserId.equals(room.getOwnerUserId());
     }
 
-    public List<CommunityMessage> getMessages(String roomId) {
-        return new ArrayList<>(messagesByRoom.getOrDefault(roomId, List.of()));
+    public List<CommunityMessage> getMessages(String roomId) throws ApiException {
+        return ApiService.getInstance().getCommunityMessages(roomId);
     }
 
-    public CommunityMessage sendMessage(String roomId, String senderId, String senderName, String content) {
-        CommunityMessage message = new CommunityMessage(
-            roomId,
-            senderId != null ? senderId : "anonymous",
-            safeName(senderName, "Student"),
-            content,
-            OffsetDateTime.now().format(ISO)
-        );
-        messagesByRoom.computeIfAbsent(roomId, key -> new CopyOnWriteArrayList<>()).add(message);
-        return message;
+    public CommunityMessage sendMessage(String roomId, String senderId, String senderName, String content) throws ApiException {
+        return ApiService.getInstance().sendCommunityMessage(roomId, senderId, senderName, content);
+    }
+
+    private void upsertBuiltInRooms(String universityName, String department, String universityKey,
+                                    int universityCount, int departmentCount) throws ApiException {
+        ApiService api = ApiService.getInstance();
+
+        api.upsertCommunityRoom(new CommunityRoom(
+            roomId(universityKey, "general"),
+            safeName(universityName) + " Community",
+            "Messenger-style university room for announcements, study help, and cross-department discussion.",
+            "University Hub",
+            universityCount,
+            true,
+            true,
+            false,
+            null,
+            universityKey
+        ));
+
+        api.upsertCommunityRoom(new CommunityRoom(
+            roomId(universityKey, "freshers"),
+            "Freshers Help Desk",
+            "Structured support room for onboarding, campus logistics, and student Q&A.",
+            "Support",
+            universityCount,
+            true,
+            false,
+            false,
+            null,
+            universityKey
+        ));
+
+        String cleanedDepartment = normalizeDepartment(department);
+        if (!cleanedDepartment.isBlank()) {
+            api.upsertCommunityRoom(new CommunityRoom(
+                roomId(universityKey, cleanedDepartment),
+                safeName(department) + " Lounge",
+                "Verified room for " + safeName(department) + " students from " + safeName(universityName) + ".",
+                "Department",
+                departmentCount,
+                true,
+                false,
+                false,
+                null,
+                universityKey
+            ));
+        }
+    }
+
+    private int roomPriority(CommunityRoom room) {
+        if (room == null) return 99;
+        if (room.getId() != null && room.getId().endsWith("::general")) return 0;
+        if (!room.isCustom() && "Department".equalsIgnoreCase(room.getScopeLabel())) return 1;
+        if (room.getId() != null && room.getId().endsWith("::freshers")) return 2;
+        if (room.isCustom()) return 3;
+        return 4;
     }
 
     private boolean isSameUniversity(UserProfile currentUser, UserProfile candidate) {
@@ -233,39 +188,8 @@ public final class CommunityService {
             .equalsIgnoreCase(normalizeUniversity(candidate.getUniversityName()));
     }
 
-    private void addMembersFromProfiles(String roomId, List<UserProfile> profiles) {
-        if (profiles == null || profiles.isEmpty()) return;
-        for (UserProfile profile : profiles) {
-            addMembership(roomId, memberKey(profile.getId(), null, profile.getEinNumber(), profile.getFullName()));
-        }
-    }
-
-    private void addMembership(String roomId, String memberKey) {
-        roomMembers.computeIfAbsent(roomId, key -> ConcurrentHashMap.newKeySet()).add(memberKey);
-    }
-
-    private void seedRoom(String roomId, String senderName, String content) {
-        List<CommunityMessage> roomMessages = messagesByRoom.computeIfAbsent(roomId, key -> new CopyOnWriteArrayList<>());
-        if (roomMessages.isEmpty()) {
-            roomMessages.add(new CommunityMessage(
-                roomId,
-                "system",
-                senderName,
-                content,
-                OffsetDateTime.now().minusMinutes(5).format(ISO)
-            ));
-        }
-    }
-
     private static String roomId(String universityKey, String scope) {
         return universityKey + "::" + scope;
-    }
-
-    private static String memberKey(String userKey, String email, String universityId, String displayName) {
-        if (userKey != null && !userKey.isBlank()) return "user:" + userKey.trim().toLowerCase(Locale.ROOT);
-        if (universityId != null && !universityId.isBlank()) return "id:" + universityId.trim().toLowerCase(Locale.ROOT);
-        if (email != null && !email.isBlank()) return "email:" + email.trim().toLowerCase(Locale.ROOT);
-        return "name:" + safeName(displayName, "student").toLowerCase(Locale.ROOT);
     }
 
     private static String normalizeUniversity(String universityName) {

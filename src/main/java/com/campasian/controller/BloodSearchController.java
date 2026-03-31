@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.UserProfile;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.AppRouter;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -16,9 +16,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Blood Donation Hub. Search donors by blood group.
- */
 public class BloodSearchController implements Initializable {
 
     private static final String[] BLOOD_GROUPS = { "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-" };
@@ -47,8 +44,8 @@ public class BloodSearchController implements Initializable {
                 Platform.runLater(() -> {
                     if (donorsVBox == null) return;
                     donorsVBox.getChildren().clear();
-                    for (UserProfile p : donors) {
-                        donorsVBox.getChildren().add(buildDonorCard(p));
+                    for (UserProfile profile : donors) {
+                        donorsVBox.getChildren().add(buildDonorCard(profile));
                     }
                     if (donors.isEmpty()) {
                         Label empty = new Label("No donors found for " + group + ".");
@@ -69,28 +66,27 @@ public class BloodSearchController implements Initializable {
         }).start();
     }
 
-    private VBox buildDonorCard(UserProfile p) {
-        String name = p.getFullName() != null ? p.getFullName() : "Unknown";
-        String uni = p.getUniversityName() != null && !p.getUniversityName().isBlank() ? p.getUniversityName() : "—";
-        String blood = p.getBloodGroup() != null && !p.getBloodGroup().isBlank() ? p.getBloodGroup() : "—";
-        String session = p.getSession() != null && !p.getSession().isBlank() ? p.getSession() : null;
-        String batch = p.getBatch() != null && !p.getBatch().isBlank() ? p.getBatch() : null;
+    private VBox buildDonorCard(UserProfile profile) {
+        String name = profile.getFullName() != null ? profile.getFullName() : "Unknown";
+        String uni = profile.getUniversityName() != null && !profile.getUniversityName().isBlank() ? profile.getUniversityName() : "-";
+        String blood = profile.getBloodGroup() != null && !profile.getBloodGroup().isBlank() ? profile.getBloodGroup() : "-";
+        String session = profile.getSession() != null && !profile.getSession().isBlank() ? profile.getSession() : null;
+        String batch = profile.getBatch() != null && !profile.getBatch().isBlank() ? profile.getBatch() : null;
 
         Label nameLbl = new Label(name);
-        nameLbl.getStyleClass().add("profile-value");
+        nameLbl.getStyleClass().add("blood-donor-name");
         nameLbl.setWrapText(true);
         nameLbl.setCursor(javafx.scene.Cursor.HAND);
-        nameLbl.setOnMouseClicked(e -> AppRouter.navigateToProfile(p.getId()));
+        nameLbl.setOnMouseClicked(e -> AppRouter.navigateToProfile(profile.getId()));
 
         HBox meta = new HBox(8);
         Label bloodLbl = new Label(blood);
-        bloodLbl.getStyleClass().add("people-chip");
-        bloodLbl.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #DC2626; -fx-padding: 4 8; -fx-background-radius: 6;");
+        bloodLbl.getStyleClass().add("blood-badge");
         meta.getChildren().add(bloodLbl);
         if (session != null || batch != null) {
             String badge = (session != null ? session : "") + (session != null && batch != null ? " · " : "") + (batch != null ? batch : "");
             Label sessLbl = new Label(badge);
-            sessLbl.getStyleClass().add("profile-label");
+            sessLbl.getStyleClass().add("blood-meta-badge");
             meta.getChildren().add(sessLbl);
         }
 
@@ -98,7 +94,7 @@ public class BloodSearchController implements Initializable {
         uniLbl.getStyleClass().add("profile-label");
 
         VBox card = new VBox(8);
-        card.getStyleClass().addAll("content-card", "user-card");
+        card.getStyleClass().add("blood-donor-card");
         card.getChildren().addAll(nameLbl, meta, uniLbl);
         return card;
     }

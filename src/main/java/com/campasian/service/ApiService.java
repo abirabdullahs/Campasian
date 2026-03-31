@@ -5,6 +5,8 @@ import com.campasian.model.CampusEvent;
 import com.campasian.model.Comment;
 import com.campasian.model.Confession;
 import com.campasian.model.CourseResource;
+import com.campasian.model.CommunityMessage;
+import com.campasian.model.CommunityRoom;
 import com.campasian.model.Faculty;
 import com.campasian.model.FacultyFeedback;
 import com.campasian.model.FriendRequest;
@@ -22,6 +24,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -164,6 +167,7 @@ public final class ApiService {
                         p.setBloodGroup(asString(obj.get("blood_group")));
                         p.setSession(asString(obj.get("session")));
                         p.setBatch(asString(obj.get("batch")));
+                        p.setDepartment(asString(obj.get("department")));
                         return p;
                     }
                 }
@@ -764,6 +768,75 @@ public final class ApiService {
         String url = restUrl("/profiles?id=eq." + currentUserId);
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         patchJsonWithAuth(url, payload, token);
+    }
+
+    public void upsertCommunityRoom(CommunityRoom room) throws ApiException {
+        if (room == null || room.getId() == null || room.getId().isBlank()) {
+            throw new ApiException(-1, "Invalid community room", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("id", room.getId());
+        payload.addProperty("university_key", room.getUniversityKey());
+        payload.addProperty("name", room.getName());
+        payload.addProperty("description", room.getDescription());
+        payload.addProperty("scope_label", room.getScopeLabel());
+        payload.addProperty("member_count", room.getMemberCount());
+        payload.addProperty("is_verified", room.isVerified());
+        payload.addProperty("is_auto_joined", room.isAutoJoined());
+        payload.addProperty("is_custom", room.isCustom());
+        if (room.getOwnerUserId() != null && !room.getOwnerUserId().isBlank()) {
+            payload.addProperty("owner_user_id", room.getOwnerUserId());
+        }
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        upsertJsonWithAuth(restUrl("/community_rooms"), payload, token);
+    }
+
+    public List<CommunityRoom> getCommunityRooms(String universityKey) throws ApiException {
+        if (universityKey == null || universityKey.isBlank()) return Collections.emptyList();
+        String url = restUrl("/community_rooms?university_key=eq." + encodeQueryValue(universityKey) + "&order=created_at.asc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return parseCommunityRooms(getRawWithAuth(url, token));
+    }
+
+    public CommunityRoom getCommunityRoom(String roomId) throws ApiException {
+        if (roomId == null || roomId.isBlank()) return null;
+        String url = restUrl("/community_rooms?id=eq." + encodeQueryValue(roomId));
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        List<CommunityRoom> rooms = parseCommunityRooms(getRawWithAuth(url, token));
+        return rooms.isEmpty() ? null : rooms.get(0);
+    }
+
+    public List<CommunityMessage> getCommunityMessages(String roomId) throws ApiException {
+        if (roomId == null || roomId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/community_messages?room_id=eq." + encodeQueryValue(roomId) + "&order=created_at.asc");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return parseCommunityMessages(getRawWithAuth(url, token));
+    }
+
+    public CommunityMessage sendCommunityMessage(String roomId, String senderId, String senderName, String content) throws ApiException {
+        if (roomId == null || roomId.isBlank() || content == null || content.isBlank()) {
+            throw new ApiException(-1, "Invalid community message", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("room_id", roomId);
+        payload.addProperty("sender_id", senderId != null ? senderId : currentUserId);
+        payload.addProperty("sender_name", senderName != null && !senderName.isBlank() ? senderName : "Student");
+        payload.addProperty("content", content.trim());
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/community_messages"), payload, token);
+        return new CommunityMessage(
+            roomId,
+            senderId != null ? senderId : currentUserId,
+            senderName != null && !senderName.isBlank() ? senderName : "Student",
+            content.trim(),
+            java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        );
+    }
+
+    public void deleteCommunityRoom(String roomId) throws ApiException {
+        if (roomId == null || roomId.isBlank()) return;
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        deleteWithAuth(restUrl("/community_rooms?id=eq." + encodeQueryValue(roomId)), token);
     }
 
     /**
@@ -1481,6 +1554,32 @@ public final class ApiService {
         }
     }
 
+    private void upsertJsonWithAuth(String url, JsonObject payload, String bearerToken) throws ApiException {
+        try {
+            String anonKey = SupabaseConfig.getAnonKey();
+            String body = gson.toJson(payload);
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .timeout(REQUEST_TIMEOUT)
+                .header("apikey", anonKey)
+                .header("Authorization", "Bearer " + bearerToken)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Prefer", "resolution=merge-duplicates,return=minimal")
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new ApiException(response.statusCode(), "Upsert failed", null, null, response.body());
+            }
+        } catch (ApiException e) {
+            throw e;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Upsert failed: " + e.getMessage(), null, null, null);
+        }
+    }
+
     /**
      * Deletes a post. Only for posts owned by current user.
      */
@@ -1792,5 +1891,63 @@ public final class ApiService {
             if (v != null && !v.isBlank()) return v;
         }
         return null;
+    }
+
+    private List<CommunityRoom> parseCommunityRooms(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<CommunityRoom> rooms = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    rooms.add(new CommunityRoom(
+                        asString(o.get("id")),
+                        asString(o.get("name")),
+                        asString(o.get("description")),
+                        asString(o.get("scope_label")),
+                        o.has("member_count") && !o.get("member_count").isJsonNull() ? o.get("member_count").getAsInt() : 0,
+                        o.has("is_verified") && !o.get("is_verified").isJsonNull() && o.get("is_verified").getAsBoolean(),
+                        o.has("is_auto_joined") && !o.get("is_auto_joined").isJsonNull() && o.get("is_auto_joined").getAsBoolean(),
+                        o.has("is_custom") && !o.get("is_custom").isJsonNull() && o.get("is_custom").getAsBoolean(),
+                        asString(o.get("owner_user_id")),
+                        asString(o.get("university_key"))
+                    ));
+                }
+            }
+            return rooms;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private List<CommunityMessage> parseCommunityMessages(String body) {
+        if (body == null || body.isBlank()) return Collections.emptyList();
+        try {
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<CommunityMessage> messages = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    messages.add(new CommunityMessage(
+                        asString(o.get("room_id")),
+                        asString(o.get("sender_id")),
+                        asString(o.get("sender_name")),
+                        asString(o.get("content")),
+                        asString(o.get("created_at"))
+                    ));
+                }
+            }
+            return messages;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private static String encodeQueryValue(String value) {
+        if (value == null) return "";
+        return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
     }
 }

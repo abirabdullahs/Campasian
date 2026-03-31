@@ -1,8 +1,8 @@
 package com.campasian.controller;
 
 import com.campasian.model.StudyPartnerPost;
-import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.ApiService;
 import com.campasian.view.AppRouter;
 import com.campasian.view.SceneManager;
 import javafx.application.Platform;
@@ -22,9 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Study Partner Finder. Message button redirects to chat.
- */
 public class StudyPartnerController implements Initializable {
 
     @FXML private Button postBtn;
@@ -49,7 +46,9 @@ public class StudyPartnerController implements Initializable {
             s.initOwner(SceneManager.getPrimaryStage());
             ctrl.setOnSuccess(this::loadPosts);
             s.showAndWait();
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadPosts() {
@@ -61,8 +60,8 @@ public class StudyPartnerController implements Initializable {
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
-                    for (StudyPartnerPost p : list) {
-                        itemsVBox.getChildren().add(buildCard(p));
+                    for (StudyPartnerPost post : list) {
+                        itemsVBox.getChildren().add(buildCard(post));
                     }
                     if (list.isEmpty()) {
                         Label empty = new Label("No posts yet.");
@@ -82,18 +81,22 @@ public class StudyPartnerController implements Initializable {
         }).start();
     }
 
-    private VBox buildCard(StudyPartnerPost p) {
-        Label subj = new Label("Looking for a partner for " + (p.getSubject() != null ? p.getSubject() : "—"));
-        subj.getStyleClass().add("profile-value");
+    private VBox buildCard(StudyPartnerPost post) {
+        Label subj = new Label("Looking for a partner for " + (post.getSubject() != null ? post.getSubject() : "-"));
+        subj.getStyleClass().add("study-card-title");
         subj.setWrapText(true);
-        Label meta = new Label((p.getUserName() != null ? p.getUserName() : "Anonymous") + " · " + formatTime(p.getCreatedAt()));
+
+        Label meta = new Label((post.getUserName() != null ? post.getUserName() : "Anonymous") + " · " + formatTime(post.getCreatedAt()));
         meta.getStyleClass().add("post-meta");
-        Label desc = new Label(p.getDescription() != null ? p.getDescription() : "");
-        desc.getStyleClass().add("profile-label");
+
+        Label desc = new Label(post.getDescription() != null ? post.getDescription() : "");
+        desc.getStyleClass().add("study-card-description");
         desc.setWrapText(true);
+
         Button msgBtn = new Button("Message");
         msgBtn.getStyleClass().add("btn-primary");
-        msgBtn.setOnAction(e -> AppRouter.navigateToChat(p.getUserId(), p.getUserName()));
+        msgBtn.setOnAction(e -> AppRouter.navigateToChat(post.getUserId(), post.getUserName()));
+
         VBox card = new VBox(8);
         card.getStyleClass().addAll("content-card", "study-partner-card");
         card.getChildren().addAll(subj, meta, desc, msgBtn);
@@ -104,6 +107,8 @@ public class StudyPartnerController implements Initializable {
         if (iso == null || iso.isBlank()) return "";
         try {
             return OffsetDateTime.parse(iso).format(DateTimeFormatter.ofPattern("MMM d, HH:mm"));
-        } catch (Exception e) { return iso; }
+        } catch (Exception e) {
+            return iso;
+        }
     }
 }

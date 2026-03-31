@@ -1,21 +1,35 @@
-/* Campasian Anonymous Confession Wall - Shadcn Minimalist */
-/* Poppins · 1px #E4E4E7 · 6px radius · Black/White/Gray */
-
 .confession-root {
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
-    -fx-background-color: #FAFAFA;
+    -fx-background-color: linear-gradient(to bottom, #09090b, #111827);
+}
+
+.confession-root .page-title,
+.confession-root .label {
+    -fx-text-fill: #f8fafc;
+}
+
+.confession-root .page-subtitle,
+.confession-root .post-meta {
+    -fx-text-fill: #94a3b8;
 }
 
 .confession-card {
-    -fx-background-color: #F4F4F5;
-    -fx-background-radius: 6;
-    -fx-border-color: #E4E4E7;
-    -fx-border-width: 1;
-    -fx-border-radius: 6;
-    -fx-padding: 16;
+    -fx-background-color: linear-gradient(to bottom right, #111827, #1e1b4b);
+    -fx-background-radius: 20;
+    -fx-border-color: #3730a3;
+    -fx-border-radius: 20;
+    -fx-padding: 18;
+    -fx-spacing: 8;
 }
 
 .confession-anonymous {
+    -fx-text-fill: #c4b5fd;
     -fx-font-size: 12px;
-    -fx-text-fill: #71717A;
+    -fx-font-weight: 800;
+}
+
+.confession-content {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 14px;
+    -fx-line-spacing: 3;
 }

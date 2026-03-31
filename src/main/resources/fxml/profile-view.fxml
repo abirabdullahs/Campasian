@@ -111,6 +111,12 @@
                     <Separator styleClass="profile-field-divider"/>
 
                     <HBox styleClass="profile-field-row" spacing="0">
+                        <Label text="Department" styleClass="profile-field-label" minWidth="140"/>
+                        <Label fx:id="departmentLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    <Separator styleClass="profile-field-divider"/>
+
+                    <HBox styleClass="profile-field-row" spacing="0">
                         <Label text="Student ID" styleClass="profile-field-label" minWidth="140"/>
                         <Label fx:id="einLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
                     </HBox>
