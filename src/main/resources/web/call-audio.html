@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campasian Audio Call</title>
+  <style>
+    body { margin:0; font-family:Inter,system-ui,sans-serif; background:linear-gradient(180deg,#09090b,#111827); color:#f8fafc; display:grid; place-items:center; min-height:100vh; }
+    .shell { width:min(520px,calc(100vw - 32px)); background:rgba(15,23,42,.94); border:1px solid rgba(148,163,184,.16); border-radius:20px; padding:28px; box-sizing:border-box; }
+    .eyebrow { display:inline-block; padding:6px 12px; border-radius:999px; background:rgba(255,255,255,.08); color:#cbd5e1; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    h1 { margin:18px 0 8px; font-size:28px; }
+    p { margin:0; color:#94a3b8; line-height:1.5; }
+    .status { margin-top:18px; padding:14px 16px; border-radius:14px; background:rgba(2,6,23,.64); color:#e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <span class="eyebrow">Campasian Call</span>
+    <h1 id="friendName">Audio Call</h1>
+    <p>This browser page runs the Agora audio session while the JavaFX app keeps the call controls and signaling state.</p>
+    <div class="status" id="status">Preparing microphone access...</div>
+  </div>
+  <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const callId = params.get("callId");
+    const appId = params.get("appId");
+    const channel = params.get("channel");
+    const uid = Number(params.get("uid") || "0");
+    const friendName = params.get("friendName") || "Friend";
+    const statusNode = document.getElementById("status");
+    document.getElementById("friendName").textContent = friendName;
+    let client, localTrack, ended = false, muted = false;
+    function setStatus(text) { statusNode.textContent = text; }
+    async function postEvent(type) {
+      try { await fetch(`/call/event?callId=${encodeURIComponent(callId)}`, { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify({ type }) }); } catch (_) {}
+    }
+    async function pollBridge() {
+      if (ended) return;
+      try {
+        const response = await fetch(`/call/session?callId=${encodeURIComponent(callId)}`, { cache:"no-store" });
+        const state = await response.json();
+        if (localTrack && state.muted !== muted) {
+          muted = !!state.muted;
+          await localTrack.setMuted(muted);
+          setStatus(muted ? "Microphone muted from app." : "Microphone live.");
+        }
+        if (state.endRequested) { await leaveCall("Call ended from app."); return; }
+      } catch (_) {}
+      setTimeout(pollBridge, 1000);
+    }
+    async function leaveCall(reason) {
+      if (ended) return;
+      ended = true;
+      try {
+        if (localTrack) { localTrack.stop(); localTrack.close(); }
+        if (client) { await client.leave(); }
+      } catch (_) {}
+      setStatus(reason || "Call ended.");
+      await postEvent("ended");
+    }
+    async function start() {
+      if (!window.AgoraRTC) { setStatus("Agora SDK failed to load."); return; }
+      client = AgoraRTC.createClient({ mode:"rtc", codec:"vp8" });
+      client.on("user-joined", () => { setStatus("Friend joined the call."); postEvent("user-joined"); });
+      client.on("user-left", () => { setStatus("Friend left the call."); postEvent("user-offline"); });
+      try {
+        await client.join(appId, channel, null, uid);
+        localTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        await client.publish([localTrack]);
+        setStatus("Connected. Keep Campasian open for mute and end controls.");
+        await postEvent("joined");
+        pollBridge();
+      } catch (error) {
+        console.error(error);
+        setStatus("Unable to start the audio call. Check microphone permission and Agora project settings.");
+        await postEvent("error");
+      }
+    }
+    window.addEventListener("beforeunload", () => leaveCall("Browser tab closed."));
+    start();
+  </script>
+</body>
+</html>

@@ -6,8 +6,10 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -54,7 +56,8 @@
             </ScrollPane>
         </VBox>
 
-        <VBox HBox.hgrow="ALWAYS" maxHeight="Infinity" spacing="0" styleClass="chat-window">
+        <StackPane HBox.hgrow="ALWAYS" maxHeight="Infinity">
+        <VBox maxHeight="Infinity" spacing="0" styleClass="chat-window">
 
             <HBox styleClass="chat-window-header" alignment="CENTER_LEFT" spacing="16">
                 <StackPane styleClass="chat-avatar-circle">
@@ -65,6 +68,10 @@
                            text="Select a friend to start chatting"
                            styleClass="chat-partner-name"/>
                 </VBox>
+                <Button fx:id="audioCallBtn"
+                        text="Audio Call"
+                        styleClass="chat-attach-btn"
+                        onAction="#onStartAudioCall"/>
             </HBox>
 
             <Separator styleClass="chat-divider"/>
@@ -125,6 +132,23 @@
                 </HBox>
             </VBox>
         </VBox>
+            <VBox fx:id="callOverlay"
+                  visible="false"
+                  managed="false"
+                  spacing="14"
+                  alignment="CENTER"
+                  styleClass="call-overlay">
+                <Label fx:id="callOverlayTitle" text="Audio Call" styleClass="call-overlay-title"/>
+                <Label fx:id="callOverlaySubtitle" text="Calling..." styleClass="call-overlay-subtitle"/>
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="callAcceptBtn" text="Accept" styleClass="call-accept-btn" onAction="#onAcceptCall"/>
+                    <Button fx:id="callRejectBtn" text="Reject" styleClass="call-reject-btn" onAction="#onRejectCall"/>
+                    <Button fx:id="callCancelBtn" text="Cancel" styleClass="call-reject-btn" onAction="#onCancelCall"/>
+                    <ToggleButton fx:id="muteCallBtn" text="Mute" styleClass="call-control-btn" onAction="#onMuteToggle"/>
+                    <Button fx:id="endCallBtn" text="End Call" styleClass="call-reject-btn" onAction="#onEndCall"/>
+                </HBox>
+            </VBox>
+        </StackPane>
 
     </HBox>
 </VBox>

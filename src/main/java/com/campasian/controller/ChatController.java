@@ -1,11 +1,16 @@
 package com.campasian.controller;
 
 import com.campasian.model.Message;
+import com.campasian.model.CallRecord;
 import com.campasian.model.UserProfile;
 import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
+import com.campasian.service.BrowserCallBridgeService;
+import com.campasian.service.SupabaseRealtimeService;
 import com.campasian.util.ImageSelectionSupport;
 import com.campasian.view.NavigationContext;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -16,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -45,18 +51,33 @@ public class ChatController implements Initializable {
     @FXML private ScrollPane messagesScroll;
     @FXML private VBox messagesVBox;
     @FXML private TextField messageField;
+    @FXML private Button audioCallBtn;
     @FXML private VBox chatComposer;
     @FXML private Button attachImageBtn;
     @FXML private Button sendMessageBtn;
     @FXML private VBox messagePreviewBox;
     @FXML private ImageView messagePreviewImage;
     @FXML private Label messagePreviewLabel;
+    @FXML private VBox callOverlay;
+    @FXML private Label callOverlayTitle;
+    @FXML private Label callOverlaySubtitle;
+    @FXML private Button callAcceptBtn;
+    @FXML private Button callRejectBtn;
+    @FXML private Button callCancelBtn;
+    @FXML private ToggleButton muteCallBtn;
+    @FXML private Button endCallBtn;
 
     private byte[] pendingImageBytes;
     private String pendingImageExtension = "png";
     private String pendingImageContentType = "image/png";
 
     private String selectedPartnerId;
+    private String selectedPartnerName;
+    private CallRecord activeCall;
+    private String activeCallRole;
+    private Timeline callTimerTimeline;
+    private long callDurationSeconds;
+    private final SupabaseRealtimeService realtimeService = new SupabaseRealtimeService();
     private final ScheduledExecutorService pollExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "chat-poll");
         t.setDaemon(true);
@@ -65,6 +86,7 @@ public class ChatController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        hideCallOverlay();
         updateComposerState(false);
         showEmptyConversationState();
         loadFriends();
@@ -75,6 +97,11 @@ public class ChatController implements Initializable {
             NavigationContext.clearChatPartner();
             selectPartner(partnerId, partnerName != null ? partnerName : "Chat");
         }
+        realtimeService.subscribeToCalls(
+            ApiService.getInstance().getCurrentUserId(),
+            ApiService.getInstance().getAccessToken(),
+            this::handleCallChange
+        );
     }
 
     private void loadFriends() {
@@ -108,6 +135,7 @@ public class ChatController implements Initializable {
 
     private void selectPartner(String partnerId, String name) {
         selectedPartnerId = partnerId;
+        selectedPartnerName = name;
         Platform.runLater(() -> {
             updateComposerState(selectedPartnerId != null && !selectedPartnerId.isBlank());
             if (chatPartnerLabel != null) chatPartnerLabel.setText(name != null ? name : "Chat");
@@ -310,6 +338,70 @@ public class ChatController implements Initializable {
         }
     }
 
+    @FXML
+    protected void onStartAudioCall() {
+        if (selectedPartnerId == null || selectedPartnerId.isBlank()) return;
+        try {
+            activeCall = ApiService.getInstance().createPendingCall(selectedPartnerId);
+            activeCallRole = "caller";
+            showOutgoingCallState();
+        } catch (ApiException e) {
+            showChatError("Unable to start the audio call.");
+        }
+    }
+
+    @FXML
+    protected void onAcceptCall() {
+        if (activeCall == null) return;
+        try {
+            ApiService.getInstance().updateCallStatus(activeCall.getId(), "accepted", "receiver_id");
+            activeCall.setStatus("accepted");
+            startActiveCallUi();
+            launchBrowserCall();
+        } catch (ApiException e) {
+            showChatError("Unable to accept the call.");
+        }
+    }
+
+    @FXML
+    protected void onRejectCall() {
+        if (activeCall == null) return;
+        try {
+            String userColumn = "receiver".equals(activeCallRole) ? "receiver_id" : "caller_id";
+            ApiService.getInstance().updateCallStatus(activeCall.getId(), "rejected", userColumn);
+        } catch (ApiException ignored) {
+        }
+        teardownCallUi();
+    }
+
+    @FXML
+    protected void onCancelCall() {
+        if (activeCall == null) return;
+        try {
+            ApiService.getInstance().updateCallStatus(activeCall.getId(), "ended", "caller_id");
+        } catch (ApiException ignored) {
+        }
+        teardownCallUi();
+    }
+
+    @FXML
+    protected void onMuteToggle() {
+        if (activeCall == null || muteCallBtn == null) return;
+        BrowserCallBridgeService.getInstance().updateMute(activeCall.getId(), muteCallBtn.isSelected());
+        updateActiveCallText(muteCallBtn.isSelected() ? "Microphone muted" : "Audio call in progress");
+    }
+
+    @FXML
+    protected void onEndCall() {
+        if (activeCall == null) return;
+        try {
+            ApiService.getInstance().updateCallStatus(activeCall.getId(), "ended");
+        } catch (ApiException ignored) {
+        }
+        BrowserCallBridgeService.getInstance().requestEnd(activeCall.getId());
+        teardownCallUi();
+    }
+
 
 
     @FXML
@@ -390,6 +482,181 @@ public class ChatController implements Initializable {
         alert.setHeaderText("Chat action failed");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void handleCallChange(com.google.gson.JsonObject payload) {
+        Platform.runLater(() -> {
+            com.google.gson.JsonObject data = payload != null && payload.has("data") && payload.get("data").isJsonObject()
+                ? payload.getAsJsonObject("data")
+                : payload;
+            com.google.gson.JsonObject record = data != null && data.has("record") && data.get("record").isJsonObject()
+                ? data.getAsJsonObject("record")
+                : data != null && data.has("new") && data.get("new").isJsonObject()
+                    ? data.getAsJsonObject("new")
+                    : data != null && data.has("payload") && data.get("payload").isJsonObject()
+                        ? data.getAsJsonObject("payload")
+                        : null;
+            if (record == null) return;
+
+            CallRecord call = new CallRecord();
+            call.setId(asString(record, "id"));
+            call.setCallerId(asString(record, "caller_id"));
+            call.setReceiverId(asString(record, "receiver_id"));
+            call.setStatus(asString(record, "status"));
+            call.setChannelName(asString(record, "channel_name"));
+            call.setCreatedAt(asString(record, "created_at"));
+
+            String currentUserId = ApiService.getInstance().getCurrentUserId();
+            if (currentUserId == null || currentUserId.isBlank()) return;
+            if (!currentUserId.equals(call.getCallerId()) && !currentUserId.equals(call.getReceiverId())) return;
+
+            if ("pending".equals(call.getStatus()) && currentUserId.equals(call.getReceiverId())) {
+                activeCall = call;
+                activeCallRole = "receiver";
+                showIncomingCallState();
+                return;
+            }
+            if (activeCall == null || !call.getId().equals(activeCall.getId())) return;
+
+            activeCall = call;
+            if ("accepted".equals(call.getStatus())) {
+                if ("active".equals(activeCallRole)) return;
+                startActiveCallUi();
+                launchBrowserCall();
+            } else if ("rejected".equals(call.getStatus()) || "ended".equals(call.getStatus())) {
+                BrowserCallBridgeService.getInstance().requestEnd(call.getId());
+                teardownCallUi();
+            }
+        });
+    }
+
+    private void showOutgoingCallState() {
+        if (callOverlay == null) return;
+        callOverlay.setVisible(true);
+        callOverlay.setManaged(true);
+        if (callOverlayTitle != null) callOverlayTitle.setText(selectedPartnerName != null ? selectedPartnerName : "Calling friend");
+        if (callOverlaySubtitle != null) callOverlaySubtitle.setText("Calling...");
+        setCallButtons(false, false, true, false, false);
+    }
+
+    private void showIncomingCallState() {
+        if (callOverlay == null || activeCall == null) return;
+        callOverlay.setVisible(true);
+        callOverlay.setManaged(true);
+        if (callOverlayTitle != null) {
+            String title = selectedPartnerId != null && selectedPartnerId.equals(activeCall.getCallerId()) && selectedPartnerName != null
+                ? selectedPartnerName
+                : "Incoming audio call";
+            callOverlayTitle.setText(title);
+        }
+        if (callOverlaySubtitle != null) callOverlaySubtitle.setText("Incoming call");
+        setCallButtons(true, true, false, false, false);
+        java.awt.Toolkit.getDefaultToolkit().beep();
+    }
+
+    private void startActiveCallUi() {
+        if (activeCall == null) return;
+        activeCallRole = "active";
+        callDurationSeconds = 0;
+        if (callOverlay == null) return;
+        callOverlay.setVisible(true);
+        callOverlay.setManaged(true);
+        if (callOverlayTitle != null) callOverlayTitle.setText(selectedPartnerName != null ? selectedPartnerName : "Audio call");
+        updateActiveCallText("Audio call in progress");
+        setCallButtons(false, false, false, true, true);
+        if (muteCallBtn != null) muteCallBtn.setSelected(false);
+        if (callTimerTimeline != null) callTimerTimeline.stop();
+        callTimerTimeline = new Timeline(new KeyFrame(javafx.util.Duration.seconds(1), e -> {
+            callDurationSeconds++;
+            updateActiveCallText("Connected • " + formatCallDuration(callDurationSeconds));
+        }));
+        callTimerTimeline.setCycleCount(Timeline.INDEFINITE);
+        callTimerTimeline.play();
+        BrowserCallBridgeService.getInstance().registerSession(activeCall.getId(), this::handleBrowserCallEvent);
+    }
+
+    private void setCallButtons(boolean accept, boolean reject, boolean cancel, boolean mute, boolean end) {
+        if (callAcceptBtn != null) { callAcceptBtn.setVisible(accept); callAcceptBtn.setManaged(accept); }
+        if (callRejectBtn != null) { callRejectBtn.setVisible(reject); callRejectBtn.setManaged(reject); }
+        if (callCancelBtn != null) { callCancelBtn.setVisible(cancel); callCancelBtn.setManaged(cancel); }
+        if (muteCallBtn != null) { muteCallBtn.setVisible(mute); muteCallBtn.setManaged(mute); }
+        if (endCallBtn != null) { endCallBtn.setVisible(end); endCallBtn.setManaged(end); }
+    }
+
+    private void updateActiveCallText(String text) {
+        if (callOverlaySubtitle != null) callOverlaySubtitle.setText(text);
+    }
+
+    private void launchBrowserCall() {
+        if (activeCall == null) return;
+        String currentUserId = ApiService.getInstance().getCurrentUserId();
+        if (currentUserId == null || currentUserId.isBlank()) return;
+        try {
+            BrowserCallBridgeService bridge = BrowserCallBridgeService.getInstance();
+            bridge.registerSession(activeCall.getId(), this::handleBrowserCallEvent);
+            bridge.launchBrowser(bridge.buildLaunchUri(activeCall.getId(), activeCall.getChannelName(), currentUserId, selectedPartnerName));
+        } catch (Exception e) {
+            showChatError("Unable to launch the browser call page.");
+        }
+    }
+
+    private void handleBrowserCallEvent(String type) {
+        Platform.runLater(() -> {
+            if (type == null) return;
+            switch (type) {
+                case "user-joined" -> updateActiveCallText("Connected • friend joined");
+                case "user-offline" -> updateActiveCallText("Connected • friend left");
+                case "error" -> updateActiveCallText("Browser call page reported an error");
+                case "ended" -> {
+                    if (activeCall != null) {
+                        try {
+                            ApiService.getInstance().updateCallStatus(activeCall.getId(), "ended");
+                        } catch (ApiException ignored) {
+                        }
+                    }
+                    teardownCallUi();
+                }
+                default -> { }
+            }
+        });
+    }
+
+    private void teardownCallUi() {
+        if (callTimerTimeline != null) {
+            callTimerTimeline.stop();
+            callTimerTimeline = null;
+        }
+        if (activeCall != null) {
+            BrowserCallBridgeService.getInstance().requestEnd(activeCall.getId());
+            BrowserCallBridgeService.getInstance().clearSession(activeCall.getId());
+        }
+        hideCallOverlay();
+        activeCall = null;
+        activeCallRole = null;
+        callDurationSeconds = 0;
+    }
+
+    private void hideCallOverlay() {
+        if (callOverlay != null) {
+            callOverlay.setVisible(false);
+            callOverlay.setManaged(false);
+        }
+        setCallButtons(false, false, false, false, false);
+    }
+
+    private static String asString(com.google.gson.JsonObject object, String key) {
+        if (object == null || key == null || !object.has(key) || object.get(key).isJsonNull()) return null;
+        try {
+            return object.get(key).getAsString();
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    private static String formatCallDuration(long totalSeconds) {
+        long minutes = totalSeconds / 60;
+        long seconds = totalSeconds % 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
     private void scrollToBottom() {

@@ -1,5 +1,7 @@
 module com.campasian {
     requires java.net.http;
+    requires java.desktop;
+    requires jdk.httpserver;
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;

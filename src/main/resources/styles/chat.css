@@ -186,6 +186,50 @@
     -fx-background-color: #27272a;
 }
 
+.call-overlay {
+    -fx-background-color: rgba(9, 9, 11, 0.92);
+    -fx-background-radius: 22;
+    -fx-border-color: rgba(148,163,184,0.16);
+    -fx-border-radius: 22;
+    -fx-border-width: 1;
+    -fx-padding: 24;
+    -fx-max-width: 340;
+    -fx-max-height: 180;
+}
+
+.call-overlay-title {
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.call-overlay-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+}
+
+.call-control-btn, .call-accept-btn, .call-reject-btn {
+    -fx-background-radius: 14;
+    -fx-padding: 10 16;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.call-control-btn {
+    -fx-background-color: #18181b;
+    -fx-text-fill: #e4e4e7;
+}
+
+.call-accept-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #111827;
+}
+
+.call-reject-btn {
+    -fx-background-color: #3f1017;
+    -fx-text-fill: #fecaca;
+}
+
 .chat-empty-hero,
 .chat-empty-card {
     -fx-background-color: linear-gradient(to bottom right, rgba(15,23,42,0.92), rgba(17,24,39,0.96));

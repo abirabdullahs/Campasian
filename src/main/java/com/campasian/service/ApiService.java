@@ -16,6 +16,7 @@ import com.campasian.model.Message;
 import com.campasian.model.Notification;
 import com.campasian.model.Post;
 import com.campasian.model.StudyPartnerPost;
+import com.campasian.model.CallRecord;
 import com.campasian.model.User;
 import com.campasian.model.UserProfile;
 import com.google.gson.Gson;
@@ -35,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Minimal Supabase REST client for authentication.
@@ -1043,6 +1045,53 @@ public final class ApiService {
         sendMessage(receiverId, content, null);
     }
 
+    public CallRecord createPendingCall(String receiverId) throws ApiException {
+        if (receiverId == null || receiverId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid call request", null, null, null);
+        }
+        CallRecord call = new CallRecord();
+        call.setId(UUID.randomUUID().toString());
+        call.setCallerId(currentUserId);
+        call.setReceiverId(receiverId);
+        call.setStatus("pending");
+        call.setChannelName("call-" + UUID.randomUUID());
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("id", call.getId());
+        payload.addProperty("caller_id", call.getCallerId());
+        payload.addProperty("receiver_id", call.getReceiverId());
+        payload.addProperty("status", call.getStatus());
+        payload.addProperty("channel_name", call.getChannelName());
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        postJsonWithAuth(restUrl("/calls"), payload, token);
+        return call;
+    }
+
+    public void updateCallStatus(String callId, String status) throws ApiException {
+        updateCallStatus(callId, status, null);
+    }
+
+    public void updateCallStatus(String callId, String status, String userColumn) throws ApiException {
+        if (callId == null || callId.isBlank() || status == null || status.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid call update", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("status", status);
+        StringBuilder url = new StringBuilder("/calls?id=eq.").append(encodeQueryValue(callId));
+        if (userColumn != null && !userColumn.isBlank()) {
+            url.append("&").append(userColumn).append("=eq.").append(currentUserId);
+        }
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(restUrl(url.toString()), payload, token);
+    }
+
+    public CallRecord getCallById(String callId) throws ApiException {
+        if (callId == null || callId.isBlank()) return null;
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String body = getRawWithAuth(restUrl("/calls?id=eq." + encodeQueryValue(callId)), token);
+        return parseSingleCall(body);
+    }
+
     public void updateMessage(String messageId, String content) throws ApiException {
         if (messageId == null || messageId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
             throw new ApiException(-1, "Invalid request", null, null, null);
@@ -1988,5 +2037,24 @@ public final class ApiService {
     private static String encodeQueryValue(String value) {
         if (value == null) return "";
         return URLEncoder.encode(value, StandardCharsets.UTF_8).replace("+", "%20");
+    }
+
+    private CallRecord parseSingleCall(String body) {
+        if (body == null || body.isBlank()) return null;
+        try {
+            JsonElement parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray() || parsed.getAsJsonArray().isEmpty()) return null;
+            JsonObject o = parsed.getAsJsonArray().get(0).getAsJsonObject();
+            CallRecord call = new CallRecord();
+            call.setId(asString(o.get("id")));
+            call.setCallerId(asString(o.get("caller_id")));
+            call.setReceiverId(asString(o.get("receiver_id")));
+            call.setStatus(asString(o.get("status")));
+            call.setChannelName(asString(o.get("channel_name")));
+            call.setCreatedAt(asString(o.get("created_at")));
+            return call;
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
