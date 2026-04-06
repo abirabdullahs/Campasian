@@ -1132,6 +1132,41 @@ public final class ApiService {
         return parseSingleCall(body);
     }
 
+    /**
+     * Fetches all calls between two users (either direction).
+     */
+    public List<CallRecord> getCallsBetweenUsers(String userId1, String userId2) {
+        if (userId1 == null || userId1.isBlank() || userId2 == null || userId2.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            String url = restUrl("/calls?or=(and(caller_id.eq." + userId1 + ",receiver_id.eq." + userId2 + "),and(caller_id.eq." + userId2 + ",receiver_id.eq." + userId1 + "))&order=created_at.desc");
+            String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            List<CallRecord> list = new ArrayList<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    CallRecord call = new CallRecord();
+                    call.setId(asString(o.get("id")));
+                    call.setCallerId(asString(o.get("caller_id")));
+                    call.setReceiverId(asString(o.get("receiver_id")));
+                    call.setStatus(asString(o.get("status")));
+                    call.setChannelName(asString(o.get("channel_name")));
+                    call.setCreatedAt(asString(o.get("created_at")));
+                    list.add(call);
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
+    }
+
     public void updateMessage(String messageId, String content) throws ApiException {
         if (messageId == null || messageId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
             throw new ApiException(-1, "Invalid request", null, null, null);

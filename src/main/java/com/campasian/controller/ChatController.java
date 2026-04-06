@@ -14,6 +14,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -150,24 +151,42 @@ public class ChatController implements Initializable {
         new Thread(() -> {
             try {
                 List<Message> msgs = ApiService.getInstance().getMessages(selectedPartnerId);
-                // Also fetch call history between these two users
-                java.util.List<CallRecord> callHistory = new java.util.ArrayList<>();
-                try {
-                    String currentId = ApiService.getInstance().getCurrentUserId();
-                    // Note: This would require a method to fetch calls between two users
-                    // For now, we'll note this as a TODO or use a placeholder
-                } catch (Exception ignored) {}
+                List<CallRecord> calls = ApiService.getInstance().getCallsBetweenUsers(
+                    ApiService.getInstance().getCurrentUserId(), 
+                    selectedPartnerId
+                );
                 
                 Platform.runLater(() -> {
                     if (messagesVBox == null) return;
                     messagesVBox.getChildren().clear();
                     String currentId = ApiService.getInstance().getCurrentUserId();
-                    for (Message m : msgs) {
-                        boolean fromMe = currentId != null && currentId.equals(m.getSenderId());
-                        HBox bubble = buildMessageBubble(m, fromMe);
-                        messagesVBox.getChildren().add(bubble);
+                    
+                    // Merge and sort messages and calls by timestamp
+                    java.util.List<Object> items = new java.util.ArrayList<>();
+                    items.addAll(msgs);
+                    items.addAll(calls);
+                    
+                    items.sort((a, b) -> {
+                        String timeA = a instanceof Message ? ((Message) a).getCreatedAt() : ((CallRecord) a).getCreatedAt();
+                        String timeB = b instanceof Message ? ((Message) b).getCreatedAt() : ((CallRecord) b).getCreatedAt();
+                        if (timeA == null || timeB == null) return 0;
+                        return timeA.compareTo(timeB);
+                    });
+                    
+                    for (Object item : items) {
+                        if (item instanceof Message) {
+                            Message m = (Message) item;
+                            boolean fromMe = currentId != null && currentId.equals(m.getSenderId());
+                            HBox bubble = buildMessageBubble(m, fromMe);
+                            messagesVBox.getChildren().add(bubble);
+                        } else if (item instanceof CallRecord) {
+                            CallRecord call = (CallRecord) item;
+                            VBox callCard = buildCallCard(call, currentId);
+                            messagesVBox.getChildren().add(callCard);
+                        }
                     }
-                    if (msgs.isEmpty()) {
+                    
+                    if (msgs.isEmpty() && calls.isEmpty()) {
                         messagesVBox.getChildren().add(buildNoMessagesCard());
                     }
                     scrollToBottom();
@@ -293,6 +312,38 @@ public class ChatController implements Initializable {
         body.setWrapText(true);
 
         card.getChildren().addAll(title, body);
+        return card;
+    }
+
+    private VBox buildCallCard(CallRecord call, String currentUserId) {
+        VBox card = new VBox(6);
+        card.getStyleClass().add("chat-call-card");
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(12, 16, 12, 16));
+        
+        // Call icon and type
+        HBox headerBox = new HBox(8);
+        headerBox.setAlignment(Pos.CENTER);
+        
+        String callType = call.getCallerId() != null && call.getCallerId().equals(currentUserId) ? 
+            "📞 Outgoing Call" : "📞 Incoming Call";
+        Label typeLabel = new Label(callType);
+        typeLabel.getStyleClass().add("chat-call-type");
+        typeLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #0084ff;");
+        
+        // Status badge
+        Label statusLabel = new Label("Completed");
+        statusLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #65676b;");
+        
+        headerBox.getChildren().addAll(typeLabel, statusLabel);
+        card.getChildren().add(headerBox);
+        
+        // Timestamp
+        Label timeLabel = new Label(formatTime(call.getCreatedAt()));
+        timeLabel.getStyleClass().add("chat-call-time");
+        timeLabel.setStyle("-fx-font-size: 11; -fx-text-fill: #65676b;");
+        card.getChildren().add(timeLabel);
+        
         return card;
     }
 
@@ -457,15 +508,25 @@ public class ChatController implements Initializable {
         try {
             String imageUrl = null;
             if (hasImage) {
-                String path = ImageSelectionSupport.buildStoragePath(ApiService.getInstance().getCurrentUserId(), pendingImageExtension);
-                imageUrl = ApiService.getInstance().uploadToStorage("post-images", path, pendingImageBytes, pendingImageContentType);
+                try {
+                    String path = ImageSelectionSupport.buildStoragePath(ApiService.getInstance().getCurrentUserId(), pendingImageExtension);
+                    imageUrl = ApiService.getInstance().uploadToStorage("chat-images", path, pendingImageBytes, pendingImageContentType);
+                } catch (ApiException e) {
+                    showChatError("Image upload failed: " + (e.getMessage() != null ? e.getMessage() : "Storage error"));
+                    return;
+                }
             }
-            ApiService.getInstance().sendMessage(selectedPartnerId, hasText ? text.trim() : "", imageUrl);
+            try {
+                ApiService.getInstance().sendMessage(selectedPartnerId, hasText ? text.trim() : "", imageUrl);
+            } catch (ApiException e) {
+                showChatError("Message send failed: " + (e.getMessage() != null ? e.getMessage() : "Network error"));
+                return;
+            }
             messageField.clear();
             clearPendingImage();
             loadMessages();
-        } catch (ApiException e) {
-            showChatError("Message send failed. Check storage setup or message permissions.");
+        } catch (Exception e) {
+            showChatError("Unexpected error: " + (e.getMessage() != null ? e.getMessage() : "Unknown error"));
         }
     }
 
