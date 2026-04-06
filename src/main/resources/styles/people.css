@@ -487,11 +487,11 @@
 
 .people-friend-status {
     -fx-background-color: #172554;
-    -fx-background-radius: 999;
-    -fx-padding: 5 10;
+    -fx-background-radius: 10;
+    -fx-padding: 7 16;
     -fx-text-fill: #bfdbfe;
-    -fx-font-size: 11px;
-    -fx-font-weight: 700;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
 }
 
 .people-loader-overlay {
