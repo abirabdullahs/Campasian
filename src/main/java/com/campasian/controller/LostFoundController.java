@@ -135,6 +135,16 @@ public class LostFoundController implements Initializable {
         VBox card = new VBox(6);
         card.getStyleClass().add("lost-found-card");
         card.getChildren().addAll(typeLabel, title, location, meta, desc);
+
+        // Add Message button if not own post
+        String currentUserId = ApiService.getInstance().getCurrentUserId();
+        if (currentUserId != null && !currentUserId.equals(item.getUserId())) {
+            Button messageBtn = new Button("Message");
+            messageBtn.getStyleClass().add("btn-primary");
+            messageBtn.setOnAction(e -> AppRouter.navigateToChat(item.getUserId(), item.getUserName()));
+            card.getChildren().add(messageBtn);
+        }
+
         return card;
     }
 

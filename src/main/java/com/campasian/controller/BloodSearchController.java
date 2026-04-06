@@ -7,6 +7,7 @@ import com.campasian.view.AppRouter;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -96,6 +97,16 @@ public class BloodSearchController implements Initializable {
         VBox card = new VBox(8);
         card.getStyleClass().add("blood-donor-card");
         card.getChildren().addAll(nameLbl, meta, uniLbl);
+
+        // Add Message button if not own profile
+        String currentUserId = ApiService.getInstance().getCurrentUserId();
+        if (currentUserId != null && !currentUserId.equals(profile.getId())) {
+            Button messageBtn = new Button("Message");
+            messageBtn.getStyleClass().add("btn-primary");
+            messageBtn.setOnAction(e -> AppRouter.navigateToChat(profile.getId(), profile.getFullName()));
+            card.getChildren().add(messageBtn);
+        }
+
         return card;
     }
 }
