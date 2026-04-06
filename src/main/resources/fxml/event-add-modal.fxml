@@ -10,13 +10,13 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.EventAddModalController"
-      styleClass="modal-root"
-      stylesheets="@../styles/style.css,@../styles/app.css"
+      styleClass="modal-root events-modal-root"
+      stylesheets="@../styles/style.css,@../styles/app.css,@../styles/events.css"
       prefWidth="420" prefHeight="400">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
     <VBox spacing="4">
-        <Label text="Create Event" styleClass="cc-headline"/>
-        <Label text="Add a campus event or club activity." styleClass="cc-description" wrapText="true"/>
+        <Label text="Create Event" styleClass="events-modal-title"/>
+        <Label text="Add a campus event or club activity." styleClass="events-modal-subtitle" wrapText="true"/>
     </VBox>
     <Label text="Title" styleClass="profile-label"/>
     <TextField fx:id="titleField" styleClass="material-input" promptText="Event title"/>

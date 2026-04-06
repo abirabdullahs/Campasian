@@ -12,6 +12,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -86,6 +87,13 @@ public class StudyPartnerController implements Initializable {
         subj.getStyleClass().add("study-card-title");
         subj.setWrapText(true);
 
+        FlowPane tags = new FlowPane(8, 8);
+        tags.getStyleClass().add("study-card-tags");
+
+        Label subjectTag = new Label(post.getSubject() != null ? post.getSubject() : "General");
+        subjectTag.getStyleClass().addAll("study-card-tag", "study-card-tag-subject");
+        tags.getChildren().add(subjectTag);
+
         Label meta = new Label((post.getUserName() != null ? post.getUserName() : "Anonymous") + " · " + formatTime(post.getCreatedAt()));
         meta.getStyleClass().add("post-meta");
 
@@ -94,12 +102,12 @@ public class StudyPartnerController implements Initializable {
         desc.setWrapText(true);
 
         Button msgBtn = new Button("Message");
-        msgBtn.getStyleClass().add("btn-primary");
+        msgBtn.getStyleClass().add("study-card-button");
         msgBtn.setOnAction(e -> AppRouter.navigateToChat(post.getUserId(), post.getUserName()));
 
-        VBox card = new VBox(8);
-        card.getStyleClass().addAll("content-card", "study-partner-card");
-        card.getChildren().addAll(subj, meta, desc, msgBtn);
+        VBox card = new VBox(12);
+        card.getStyleClass().add("study-partner-card");
+        card.getChildren().addAll(subj, tags, meta, desc, msgBtn);
         return card;
     }
 

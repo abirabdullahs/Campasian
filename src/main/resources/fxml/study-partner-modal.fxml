@@ -10,13 +10,13 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.StudyPartnerModalController"
-      styleClass="modal-root"
-      stylesheets="@../styles/style.css,@../styles/app.css"
+      styleClass="modal-root study-modal-root"
+      stylesheets="@../styles/style.css,@../styles/app.css,@../styles/study-partner.css"
       prefWidth="400" prefHeight="300">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
     <VBox spacing="4">
-        <Label text="Looking for Partner" styleClass="cc-headline"/>
-        <Label text="Post what subject you need a study partner for." styleClass="cc-description" wrapText="true"/>
+        <Label text="Looking for Partner" styleClass="study-modal-title"/>
+        <Label text="Post what subject you need a study partner for." styleClass="study-modal-subtitle" wrapText="true"/>
     </VBox>
     <Label text="Subject" styleClass="profile-label"/>
     <TextField fx:id="subjectField" styleClass="material-input" promptText="e.g. Data Structures"/>

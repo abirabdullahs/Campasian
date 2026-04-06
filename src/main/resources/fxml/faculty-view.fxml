@@ -10,7 +10,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.FacultyController"
       styleClass="faculty-root"
-      stylesheets="@../styles/faculty.css,@../styles/app.css"
+      stylesheets="@../styles/app.css,@../styles/faculty.css"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 
@@ -19,11 +19,11 @@
         <Label text="Search teachers by name or department. Leave helpful tips about teaching style." styleClass="page-subtitle" wrapText="true"/>
     </VBox>
 
-    <FlowPane hgap="12" vgap="12" prefWrapLength="720">
+    <FlowPane hgap="12" vgap="12" prefWrapLength="720" styleClass="faculty-toolbar">
         <TextField fx:id="searchField" promptText="Search by name or department..." styleClass="material-input" prefWidth="320" onKeyReleased="#onSearchKeyReleased"/>
     </FlowPane>
 
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
-        <VBox fx:id="facultyVBox" spacing="12" styleClass="feed-container"/>
+    <ScrollPane fitToWidth="true" styleClass="feed-scroll faculty-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
+        <VBox fx:id="facultyVBox" spacing="18" styleClass="feed-container"/>
     </ScrollPane>
 </VBox>

@@ -9,7 +9,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.ConfessionController"
       styleClass="confession-root"
-      stylesheets="@../styles/confession.css,@../styles/app.css"
+      stylesheets="@../styles/app.css,@../styles/confession.css"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 

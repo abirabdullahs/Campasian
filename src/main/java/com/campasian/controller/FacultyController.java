@@ -100,7 +100,7 @@ public class FacultyController implements Initializable {
         feedbackInput.setWrapText(true);
 
         javafx.scene.control.Button submitBtn = new javafx.scene.control.Button("Submit Feedback");
-        submitBtn.getStyleClass().add("btn-primary");
+        submitBtn.getStyleClass().add("faculty-submit-btn");
         submitBtn.setOnAction(e -> {
             String text = feedbackInput.getText();
             if (text != null && !text.isBlank()) {
@@ -130,8 +130,8 @@ public class FacultyController implements Initializable {
             }
         }).start();
 
-        VBox card = new VBox(8);
-        card.getStyleClass().addAll("content-card", "faculty-card");
+        VBox card = new VBox(10);
+        card.getStyleClass().add("faculty-card");
         card.getChildren().addAll(name, dept, email, feedbackSection);
         return card;
     }

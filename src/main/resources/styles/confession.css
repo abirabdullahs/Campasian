@@ -1,6 +1,6 @@
 .confession-root {
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
-    -fx-background-color: linear-gradient(to bottom, #09090b, #111827);
+    -fx-background-color: linear-gradient(to bottom, #0b1220, #111827);
 }
 
 .confession-root .page-title,
@@ -13,13 +13,64 @@
     -fx-text-fill: #94a3b8;
 }
 
+.confession-scroll,
+.confession-scroll.scroll-pane {
+    -fx-background: #0b1220;
+    -fx-background-color: #0b1220;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.confession-scroll > .viewport,
+.confession-scroll > .corner {
+    -fx-background-color: #0b1220;
+}
+
+.confession-root .feed-container {
+    -fx-background-color: #0b1220;
+    -fx-padding: 6 0 12 0;
+}
+
+.confession-scroll .scroll-bar:vertical,
+.confession-scroll .scroll-bar:horizontal {
+    -fx-background-color: #020617;
+}
+
+.confession-scroll .scroll-bar .track {
+    -fx-background-color: #020617;
+    -fx-background-radius: 999;
+}
+
+.confession-scroll .scroll-bar .thumb {
+    -fx-background-color: #1a2333;
+    -fx-background-radius: 999;
+}
+
+.confession-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: #243247;
+}
+
+.confession-scroll .scroll-bar .increment-button,
+.confession-scroll .scroll-bar .decrement-button {
+    -fx-background-color: #020617;
+    -fx-background-radius: 999;
+    -fx-padding: 0;
+}
+
+.confession-scroll .scroll-bar .increment-arrow,
+.confession-scroll .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+}
+
 .confession-card {
     -fx-background-color: linear-gradient(to bottom right, #111827, #1e1b4b);
     -fx-background-radius: 20;
-    -fx-border-color: #3730a3;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
     -fx-border-radius: 20;
     -fx-padding: 18;
     -fx-spacing: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 8, 0.18, 0, 2);
 }
 
 .confession-anonymous {
