@@ -91,6 +91,11 @@
     -fx-border-color: #d1d5db;
 }
 
+/* Add spacing between room list items */
+.community-room-list .list-cell {
+    -fx-padding: 6 0 0 0;
+}
+
 .community-room-name {
     -fx-text-fill: #f8fafc;
     -fx-font-size: 15px;

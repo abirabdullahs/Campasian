@@ -71,6 +71,30 @@
     -fx-padding: 10 0 5 15;
 }
 
+/* Friend List Items - Styled cards with spacing */
+.chat-friends-list {
+    -fx-spacing: 8;
+    -fx-padding: 8 8 8 8;
+}
+
+.chat-friends-list .label {
+    -fx-background-color: rgba(27, 27, 31, 0.8);
+    -fx-text-fill: #e4e4e7;
+    -fx-padding: 12 14;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(39, 39, 42, 0.8);
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-wrap-text: true;
+}
+
+.chat-friends-list .label:hover {
+    -fx-background-color: rgba(39, 39, 42, 0.9);
+    -fx-border-color: rgba(113, 113, 122, 0.8);
+}
+
 /* Chat Window Header */
 .chat-window-header {
     -fx-background-color: #000000;

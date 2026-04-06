@@ -720,6 +720,36 @@ public final class ApiService {
     }
 
     /**
+     * Fetches all unique departments from profiles table for filter buttons.
+     */
+    public List<String> getAllDepartments() throws ApiException {
+        String url = restUrl("/profiles?select=department&department=not.is.null&order=department");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        String body = getRawWithAuth(url, token);
+        java.util.Set<String> uniqueDepts = new java.util.LinkedHashSet<>();
+        try {
+            JsonParser parser = new JsonParser();
+            JsonElement element = parser.parse(body);
+            if (element.isJsonArray()) {
+                com.google.gson.JsonArray arr = element.getAsJsonArray();
+                for (JsonElement el : arr) {
+                    if (el.isJsonObject()) {
+                        JsonObject obj = el.getAsJsonObject();
+                        String dept = asString(obj.get("department"));
+                        if (dept != null && !dept.isBlank()) {
+                            uniqueDepts.add(dept);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // If parsing fails, return empty list
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(uniqueDepts);
+    }
+
+    /**
      * Marks a notification as read.
      */
     public void markNotificationAsRead(String notificationId) throws ApiException {

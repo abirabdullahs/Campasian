@@ -47,13 +47,7 @@
                            onKeyReleased="#onSearchKeyReleased"/>
             </HBox>
 
-            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="people-filter-row">
-                <Button fx:id="allDeptBtn" styleClass="people-chip people-chip-active" text="Everyone" onAction="#onFilterAll"/>
-                <Button fx:id="cseDeptBtn" styleClass="people-chip" text="CSE" onAction="#onFilterCSE"/>
-                <Button fx:id="eeeDeptBtn" styleClass="people-chip" text="EEE" onAction="#onFilterEEE"/>
-                <Button fx:id="bbaDeptBtn" styleClass="people-chip" text="BBA" onAction="#onFilterBBA"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Browse all students" styleClass="people-sort-label"/>
+            <HBox fx:id="filterRow" spacing="8" alignment="CENTER_LEFT" styleClass="people-filter-row">
             </HBox>
 
             <Separator styleClass="people-divider"/>

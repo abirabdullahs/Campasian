@@ -12,34 +12,38 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
  * Controller for the People discovery sub-view. Debounced search by name and university.
+ * Dynamically loads department filters from the database.
  */
 public class PeopleController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private VBox peopleVBox;
     @FXML private VBox peopleLoadingOverlay;
-    @FXML private Button allDeptBtn;
-    @FXML private Button cseDeptBtn;
-    @FXML private Button eeeDeptBtn;
-    @FXML private Button bbaDeptBtn;
+    @FXML private HBox filterRow;
 
     private String currentDepartment;
+    private Button allDeptBtn;
+    private final Map<String, Button> deptButtonMap = new HashMap<>();
     private static final String CHIP_ACTIVE = "people-chip-active";
     private final PauseTransition debouncer = new PauseTransition(Duration.millis(300));
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         currentDepartment = null;
+        loadDepartmentFilters();
         loadPeople();
         if (searchField != null) {
             searchField.textProperty().addListener((o, oldVal, newVal) -> {
@@ -50,6 +54,67 @@ public class PeopleController implements Initializable {
         }
     }
 
+    /**
+     * Load all unique departments from database and create filter buttons dynamically.
+     */
+    private void loadDepartmentFilters() {
+        if (filterRow == null) return;
+        new Thread(() -> {
+            try {
+                List<String> departments = ApiService.getInstance().getAllDepartments();
+                Platform.runLater(() -> {
+                    if (filterRow == null) return;
+                    filterRow.getChildren().clear();
+                    deptButtonMap.clear();
+                    
+                    // Add "Everyone" button first
+                    allDeptBtn = new Button("Everyone");
+                    allDeptBtn.getStyleClass().addAll("people-chip", "people-chip-active");
+                    allDeptBtn.setOnAction(e -> setDepartment(null));
+                    filterRow.getChildren().add(allDeptBtn);
+                    
+                    // Add department buttons
+                    for (String dept : departments) {
+                        Button btn = new Button(dept);
+                        btn.getStyleClass().add("people-chip");
+                        btn.setOnAction(e -> setDepartment(dept));
+                        filterRow.getChildren().add(btn);
+                        deptButtonMap.put(dept, btn);
+                    }
+                    
+                    // Add spacer and label
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                    filterRow.getChildren().add(spacer);
+                    
+                    Label label = new Label("Browse all students");
+                    label.getStyleClass().add("people-sort-label");
+                    filterRow.getChildren().add(label);
+                });
+            } catch (ApiException ignored) {
+                // If department loading fails, just show "Everyone" button
+                Platform.runLater(() -> {
+                    if (filterRow == null) return;
+                    filterRow.getChildren().clear();
+                    deptButtonMap.clear();
+                    
+                    allDeptBtn = new Button("Everyone");
+                    allDeptBtn.getStyleClass().addAll("people-chip", "people-chip-active");
+                    allDeptBtn.setOnAction(e -> setDepartment(null));
+                    filterRow.getChildren().add(allDeptBtn);
+                    
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                    filterRow.getChildren().add(spacer);
+                    
+                    Label label = new Label("Browse all students");
+                    label.getStyleClass().add("people-sort-label");
+                    filterRow.getChildren().add(label);
+                });
+            }
+        }).start();
+    }
+
     @FXML
     protected void onSearchKeyReleased() {
         debouncer.setOnFinished(e -> loadPeople());
@@ -57,21 +122,19 @@ public class PeopleController implements Initializable {
         debouncer.playFromStart();
     }
 
-    @FXML protected void onFilterAll() { setDepartment(null); }
-    @FXML protected void onFilterCSE() { setDepartment("CSE"); }
-    @FXML protected void onFilterEEE() { setDepartment("EEE"); }
-    @FXML protected void onFilterBBA() { setDepartment("BBA"); }
-
     private void setDepartment(String dept) {
         currentDepartment = dept;
+        // Remove active class from all buttons
         if (allDeptBtn != null) allDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
-        if (cseDeptBtn != null) cseDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
-        if (eeeDeptBtn != null) eeeDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
-        if (bbaDeptBtn != null) bbaDeptBtn.getStyleClass().remove(CHIP_ACTIVE);
-        if (dept == null && allDeptBtn != null) allDeptBtn.getStyleClass().add(CHIP_ACTIVE);
-        else if ("CSE".equals(dept) && cseDeptBtn != null) cseDeptBtn.getStyleClass().add(CHIP_ACTIVE);
-        else if ("EEE".equals(dept) && eeeDeptBtn != null) eeeDeptBtn.getStyleClass().add(CHIP_ACTIVE);
-        else if ("BBA".equals(dept) && bbaDeptBtn != null) bbaDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        for (Button btn : deptButtonMap.values()) {
+            btn.getStyleClass().remove(CHIP_ACTIVE);
+        }
+        // Add active class to selected button
+        if (dept == null && allDeptBtn != null) {
+            allDeptBtn.getStyleClass().add(CHIP_ACTIVE);
+        } else if (deptButtonMap.containsKey(dept)) {
+            deptButtonMap.get(dept).getStyleClass().add(CHIP_ACTIVE);
+        }
         loadPeople();
     }
 

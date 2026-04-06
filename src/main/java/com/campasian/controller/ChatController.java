@@ -313,29 +313,57 @@ public class ChatController implements Initializable {
 
     private void onEditMessage(Message message) {
         if (message == null || message.getId() == null || message.getId().isBlank()) return;
-        TextInputDialog dialog = new TextInputDialog(message.getContent());
+        TextInputDialog dialog = new TextInputDialog(message.getContent() != null ? message.getContent() : "");
         dialog.setTitle("Edit message");
         dialog.setHeaderText("Update your message");
         dialog.setContentText("Message");
         dialog.showAndWait().ifPresent(updated -> {
-            if (updated == null || updated.isBlank() || updated.equals(message.getContent())) return;
-            try {
-                ApiService.getInstance().updateMessage(message.getId(), updated);
-                message.setContent(updated.trim());
-                loadMessages();
-            } catch (ApiException e) {
-                showChatError("Message update failed. If this persists, run the latest SQL policy update for messages.");
+            if (updated == null || updated.isBlank()) {
+                showChatError("Message cannot be empty.");
+                return;
             }
+            if (updated.equals(message.getContent())) {
+                return; // No changes
+            }
+            new Thread(() -> {
+                try {
+                    ApiService.getInstance().updateMessage(message.getId(), updated.trim());
+                    Platform.runLater(() -> {
+                        message.setContent(updated.trim());
+                        loadMessages();
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Success");
+                        alert.setHeaderText("Message Updated");
+                        alert.setContentText("Your message has been updated.");
+                        alert.showAndWait();
+                    });
+                } catch (ApiException e) {
+                    Platform.runLater(() -> showChatError("Message update failed: " + (e.getMessage() != null ? e.getMessage() : "Check RLS policies")));
+                }
+            }).start();
         });
     }
 
     private void onDeleteMessage(Message message) {
         if (message == null || message.getId() == null || message.getId().isBlank()) return;
-        try {
-            ApiService.getInstance().deleteMessage(message.getId());
-            loadMessages();
-        } catch (ApiException ignored) {
-        }
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Delete Message");
+        confirm.setHeaderText("Are you sure?");
+        confirm.setContentText("This message will be permanently deleted.");
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                new Thread(() -> {
+                    try {
+                        ApiService.getInstance().deleteMessage(message.getId());
+                        Platform.runLater(() -> {
+                            loadMessages();
+                        });
+                    } catch (ApiException e) {
+                        Platform.runLater(() -> showChatError("Delete failed: " + (e.getMessage() != null ? e.getMessage() : "Check RLS policies")));
+                    }
+                }).start();
+            }
+        });
     }
 
     @FXML
