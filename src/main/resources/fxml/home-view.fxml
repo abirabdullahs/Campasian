@@ -55,6 +55,7 @@
                 <Button fx:id="facultyBtn" text="Faculty" styleClass="sidebar-btn" onAction="#onFacultyClick" maxWidth="Infinity"/>
                 <Button fx:id="notificationsBtn" text="Notifications" styleClass="sidebar-btn" onAction="#onNotificationsClick" maxWidth="Infinity"/>
                 <Button fx:id="chatBtn" text="Messages" styleClass="sidebar-btn" onAction="#onChatClick" maxWidth="Infinity"/>
+                <Button fx:id="myProfileBtn" text="My Profile" styleClass="sidebar-btn" onAction="#onMyProfileClick" maxWidth="Infinity"/>
 
                 <Separator styleClass="sidebar-divider"/>
 

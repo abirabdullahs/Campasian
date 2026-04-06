@@ -860,7 +860,7 @@ public final class ApiService {
         return parseCommunityMessages(getRawWithAuth(url, token));
     }
 
-    public CommunityMessage sendCommunityMessage(String roomId, String senderId, String senderName, String content) throws ApiException {
+    public CommunityMessage sendCommunityMessage(String roomId, String senderId, String senderName, String content, String imageUrl) throws ApiException {
         if (roomId == null || roomId.isBlank() || content == null || content.isBlank()) {
             throw new ApiException(-1, "Invalid community message", null, null, null);
         }
@@ -869,6 +869,9 @@ public final class ApiService {
         payload.addProperty("sender_id", senderId != null ? senderId : currentUserId);
         payload.addProperty("sender_name", senderName != null && !senderName.isBlank() ? senderName : "Student");
         payload.addProperty("content", content.trim());
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            payload.addProperty("image_url", imageUrl);
+        }
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         postJsonWithAuth(restUrl("/community_messages"), payload, token);
         return new CommunityMessage(
@@ -876,6 +879,7 @@ public final class ApiService {
             senderId != null ? senderId : currentUserId,
             senderName != null && !senderName.isBlank() ? senderName : "Student",
             content.trim(),
+            imageUrl,
             java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)
         );
     }
@@ -2102,6 +2106,7 @@ public final class ApiService {
                         asString(o.get("sender_id")),
                         asString(o.get("sender_name")),
                         asString(o.get("content")),
+                        asString(o.get("image_url")),
                         asString(o.get("created_at"))
                     ));
                 }

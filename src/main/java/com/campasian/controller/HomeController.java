@@ -1,6 +1,7 @@
 package com.campasian.controller;
 
 import com.campasian.service.AuthService;
+import com.campasian.service.ApiService;
 import com.campasian.view.AppRouter;
 import com.campasian.view.NavigationContext;
 import com.campasian.view.SceneManager;
@@ -38,6 +39,7 @@ public class HomeController implements Initializable {
     @FXML private Button facultyBtn;
     @FXML private Button notificationsBtn;
     @FXML private Button chatBtn;
+    @FXML private Button myProfileBtn;
     @FXML private Button settingsBtn;
 
     private static final String SIDEBAR_ACTIVE = "sidebar-btn-active";
@@ -148,6 +150,12 @@ public class HomeController implements Initializable {
     }
 
     @FXML
+    protected void onMyProfileClick() {
+        loadProfileView(ApiService.getInstance().getCurrentUserId());
+        updateSidebarActive(myProfileBtn);
+    }
+
+    @FXML
     protected void onSettingsClick() {
         loadView(ViewPaths.SETTINGS_VIEW);
         updateSidebarActive(settingsBtn);
@@ -201,6 +209,7 @@ public class HomeController implements Initializable {
         if (facultyBtn != null) facultyBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (myProfileBtn != null) myProfileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (settingsBtn != null) settingsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
     }
 }

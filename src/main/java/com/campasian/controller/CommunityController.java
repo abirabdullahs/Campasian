@@ -7,6 +7,7 @@ import com.campasian.service.ApiException;
 import com.campasian.service.ApiService;
 import com.campasian.service.AuthService;
 import com.campasian.service.CommunityService;
+import com.campasian.util.ImageSelectionSupport;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -23,11 +24,15 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -54,6 +59,7 @@ public class CommunityController implements Initializable {
     @FXML private Label memberCountLabel;
     @FXML private Label communityHintLabel;
     @FXML private TextField messageField;
+    @FXML private Button attachImageBtn;
     @FXML private Button sendButton;
     @FXML private TextField communityNameField;
     @FXML private TextArea communityDescriptionField;
@@ -61,6 +67,10 @@ public class CommunityController implements Initializable {
     @FXML private Button createCommunityButton;
     @FXML private Button saveCommunityButton;
     @FXML private Button deleteCommunityButton;
+
+    private byte[] pendingImageBytes;
+    private String pendingImageExtension = "png";
+    private String pendingImageContentType = "image/png";
 
     private final CommunityService communityService = CommunityService.getInstance();
     private final ObservableList<CommunityRoom> availableRooms = FXCollections.observableArrayList();
@@ -138,17 +148,31 @@ public class CommunityController implements Initializable {
     protected void onSendClick() {
         if (selectedRoom == null || currentUserProfile == null || messageField == null) return;
         String content = messageField.getText();
-        if (content == null || content.isBlank()) return;
+        boolean hasText = content != null && !content.isBlank();
+        boolean hasImage = pendingImageBytes != null && pendingImageBytes.length > 0;
+        if (!hasText && !hasImage) return;
 
         try {
+            String imageUrl = null;
+            if (hasImage) {
+                try {
+                    String path = ImageSelectionSupport.buildStoragePath(currentUserId, pendingImageExtension);
+                    imageUrl = ApiService.getInstance().uploadToStorage("community-images", path, pendingImageBytes, pendingImageContentType);
+                } catch (ApiException e) {
+                    // ignore for now
+                    return;
+                }
+            }
             CommunityMessage sent = communityService.sendMessage(
                 selectedRoom.getId(),
                 currentUserId,
                 currentUserProfile.getFullName(),
-                content.trim()
+                hasText ? content.trim() : "",
+                imageUrl
             );
             visibleMessages.add(sent);
             messageField.clear();
+            pendingImageBytes = null;
             scrollMessagesToBottom();
         } catch (ApiException ignored) {
         }
@@ -219,6 +243,19 @@ public class CommunityController implements Initializable {
         if (panelToggleButton != null) {
             panelToggleButton.setText(rightPanelCollapsed ? "Show Panel" : "Hide Panel");
         }
+    }
+
+    @FXML
+    protected void onAttachImageClick() {
+        Stage stage = messageField != null && messageField.getScene() != null
+            ? (Stage) messageField.getScene().getWindow()
+            : null;
+        ImageSelectionSupport.SelectedImage selected = ImageSelectionSupport.chooseImage(stage, "Select Community Image");
+        if (selected == null) return;
+
+        pendingImageBytes = selected.getBytes();
+        pendingImageExtension = selected.getExtension();
+        pendingImageContentType = selected.getContentType();
     }
 
     private void applyRooms(UserProfile profile, List<CommunityRoom> rooms, String roomIdToSelect) {
@@ -519,31 +556,47 @@ public class CommunityController implements Initializable {
 
             boolean fromCurrentUser = currentUserId != null && currentUserId.equals(message.getSenderId());
 
-            Label sender = new Label(message.getSenderName());
-            sender.getStyleClass().add(fromCurrentUser ? "community-message-sender-me" : "community-message-sender");
+            VBox bubble = new VBox(8);
+            bubble.getStyleClass().add(fromCurrentUser ? "sent-bubble" : "received-bubble");
+            bubble.setMaxWidth(360);
 
-            Label content = new Label(message.getContent());
-            content.setWrapText(true);
-            content.setMaxWidth(Double.MAX_VALUE);
-            content.getStyleClass().add(fromCurrentUser ? "community-bubble-me" : "community-bubble-other");
+            String text = message.getContent() != null ? message.getContent().trim() : "";
+            if (!text.isEmpty()) {
+                Label content = new Label(text);
+                content.setWrapText(true);
+                content.setMaxWidth(320);
+                content.getStyleClass().add("chat-message-text");
+                bubble.getChildren().add(content);
+            }
+
+            if (message.getImageUrl() != null && !message.getImageUrl().isBlank()) {
+                try {
+                    ImageView imageView = new ImageView(new Image(message.getImageUrl(), true));
+                    imageView.setFitWidth(280);
+                    imageView.setFitHeight(220);
+                    imageView.setPreserveRatio(true);
+                    imageView.getStyleClass().add("chat-message-image");
+
+                    StackPane imageFrame = new StackPane(imageView);
+                    imageFrame.getStyleClass().add("chat-image-frame");
+                    bubble.getChildren().add(imageFrame);
+                } catch (Exception ignored) {
+                }
+            }
 
             Label time = new Label(formatTime(message.getCreatedAt()));
-            time.getStyleClass().add("community-message-time");
+            time.getStyleClass().add("chat-partner-status");
+            time.getStyleClass().add("chat-message-time");
+            bubble.getChildren().add(time);
 
-            VBox bubble = new VBox(4, sender, content, time);
-            bubble.setAlignment(Pos.TOP_LEFT);
-            bubble.setMaxWidth(Double.MAX_VALUE);
-            bubble.setFillWidth(true);
+            bubble.setAlignment(fromCurrentUser ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
 
-            HBox row = new HBox(bubble);
-            row.getStyleClass().add("community-message-row");
-            row.setPadding(new Insets(4, 0, 4, 0));
-            row.setAlignment(Pos.CENTER_LEFT);
-            row.setMaxWidth(Double.MAX_VALUE);
-            HBox.setHgrow(bubble, Priority.ALWAYS);
+            HBox container = new HBox();
+            container.getChildren().add(bubble);
+            container.setAlignment(fromCurrentUser ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
 
             setText(null);
-            setGraphic(row);
+            setGraphic(container);
         }
     }
 }

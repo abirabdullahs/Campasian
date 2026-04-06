@@ -302,9 +302,12 @@ public class FeedController implements Initializable {
                 Label timeLabel = new Label(timeStr);
                 timeLabel.getStyleClass().addAll("comment-time", "post-meta");
 
+                VBox userInfo = new VBox(2);
+                userInfo.getChildren().addAll(userLabel, timeLabel);
+
                 HBox headerRow = new HBox(8);
                 headerRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                headerRow.getChildren().addAll(avatarLabel, userLabel, timeLabel);
+                headerRow.getChildren().addAll(avatarLabel, userInfo);
 
                 Label textLabel = new Label(content);
                 textLabel.getStyleClass().add("comment-text");

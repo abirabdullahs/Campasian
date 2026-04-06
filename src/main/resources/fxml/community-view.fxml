@@ -84,6 +84,10 @@
                                            promptText="Write a message..."
                                            styleClass="community-input"
                                            HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="attachImageBtn"
+                                        text="📎"
+                                        styleClass="community-attach-btn"
+                                        onAction="#onAttachImageClick"/>
                                 <Button fx:id="sendButton"
                                         onAction="#onSendClick"
                                         styleClass="community-send-btn"

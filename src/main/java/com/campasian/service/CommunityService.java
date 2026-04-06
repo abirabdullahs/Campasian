@@ -77,7 +77,7 @@ public final class CommunityService {
         ApiService.getInstance().upsertCommunityRoom(room);
         List<CommunityMessage> messages = ApiService.getInstance().getCommunityMessages(id);
         if (messages.isEmpty()) {
-            ApiService.getInstance().sendCommunityMessage(id, currentUserId, "Community Creator", "Custom community created. Start the discussion here.");
+            ApiService.getInstance().sendCommunityMessage(id, currentUserId, "Community Creator", "Custom community created. Start the discussion here.", null);
         }
         return room;
     }
@@ -115,8 +115,8 @@ public final class CommunityService {
         return ApiService.getInstance().getCommunityMessages(roomId);
     }
 
-    public CommunityMessage sendMessage(String roomId, String senderId, String senderName, String content) throws ApiException {
-        return ApiService.getInstance().sendCommunityMessage(roomId, senderId, senderName, content);
+    public CommunityMessage sendMessage(String roomId, String senderId, String senderName, String content, String imageUrl) throws ApiException {
+        return ApiService.getInstance().sendCommunityMessage(roomId, senderId, senderName, content, imageUrl);
     }
 
     private void upsertBuiltInRooms(String universityName, String department, String universityKey,
@@ -174,7 +174,7 @@ public final class CommunityService {
 
     private void ensureSeedMessage(String roomId, String senderName, String content) throws ApiException {
         if (ApiService.getInstance().getCommunityMessages(roomId).isEmpty()) {
-            ApiService.getInstance().sendCommunityMessage(roomId, "system", senderName, content);
+            ApiService.getInstance().sendCommunityMessage(roomId, "system", senderName, content, null);
         }
     }
 

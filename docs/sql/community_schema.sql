@@ -21,6 +21,7 @@ create table if not exists public.community_messages (
     sender_id text,
     sender_name text not null,
     content text not null,
+    image_url text,
     created_at timestamptz not null default timezone('utc', now())
 );
 
