@@ -250,29 +250,40 @@
     -fx-text-fill: #d1d5db;
 }
 
+.community-message-row {
+    -fx-padding: 4 0;
+    -fx-background-color: transparent;
+}
+
+.community-message-row:hover {
+    -fx-background-color: rgba(255,255,255,0.04);
+}
+
 .community-bubble-me,
 .community-bubble-other {
-    -fx-padding: 11 14;
+    -fx-padding: 12 14;
     -fx-font-size: 13px;
     -fx-line-spacing: 1px;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-max-width: 100%;
+    -fx-wrap-text: true;
 }
 
 .community-bubble-me {
-    -fx-background-color: #f3f4f6;
-    -fx-text-fill: #111827;
-    -fx-background-radius: 16 16 4 16;
+    -fx-background-color: #111827;
+    -fx-text-fill: #e5e7eb;
+    -fx-border-color: rgba(255,255,255,0.08);
 }
 
 .community-bubble-other {
-    -fx-background-color: #111827;
+    -fx-background-color: #161b22;
     -fx-text-fill: #e5e7eb;
-    -fx-border-color: #273244;
-    -fx-border-width: 1;
-    -fx-border-radius: 16 16 16 4;
-    -fx-background-radius: 16 16 16 4;
+    -fx-border-color: rgba(255,255,255,0.06);
 }
 
 .community-message-time {
     -fx-font-size: 10px;
-    -fx-text-fill: #6b7280;
+    -fx-text-fill: #94a3b8;
 }

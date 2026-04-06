@@ -78,28 +78,30 @@
     -fx-padding: 10 0 5 15;
 }
 
-/* Friend List Items - Styled cards with spacing */
+/* Friend List Items - Flat full-width list rows */
 .chat-friends-list {
-    -fx-spacing: 8;
+    -fx-spacing: 4;
     -fx-padding: 8 8 8 8;
 }
 
-.chat-friends-list .label {
-    -fx-background-color: rgba(27, 27, 31, 0.8);
+.chat-friends-list .chat-friend-item {
+    -fx-background-color: transparent;
     -fx-text-fill: #e4e4e7;
     -fx-padding: 12 14;
-    -fx-background-radius: 8;
-    -fx-border-color: #52525b;
-    -fx-border-radius: 8;
-    -fx-border-width: 1;
     -fx-font-size: 13px;
     -fx-cursor: hand;
     -fx-wrap-text: true;
+    -fx-background-radius: 0;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER_LEFT;
 }
 
-.chat-friends-list .label:hover {
-    -fx-background-color: rgba(39, 39, 42, 0.9);
-    -fx-border-color: #71717a;
+.chat-friends-list .chat-friend-item:hover {
+    -fx-background-color: #111827;
+}
+
+.chat-friends-list .chat-friend-item.active {
+    -fx-background-color: #1A2333;
 }
 
 /* Chat Window Header */

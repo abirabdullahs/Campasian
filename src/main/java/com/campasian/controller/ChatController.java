@@ -25,6 +25,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -116,8 +117,11 @@ public class ChatController implements Initializable {
                     friendsList.getChildren().clear();
                     for (UserProfile f : friends) {
                         Label lbl = new Label(f.getFullName() != null ? f.getFullName() : "Unknown");
+                        lbl.getStyleClass().add("chat-friend-item");
                         lbl.setWrapText(true);
                         lbl.setCursor(javafx.scene.Cursor.HAND);
+                        lbl.setMaxWidth(Double.MAX_VALUE);
+                        lbl.setAlignment(Pos.CENTER_LEFT);
                         lbl.setUserData(f.getId());
                         lbl.setOnMouseClicked(e -> selectPartner(f.getId(), f.getFullName()));
                         friendsList.getChildren().add(lbl);
@@ -127,6 +131,7 @@ public class ChatController implements Initializable {
                         empty.setWrapText(true);
                         friendsList.getChildren().add(empty);
                     }
+                    refreshFriendSelectionStyles();
                 });
             } catch (ApiException ignored) {}
         }).start();
@@ -138,8 +143,25 @@ public class ChatController implements Initializable {
         Platform.runLater(() -> {
             updateComposerState(selectedPartnerId != null && !selectedPartnerId.isBlank());
             if (chatPartnerLabel != null) chatPartnerLabel.setText(name != null ? name : "Chat");
+            refreshFriendSelectionStyles();
             loadMessages();
         });
+    }
+
+    private void refreshFriendSelectionStyles() {
+        if (friendsList == null) return;
+        for (Node node : friendsList.getChildren()) {
+            if (!(node instanceof Label lbl)) continue;
+            Object userId = lbl.getUserData();
+            if (userId == null) continue;
+            if (selectedPartnerId != null && selectedPartnerId.equals(userId.toString())) {
+                if (!lbl.getStyleClass().contains("active")) {
+                    lbl.getStyleClass().add("active");
+                }
+            } else {
+                lbl.getStyleClass().remove("active");
+            }
+        }
     }
 
     private void loadMessages() {

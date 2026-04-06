@@ -524,23 +524,23 @@ public class CommunityController implements Initializable {
 
             Label content = new Label(message.getContent());
             content.setWrapText(true);
-            content.setMaxWidth(420);
+            content.setMaxWidth(Double.MAX_VALUE);
             content.getStyleClass().add(fromCurrentUser ? "community-bubble-me" : "community-bubble-other");
 
             Label time = new Label(formatTime(message.getCreatedAt()));
             time.getStyleClass().add("community-message-time");
 
             VBox bubble = new VBox(4, sender, content, time);
-            bubble.setAlignment(fromCurrentUser ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+            bubble.setAlignment(Pos.TOP_LEFT);
+            bubble.setMaxWidth(Double.MAX_VALUE);
+            bubble.setFillWidth(true);
 
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-
-            HBox row = new HBox(12);
+            HBox row = new HBox(bubble);
+            row.getStyleClass().add("community-message-row");
             row.setPadding(new Insets(4, 0, 4, 0));
-            row.setAlignment(fromCurrentUser ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
-            if (fromCurrentUser) row.getChildren().addAll(spacer, bubble);
-            else row.getChildren().addAll(bubble, spacer);
+            row.setAlignment(Pos.CENTER_LEFT);
+            row.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(bubble, Priority.ALWAYS);
 
             setText(null);
             setGraphic(row);
