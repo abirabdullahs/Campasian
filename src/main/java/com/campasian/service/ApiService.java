@@ -1207,7 +1207,10 @@ public final class ApiService {
      */
     public List<MarketplaceItem> getMarketplaceItems(String category) throws ApiException {
         StringBuilder url = new StringBuilder("/marketplace_items?order=created_at.desc");
-        if (category != null && !category.isBlank()) url.append("&category=eq.").append(encode(category));
+        if (category != null && !category.isBlank()) {
+            // Use ilike for case-insensitive matching in PostgREST
+            url.append("&category=ilike.").append(encode(category));
+        }
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         try {
             String body = getRawWithAuth(restUrl(url.toString()), token);

@@ -227,32 +227,88 @@ public class CommunityController implements Initializable {
             return;
         }
 
-        String selectedId = roomIdToSelect != null ? roomIdToSelect : selectedRoom != null ? selectedRoom.getId() : null;
         suppressSelectionHandler = true;
-        availableRooms.setAll(rooms);
-        if (!availableRooms.isEmpty()) {
-            CommunityRoom roomToUse = availableRooms.stream()
-                .filter(room -> selectedId != null && room.getId().equals(selectedId))
-                .findFirst()
-                .orElse(availableRooms.get(0));
-            selectedRoom = roomToUse;
-            if (communityListView != null) {
-                communityListView.getSelectionModel().select(roomToUse);
-                communityListView.scrollTo(roomToUse);
+        try {
+            // Preserve the selected room ID - CRITICAL to maintain selection
+            String selectedId = roomIdToSelect != null ? roomIdToSelect : (selectedRoom != null ? selectedRoom.getId() : null);
+            
+            // Check if the room list has actually changed (by ID and order)
+            List<String> currentIds = availableRooms.stream().map(CommunityRoom::getId).toList();
+            List<String> newIds = rooms.stream().map(CommunityRoom::getId).toList();
+            boolean listChanged = !currentIds.equals(newIds);
+            
+            // Only update the list if it has actually changed
+            if (listChanged) {
+                availableRooms.setAll(rooms);
             }
-            renderRoomDetails(roomToUse, false);
-        } else {
-            selectedRoom = null;
-            titleLabel.setText("Community");
-            subtitleLabel.setText("No verified student communities are available yet.");
-            verificationLabel.setText("Verification unavailable");
-            memberCountLabel.setText("0 students");
-            communityHintLabel.setText("Students are grouped by university name and ID/email rules.");
-        }
-        suppressSelectionHandler = false;
-
-        if (selectedRoom != null) {
-            loadMessagesAsync(selectedRoom, false);
+            
+            if (!availableRooms.isEmpty()) {
+                // Find the room to display: prioritize selectedId, then current selectedRoom
+                CommunityRoom roomToUse = selectedRoom;  // Keep current selection if possible
+                
+                // Only change selection if we need to (roomIdToSelect was explicitly provided)
+                if (roomIdToSelect != null || selectedRoom == null) {
+                    // Try to find the room by ID
+                    if (selectedId != null) {
+                        roomToUse = availableRooms.stream()
+                            .filter(room -> room.getId().equals(selectedId))
+                            .findFirst()
+                            .orElse(null);
+                    }
+                    
+                    // Only default to first room if we couldn't find the selected one
+                    if (roomToUse == null && !availableRooms.isEmpty()) {
+                        roomToUse = availableRooms.get(0);
+                    }
+                    
+                    // Update selectedRoom only if we have a valid room
+                    if (roomToUse != null) {
+                        selectedRoom = roomToUse;
+                    }
+                } else if (selectedRoom != null) {
+                    // Verify the current selectedRoom still exists in the list
+                    roomToUse = availableRooms.stream()
+                        .filter(room -> room.getId().equals(selectedRoom.getId()))
+                        .findFirst()
+                        .orElse(null);
+                    
+                    if (roomToUse != null) {
+                        selectedRoom = roomToUse;  // Update to the new instance if list changed
+                    } else {
+                        // Selected room was removed, pick the first one
+                        selectedRoom = availableRooms.get(0);
+                        roomToUse = selectedRoom;
+                    }
+                }
+                
+                // Update ListView selection only if needed
+                if (communityListView != null && roomToUse != null) {
+                    CommunityRoom currentlySelected = communityListView.getSelectionModel().getSelectedItem();
+                    // Compare by ID since object instances may be different
+                    boolean needsUpdate = currentlySelected == null || !Objects.equals(currentlySelected.getId(), roomToUse.getId());
+                    if (needsUpdate) {
+                        communityListView.getSelectionModel().select(roomToUse);
+                        communityListView.scrollTo(roomToUse);
+                    }
+                }
+                
+                if (roomToUse != null) {
+                    renderRoomDetails(roomToUse, false);
+                }
+            } else {
+                selectedRoom = null;
+                titleLabel.setText("Community");
+                subtitleLabel.setText("No verified student communities are available yet.");
+                verificationLabel.setText("Verification unavailable");
+                memberCountLabel.setText("0 students");
+                communityHintLabel.setText("Students are grouped by university name and ID/email rules.");
+            }
+            
+            if (selectedRoom != null) {
+                loadMessagesAsync(selectedRoom, false);
+            }
+        } finally {
+            suppressSelectionHandler = false;
         }
     }
 
@@ -269,8 +325,6 @@ public class CommunityController implements Initializable {
                 : "Joined from your verified university and department profile.");
         if (sendButton != null) sendButton.setDisable(false);
         if (updateEditor) {
-            populateCommunityEditor(room);
-        } else if (selectedRoom != null && Objects.equals(selectedRoom.getId(), room.getId())) {
             populateCommunityEditor(room);
         }
     }
@@ -372,9 +426,9 @@ public class CommunityController implements Initializable {
     }
 
     private void refreshCommunityState() {
-        if (refreshInFlight || currentUserProfile == null) return;
+        if (refreshInFlight || currentUserProfile == null || selectedRoom == null) return;
         refreshInFlight = true;
-        String selectedId = selectedRoom != null ? selectedRoom.getId() : null;
+        String selectedId = selectedRoom.getId();  // Capture selected room ID immediately
         new Thread(() -> {
             try {
                 List<UserProfile> allProfiles = ApiService.getInstance().getAllProfiles();
@@ -384,7 +438,7 @@ public class CommunityController implements Initializable {
                     : List.of();
                 Platform.runLater(() -> {
                     applyRooms(currentUserProfile, rooms, selectedId);
-                    if (selectedRoom != null && selectedId != null && selectedId.equals(selectedRoom.getId()) && messagesChanged(latestMessages)) {
+                    if (selectedRoom != null && selectedId.equals(selectedRoom.getId()) && messagesChanged(latestMessages)) {
                         visibleMessages.setAll(latestMessages);
                         scrollMessagesToBottom();
                     }

@@ -112,6 +112,16 @@ public class MarketplaceController implements Initializable {
         new Thread(() -> {
             try {
                 List<MarketplaceItem> items = ApiService.getInstance().getMarketplaceItems(filter);
+                
+                // Apply client-side category filtering with case-insensitive matching
+                if (filter != null && !filter.isBlank()) {
+                    String filterLower = filter.toLowerCase();
+                    items = items.stream()
+                        .filter(i -> i.getCategory() != null && i.getCategory().toLowerCase().equals(filterLower))
+                        .toList();
+                }
+                
+                // Apply search filtering with case-insensitive matching
                 if (search != null && !search.trim().isBlank()) {
                     String q = search.trim().toLowerCase();
                     items = items.stream()
