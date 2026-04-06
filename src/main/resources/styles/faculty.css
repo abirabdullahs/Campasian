@@ -1,3 +1,5 @@
+@import url('theme.css');
+
 .faculty-root {
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
     -fx-background-color: linear-gradient(to bottom right, #0b1220, #0f172a 55%, #111827);

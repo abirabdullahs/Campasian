@@ -1,8 +1,9 @@
 /* ════════════════════════════════════════════
    Campasian — Feed View  |  feed.css
-   Poppins · black · gray · white
+   Imports unified dark theme and provides feed-specific overrides
 ════════════════════════════════════════════ */
 
+@import url('theme.css');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* ── Root ── */

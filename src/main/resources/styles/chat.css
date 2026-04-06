@@ -1,4 +1,11 @@
-/* SHADCN DARK THEME - MESSENGER STYLE */
+/* ════════════════════════════════════════════
+   Campasian — Chat / Messenger |  chat.css
+   Imports unified dark theme
+════════════════════════════════════════════ */
+
+@import url('theme.css');
+
+/* Chat-specific overrides */
 
 /* Root and Background */
 .chat-root {

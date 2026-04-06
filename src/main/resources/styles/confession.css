@@ -1,3 +1,5 @@
+@import url('theme.css');
+
 .confession-root {
     -fx-font-family: "Poppins", "Segoe UI", sans-serif;
     -fx-background-color: linear-gradient(to bottom, #0b1220, #111827);

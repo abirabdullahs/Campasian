@@ -1,15 +1,11 @@
-/* Campasian - Shadcn Minimalist UI (JavaFX) */
-/* Poppins font, Black/White/Gray palette, 1px borders #E4E4E7, 6px radius */
+/* ═══════════════════════════════════════════════════════════════════════════
+   CAMPASIAN - APP STYLESHEET
+   Imports the unified dark minimalist theme and provides app-specific overrides
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-.root {
-    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
-    -fx-font-size: 14px;
-    -fx-background-color: #FAFAFA;
-    -fx-text-fill: #09090B;
-    -fx-accent: #09090B;
-    -fx-focus-color: #09090B;
-    -fx-faint-focus-color: rgba(9, 9, 11, 0.12);
-}
+@import url('theme.css');
+
+/* App-Specific Overrides (if needed) - Keep minimal */
 
 .label {
     -fx-text-fill: #09090B;
