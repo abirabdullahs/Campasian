@@ -10,6 +10,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -44,6 +45,9 @@ public class ChatController implements Initializable {
     @FXML private ScrollPane messagesScroll;
     @FXML private VBox messagesVBox;
     @FXML private TextField messageField;
+    @FXML private VBox chatComposer;
+    @FXML private Button attachImageBtn;
+    @FXML private Button sendMessageBtn;
     @FXML private VBox messagePreviewBox;
     @FXML private ImageView messagePreviewImage;
     @FXML private Label messagePreviewLabel;
@@ -61,6 +65,8 @@ public class ChatController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        updateComposerState(false);
+        showEmptyConversationState();
         loadFriends();
         pollExecutor.scheduleAtFixedRate(this::pollMessages, 2, 2, TimeUnit.SECONDS);
         String partnerId = NavigationContext.getChatPartnerUserId();
@@ -103,6 +109,7 @@ public class ChatController implements Initializable {
     private void selectPartner(String partnerId, String name) {
         selectedPartnerId = partnerId;
         Platform.runLater(() -> {
+            updateComposerState(selectedPartnerId != null && !selectedPartnerId.isBlank());
             if (chatPartnerLabel != null) chatPartnerLabel.setText(name != null ? name : "Chat");
             loadMessages();
         });
@@ -254,6 +261,7 @@ public class ChatController implements Initializable {
     private void showEmptyConversationState() {
         if (messagesVBox == null) return;
         messagesVBox.getChildren().clear();
+        updateComposerState(false);
 
         VBox hero = new VBox(12);
         hero.getStyleClass().add("chat-empty-hero");
@@ -285,8 +293,10 @@ public class ChatController implements Initializable {
             if (updated == null || updated.isBlank() || updated.equals(message.getContent())) return;
             try {
                 ApiService.getInstance().updateMessage(message.getId(), updated);
+                message.setContent(updated.trim());
                 loadMessages();
-            } catch (ApiException ignored) {
+            } catch (ApiException e) {
+                showChatError("Message update failed. If this persists, run the latest SQL policy update for messages.");
             }
         });
     }
@@ -313,17 +323,20 @@ public class ChatController implements Initializable {
             String imageUrl = null;
             if (hasImage) {
                 String path = ImageSelectionSupport.buildStoragePath(ApiService.getInstance().getCurrentUserId(), pendingImageExtension);
-                imageUrl = ApiService.getInstance().uploadToStorage("chat-images", path, pendingImageBytes, pendingImageContentType);
+                imageUrl = ApiService.getInstance().uploadToStorage("post-images", path, pendingImageBytes, pendingImageContentType);
             }
             ApiService.getInstance().sendMessage(selectedPartnerId, hasText ? text.trim() : "", imageUrl);
             messageField.clear();
             clearPendingImage();
             loadMessages();
-        } catch (ApiException ignored) {}
+        } catch (ApiException e) {
+            showChatError("Message send failed. Check storage setup or message permissions.");
+        }
     }
 
     @FXML
     protected void onAttachImage() {
+        if (selectedPartnerId == null || selectedPartnerId.isBlank()) return;
         Stage stage = messagesVBox != null && messagesVBox.getScene() != null
             ? (Stage) messagesVBox.getScene().getWindow()
             : null;
@@ -356,6 +369,27 @@ public class ChatController implements Initializable {
             messagePreviewBox.setManaged(false);
             messagePreviewBox.setVisible(false);
         }
+    }
+
+    private void updateComposerState(boolean enabled) {
+        if (chatComposer != null) {
+            chatComposer.setDisable(!enabled);
+            chatComposer.setOpacity(enabled ? 1.0 : 0.52);
+        }
+        if (messageField != null) {
+            messageField.setDisable(!enabled);
+            messageField.setPromptText(enabled ? "Type a message and press Enter..." : "Select a friend to start chatting");
+        }
+        if (attachImageBtn != null) attachImageBtn.setDisable(!enabled);
+        if (sendMessageBtn != null) sendMessageBtn.setDisable(!enabled);
+        if (!enabled) clearPendingImage();
+    }
+
+    private void showChatError(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText("Chat action failed");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void scrollToBottom() {

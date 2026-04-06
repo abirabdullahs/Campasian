@@ -86,7 +86,7 @@
 
             <Separator styleClass="chat-divider"/>
 
-            <VBox styleClass="chat-composer" spacing="10">
+            <VBox fx:id="chatComposer" styleClass="chat-composer" spacing="10">
                 <VBox fx:id="messagePreviewBox"
                       spacing="8"
                       visible="false"
@@ -109,7 +109,8 @@
                 </VBox>
 
                 <HBox styleClass="chat-input-bar" spacing="12" alignment="CENTER">
-                    <Button text="Image"
+                    <Button fx:id="attachImageBtn"
+                            text="Image"
                             styleClass="chat-attach-btn"
                             onAction="#onAttachImage"/>
                     <TextField fx:id="messageField"
@@ -117,7 +118,8 @@
                                styleClass="chat-input-field"
                                HBox.hgrow="ALWAYS"
                                onAction="#onSendMessage"/>
-                    <Button text="Send"
+                    <Button fx:id="sendMessageBtn"
+                            text="Send"
                             styleClass="chat-send-btn"
                             onAction="#onSendMessage"/>
                 </HBox>
