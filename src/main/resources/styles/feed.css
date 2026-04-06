@@ -315,3 +315,47 @@
     -fx-font-weight: 400;
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
+
+/* ════════════════════
+   COMMENTS
+════════════════════ */
+.comment-card {
+    -fx-background-color:  #1e1e23;
+    -fx-background-radius: 12;
+    -fx-border-color:      #27272a;
+    -fx-border-radius:     12;
+    -fx-border-width:      1;
+    -fx-padding:           12 16;
+    -fx-spacing:           8;
+    -fx-effect:            dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0.1, 0, 2);
+}
+
+.comment-card:hover {
+    -fx-background-color: #232329;
+    -fx-border-color:     #3f3f46;
+}
+
+.comment-avatar {
+    -fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -fx-background-radius: 50%;
+    -fx-text-fill:         white;
+    -fx-font-weight:       bold;
+    -fx-font-size:         12px;
+    -fx-alignment:         center;
+    -fx-pref-width:        32;
+    -fx-pref-height:       32;
+}
+
+.comment-author {
+    -fx-text-fill:   #e4e4e7;
+    -fx-font-size:   12.5px;
+    -fx-font-weight: 600;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+}
+
+.comment-text {
+    -fx-text-fill:   #cbd5e1;
+    -fx-font-size:   13px;
+    -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
+    -fx-line-spacing: 4px;
+}
