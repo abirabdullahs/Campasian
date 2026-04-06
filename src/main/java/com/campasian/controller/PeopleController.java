@@ -148,6 +148,17 @@ public class PeopleController implements Initializable {
         new Thread(() -> {
             try {
                 String trimmed = query != null ? query.trim() : "";
+                String currentUserUniversity = null;
+                try {
+                    String currentUserId = ApiService.getInstance().getCurrentUserId();
+                    if (currentUserId != null && !currentUserId.isBlank()) {
+                        UserProfile currentProfile = ApiService.getInstance().getProfile(currentUserId);
+                        if (currentProfile != null) {
+                            currentUserUniversity = currentProfile.getUniversityName();
+                        }
+                    }
+                } catch (ApiException ignored) {}
+                
                 List<UserProfile> profiles;
                 if (dept != null && !dept.isBlank()) {
                     profiles = ApiService.getInstance().getProfilesByDepartment(dept);
@@ -161,7 +172,12 @@ public class PeopleController implements Initializable {
                 } else if (!trimmed.isBlank()) {
                     profiles = ApiService.getInstance().searchProfiles(trimmed, trimmed);
                 } else {
-                    profiles = ApiService.getInstance().getAllProfiles();
+                    // Default: Show only users from current user's university
+                    if (currentUserUniversity != null && !currentUserUniversity.isBlank()) {
+                        profiles = ApiService.getInstance().getProfilesByUniversity(currentUserUniversity);
+                    } else {
+                        profiles = ApiService.getInstance().getAllProfiles();
+                    }
                 }
                 String currentUserId = ApiService.getInstance().getCurrentUserId();
 

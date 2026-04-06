@@ -82,7 +82,7 @@
     -fx-text-fill: #e4e4e7;
     -fx-padding: 12 14;
     -fx-background-radius: 8;
-    -fx-border-color: rgba(39, 39, 42, 0.8);
+    -fx-border-color: #52525b;
     -fx-border-radius: 8;
     -fx-border-width: 1;
     -fx-font-size: 13px;
@@ -92,7 +92,7 @@
 
 .chat-friends-list .label:hover {
     -fx-background-color: rgba(39, 39, 42, 0.9);
-    -fx-border-color: rgba(113, 113, 122, 0.8);
+    -fx-border-color: #71717a;
 }
 
 /* Chat Window Header */

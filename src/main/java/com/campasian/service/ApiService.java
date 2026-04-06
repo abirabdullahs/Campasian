@@ -750,6 +750,16 @@ public final class ApiService {
     }
 
     /**
+     * Fetches profiles by university name.
+     */
+    public List<UserProfile> getProfilesByUniversity(String university) throws ApiException {
+        if (university == null || university.isBlank()) return getAllProfiles();
+        String url = restUrl("/profiles?university_name=ilike." + encode(university) + "&select=id,full_name,university_name,ein_number,department,avatar_url,blood_group,session,batch");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        return getProfilesListFromUrl(url, token);
+    }
+
+    /**
      * Marks a notification as read.
      */
     public void markNotificationAsRead(String notificationId) throws ApiException {

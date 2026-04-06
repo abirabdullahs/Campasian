@@ -18,6 +18,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -96,8 +98,17 @@ public class FeedController implements Initializable {
                 Platform.runLater(() -> {
                     if (feedVBox == null) return;
                     feedVBox.getChildren().clear();
+                    int postCount = 0;
                     for (Post post : posts) {
                         feedVBox.getChildren().add(buildPostCard(post));
+                        postCount++;
+                        // Add user suggestions every 20-25 posts
+                        if (postCount % 25 == 0) {
+                            VBox suggestionCard = buildUserSuggestionCard();
+                            if (suggestionCard != null) {
+                                feedVBox.getChildren().add(suggestionCard);
+                            }
+                        }
                     }
                 });
             } catch (ApiException e) {
@@ -116,18 +127,42 @@ public class FeedController implements Initializable {
     private VBox buildPostCard(Post post) {
         String userName = post.getUserName() != null ? post.getUserName() : "Anonymous";
         String university = post.getUniversity() != null && !post.getUniversity().isBlank()
-            ? " · " + post.getUniversity() : "";
+            ? post.getUniversity() : "";
         String timeStr = formatTimeAgo(post.getCreatedAt());
 
-        Label meta = new Label(userName + university + " · " + timeStr);
-        meta.getStyleClass().add("post-meta");
-        meta.setCursor(javafx.scene.Cursor.HAND);
-        meta.setOnMouseClicked(e -> AppRouter.navigateToProfile(post.getUserId()));
-
+        // Facebook-style header with avatar and user info
+        HBox headerBox = new HBox(12);
+        headerBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        
+        // User avatar
+        Label avatarLabel = new Label(userName.substring(0, 1).toUpperCase());
+        avatarLabel.getStyleClass().add("post-avatar");
+        avatarLabel.setStyle("-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); " +
+                             "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; " +
+                             "-fx-alignment: center; -fx-padding: 8; -fx-background-radius: 100%;");
+        avatarLabel.setPrefWidth(40);
+        avatarLabel.setPrefHeight(40);
+        
+        // User info column
+        VBox userInfo = new VBox(2);
+        Label nameLabel = new Label(userName);
+        nameLabel.getStyleClass().add("post-author");
+        nameLabel.setCursor(javafx.scene.Cursor.HAND);
+        nameLabel.setOnMouseClicked(e -> AppRouter.navigateToProfile(post.getUserId()));
+        
+        Label metaLabel = new Label(university + (university.length() > 0 ? " · " : "") + timeStr);
+        metaLabel.getStyleClass().add("post-meta");
+        
+        userInfo.getChildren().addAll(nameLabel, metaLabel);
+        headerBox.getChildren().addAll(avatarLabel, userInfo);
+        
+        // Post content
         Label content = new Label(post.getContent() != null ? post.getContent() : "");
         content.getStyleClass().add("post-content");
         content.setWrapText(true);
+        content.setStyle("-fx-padding: 8 0 0 0; -fx-font-size: 14px; -fx-line-spacing: 4;");
 
+        // Post image
         StackPane postImageFrame = null;
         if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
             try {
@@ -138,18 +173,37 @@ public class FeedController implements Initializable {
                 postImageView.getStyleClass().add("post-image");
                 postImageFrame = new StackPane(postImageView);
                 postImageFrame.getStyleClass().add("post-image-frame");
+                postImageFrame.setStyle("-fx-padding: 12 0 0 0;");
             } catch (Exception ignored) {}
         }
 
+        // Like/Comment stats
         int likeCount = post.getLikeCount();
         int commentCount = post.getCommentCount();
         boolean liked = post.isLikedByMe();
-        Button likeBtn = new Button((liked ? "♥ " : "♡ ") + (likeCount > 0 ? String.valueOf(likeCount) : ""));
+        
+        HBox statsBar = new HBox(12);
+        statsBar.setStyle("-fx-padding: 12 0; -fx-border-color: #27272a; -fx-border-width: 1 0 0 0;");
+        if (likeCount > 0) {
+            Label likesStat = new Label("♥ " + likeCount + " likes");
+            likesStat.getStyleClass().add("post-meta");
+            statsBar.getChildren().add(likesStat);
+        }
+        if (commentCount > 0) {
+            Label commentsStat = new Label("💬 " + commentCount + " comments");
+            commentsStat.getStyleClass().add("post-meta");
+            statsBar.getChildren().add(commentsStat);
+        }
+        
+        // Action buttons
+        Button likeBtn = new Button((liked ? "♥" : "♡") + " Like");
         likeBtn.getStyleClass().add("post-action-btn");
         if (liked) likeBtn.getStyleClass().add("post-action-btn-liked");
+        likeBtn.setStyle("-fx-padding: 8 16; -fx-text-fill: " + (liked ? "#ef4444" : "#a1a1aa") + ";");
 
-        Button commentBtn = new Button("💬 " + (commentCount > 0 ? String.valueOf(commentCount) : ""));
+        Button commentBtn = new Button("💬 Comment");
         commentBtn.getStyleClass().add("post-action-btn");
+        commentBtn.setStyle("-fx-padding: 8 16; -fx-text-fill: #a1a1aa;");
 
         VBox commentsContainer = new VBox(8);
         commentsContainer.getStyleClass().add("comments-container");
@@ -169,7 +223,8 @@ public class FeedController implements Initializable {
                 ApiService.getInstance().toggleLike(post.getId());
                 post.setLikedByMe(!post.isLikedByMe());
                 post.setLikeCount(post.getLikeCount() + (post.isLikedByMe() ? 1 : -1));
-                likeBtn.setText((post.isLikedByMe() ? "♥ " : "♡ ") + (post.getLikeCount() > 0 ? String.valueOf(post.getLikeCount()) : ""));
+                likeBtn.setText((post.isLikedByMe() ? "♥" : "♡") + " Like");
+                likeBtn.setStyle("-fx-padding: 8 16; -fx-text-fill: " + (post.isLikedByMe() ? "#ef4444" : "#a1a1aa") + ";");
                 likeBtn.getStyleClass().remove("post-action-btn-liked");
                 if (post.isLikedByMe()) likeBtn.getStyleClass().add("post-action-btn-liked");
             } catch (ApiException ex) { /* ignore */ }
@@ -188,26 +243,31 @@ public class FeedController implements Initializable {
                 try {
                     ApiService.getInstance().addComment(post.getId(), c.trim());
                     post.setCommentCount(post.getCommentCount() + 1);
-                    commentBtn.setText("💬 " + (post.getCommentCount() > 0 ? String.valueOf(post.getCommentCount()) : ""));
+                    commentBtn.setText("💬 Comment");
                     commentField.clear();
                     loadCommentsInto(post, commentsContainer, commentField, submitComment, commentBtn);
                 } catch (ApiException ex) { /* ignore */ }
             }
         });
 
-        HBox actions = new HBox(16);
+        HBox actions = new HBox(4);
         actions.getStyleClass().add("post-actions");
+        actions.setStyle("-fx-padding: 8 0; -fx-border-color: #27272a; -fx-border-width: 1 0 0 0;");
         actions.getChildren().addAll(likeBtn, commentBtn);
 
         commentsContainer.getChildren().clear();
         commentsContainer.getChildren().add(commentInput);
 
-        VBox card = new VBox(8);
+        // Assemble card
+        VBox card = new VBox(0);
         card.getStyleClass().add("post-card");
         card.setUserData(post);
-        card.getChildren().add(meta);
-        card.getChildren().add(content);
+        card.getChildren().add(headerBox);
+        if (content.getText() != null && !content.getText().isEmpty()) {
+            card.getChildren().add(content);
+        }
         if (postImageFrame != null) card.getChildren().add(postImageFrame);
+        if (likeCount > 0 || commentCount > 0) card.getChildren().add(statsBar);
         card.getChildren().addAll(actions, commentsContainer);
         return card;
     }
@@ -267,5 +327,69 @@ public class FeedController implements Initializable {
         } catch (Exception e) {
             return formatCreatedAt(iso);
         }
+    }
+
+    private VBox buildUserSuggestionCard() {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("post-card");
+        card.setStyle("-fx-background-color: linear-gradient(to bottom right, #1a1a2e, #0f3460);");
+        
+        Label titleLabel = new Label("👥 People You Might Know");
+        titleLabel.getStyleClass().add("post-author");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: 700;");
+        card.getChildren().add(titleLabel);
+        
+        new Thread(() -> {
+            try {
+                List<com.campasian.model.UserProfile> suggestions = ApiService.getInstance().getAllProfiles();
+                if (suggestions != null && !suggestions.isEmpty()) {
+                    // Take first 3 suggestions
+                    java.util.List<com.campasian.model.UserProfile> limited = suggestions.stream()
+                        .limit(3)
+                        .collect(java.util.stream.Collectors.toList());
+                    
+                    Platform.runLater(() -> {
+                        VBox suggestionsVBox = new VBox(10);
+                        for (com.campasian.model.UserProfile profile : limited) {
+                            if (profile != null && profile.getFullName() != null) {
+                                HBox suggestionRow = new HBox(10);
+                                suggestionRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                                suggestionRow.setStyle("-fx-background-color: rgba(100, 100, 120, 0.1); -fx-padding: 8; -fx-background-radius: 8;");
+                                
+                                Label nameLabel = new Label(profile.getFullName());
+                                nameLabel.getStyleClass().add("post-author");
+                                nameLabel.setStyle("-fx-font-size: 12px;");
+                                nameLabel.setCursor(javafx.scene.Cursor.HAND);
+                                nameLabel.setOnMouseClicked(e -> AppRouter.navigateToProfile(profile.getId()));
+                                
+                                Region spacer = new Region();
+                                HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+                                
+                                Button followBtn = new Button("Follow");
+                                followBtn.getStyleClass().add("btn-primary");
+                                followBtn.setStyle("-fx-padding: 4 12; -fx-font-size: 11px;");
+                                followBtn.setOnAction(e -> {
+                                    try {
+                                        ApiService.getInstance().followUser(profile.getId());
+                                        followBtn.setText("Following");
+                                        followBtn.setDisable(true);
+                                    } catch (com.campasian.service.ApiException ex) {
+                                        // ignore
+                                    }
+                                });
+                                
+                                suggestionRow.getChildren().addAll(nameLabel, spacer, followBtn);
+                                suggestionsVBox.getChildren().add(suggestionRow);
+                            }
+                        }
+                        card.getChildren().add(suggestionsVBox);
+                    });
+                }
+            } catch (com.campasian.service.ApiException ignored) {
+                // If loading suggestions fails, just skip them
+            }
+        }).start();
+        
+        return card;
     }
 }

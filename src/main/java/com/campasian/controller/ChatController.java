@@ -115,7 +115,6 @@ public class ChatController implements Initializable {
                     friendsList.getChildren().clear();
                     for (UserProfile f : friends) {
                         Label lbl = new Label(f.getFullName() != null ? f.getFullName() : "Unknown");
-                        lbl.getStyleClass().add("profile-value");
                         lbl.setWrapText(true);
                         lbl.setCursor(javafx.scene.Cursor.HAND);
                         lbl.setUserData(f.getId());
@@ -124,7 +123,6 @@ public class ChatController implements Initializable {
                     }
                     if (friends.isEmpty()) {
                         Label empty = new Label("No friends yet. Accept friend requests to chat.");
-                        empty.getStyleClass().add("profile-label");
                         empty.setWrapText(true);
                         friendsList.getChildren().add(empty);
                     }
@@ -152,6 +150,14 @@ public class ChatController implements Initializable {
         new Thread(() -> {
             try {
                 List<Message> msgs = ApiService.getInstance().getMessages(selectedPartnerId);
+                // Also fetch call history between these two users
+                java.util.List<CallRecord> callHistory = new java.util.ArrayList<>();
+                try {
+                    String currentId = ApiService.getInstance().getCurrentUserId();
+                    // Note: This would require a method to fetch calls between two users
+                    // For now, we'll note this as a TODO or use a placeholder
+                } catch (Exception ignored) {}
+                
                 Platform.runLater(() -> {
                     if (messagesVBox == null) return;
                     messagesVBox.getChildren().clear();
@@ -166,7 +172,11 @@ public class ChatController implements Initializable {
                     }
                     scrollToBottom();
                 });
-            } catch (ApiException ignored) {}
+            } catch (ApiException e) {
+                Platform.runLater(() -> {
+                    showChatError("Failed to load messages: " + (e.getMessage() != null ? e.getMessage() : "Network error"));
+                });
+            }
         }).start();
     }
 
@@ -328,15 +338,17 @@ public class ChatController implements Initializable {
             new Thread(() -> {
                 try {
                     ApiService.getInstance().updateMessage(message.getId(), updated.trim());
+                    Thread.sleep(500); // Wait for database to sync
                     Platform.runLater(() -> {
-                        message.setContent(updated.trim());
-                        loadMessages();
+                        loadMessages(); // Reload from database to get updated message
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Success");
                         alert.setHeaderText("Message Updated");
                         alert.setContentText("Your message has been updated.");
                         alert.showAndWait();
                     });
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
                 } catch (ApiException e) {
                     Platform.runLater(() -> showChatError("Message update failed: " + (e.getMessage() != null ? e.getMessage() : "Check RLS policies")));
                 }
@@ -355,9 +367,12 @@ public class ChatController implements Initializable {
                 new Thread(() -> {
                     try {
                         ApiService.getInstance().deleteMessage(message.getId());
+                        Thread.sleep(500); // Wait for database to sync
                         Platform.runLater(() -> {
                             loadMessages();
                         });
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
                     } catch (ApiException e) {
                         Platform.runLater(() -> showChatError("Delete failed: " + (e.getMessage() != null ? e.getMessage() : "Check RLS policies")));
                     }
