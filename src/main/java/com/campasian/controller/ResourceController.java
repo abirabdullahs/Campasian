@@ -14,6 +14,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -106,17 +108,19 @@ public class ResourceController implements Initializable {
                         itemsVBox.getChildren().add(buildCard(resource));
                     }
                     if (list.isEmpty()) {
-                        Label empty = new Label("No resources yet.");
-                        empty.getStyleClass().add("profile-label");
-                        itemsVBox.getChildren().add(empty);
+                        itemsVBox.getChildren().add(buildEmptyState(
+                                "No resources found",
+                                "Try another filter or add the first material for this department and semester."
+                        ));
                     }
                 });
             } catch (ApiException e) {
                 Platform.runLater(() -> {
                     if (itemsVBox != null) {
-                        Label err = new Label("Unable to load resources.");
-                        err.getStyleClass().add("profile-label");
-                        itemsVBox.getChildren().add(err);
+                        itemsVBox.getChildren().add(buildEmptyState(
+                                "Unable to load resources",
+                                "The library could not be reached right now. Reload the page and try again."
+                        ));
                     }
                 });
             }
@@ -129,19 +133,32 @@ public class ResourceController implements Initializable {
         title.setWrapText(true);
 
         Label dept = new Label(resource.getDepartment() != null ? resource.getDepartment() : "General");
-        dept.getStyleClass().add("resource-chip");
+        dept.getStyleClass().addAll("resource-chip", "resource-chip-dept");
 
         Label sem = new Label("Sem " + (resource.getSemester() != null ? resource.getSemester() : "-"));
-        sem.getStyleClass().add("resource-chip");
+        sem.getStyleClass().addAll("resource-chip", "resource-chip-sem");
 
-        Label uploader = new Label(resource.getUserName() != null ? resource.getUserName() : "Unknown");
+        Label type = new Label(detectResourceType(resource));
+        type.getStyleClass().addAll("resource-chip", "resource-chip-type");
+
+        Label uploader = new Label("Uploaded by " + (resource.getUserName() != null ? resource.getUserName() : "Unknown"));
         uploader.getStyleClass().add("resource-meta");
 
+        Label timestamp = new Label(resource.getCreatedAt() != null && !resource.getCreatedAt().isBlank()
+                ? resource.getCreatedAt()
+                : "Recently shared");
+        timestamp.getStyleClass().add("resource-secondary-meta");
+
+        Label description = new Label(buildDescription(resource));
+        description.getStyleClass().add("resource-card-description");
+        description.setWrapText(true);
+
         FlowPane metaRow = new FlowPane(8, 8);
-        metaRow.getChildren().addAll(dept, sem, uploader);
+        metaRow.getStyleClass().add("resource-badge-row");
+        metaRow.getChildren().addAll(dept, sem, type);
 
         Button openBtn = new Button("Download/Open");
-        openBtn.getStyleClass().addAll("btn-primary", "btn-download");
+        openBtn.getStyleClass().add("btn-download");
         String link = resource.getDriveLink();
         if (link != null && !link.isBlank()) {
             openBtn.setOnAction(e -> {
@@ -152,9 +169,50 @@ public class ResourceController implements Initializable {
             openBtn.setDisable(true);
         }
 
-        VBox card = new VBox(8);
-        card.getStyleClass().addAll("content-card", "resource-card");
-        card.getChildren().addAll(title, metaRow, openBtn);
+        VBox metaBlock = new VBox(4, uploader, timestamp);
+        metaBlock.getStyleClass().add("resource-meta-block");
+
+        HBox footer = new HBox(16, metaBlock, openBtn);
+        footer.getStyleClass().add("resource-card-footer");
+        HBox.setHgrow(metaBlock, Priority.ALWAYS);
+
+        VBox top = new VBox(10, title, metaRow, description);
+        top.getStyleClass().add("resource-card-top");
+
+        VBox card = new VBox(14, top, footer);
+        card.getStyleClass().add("resource-card");
         return card;
+    }
+
+    private VBox buildEmptyState(String titleText, String bodyText) {
+        Label title = new Label(titleText);
+        title.getStyleClass().add("resource-empty-title");
+
+        Label body = new Label(bodyText);
+        body.getStyleClass().add("resource-empty-copy");
+        body.setWrapText(true);
+
+        VBox emptyState = new VBox(6, title, body);
+        emptyState.getStyleClass().add("resource-empty-state");
+        return emptyState;
+    }
+
+    private String detectResourceType(CourseResource resource) {
+        String haystack = ((resource.getTitle() != null ? resource.getTitle() : "") + " "
+                + (resource.getDriveLink() != null ? resource.getDriveLink() : "")).toLowerCase();
+        if (haystack.contains("slide") || haystack.contains("ppt")) return "Slides";
+        if (haystack.contains("question") || haystack.contains("quiz") || haystack.contains("exam")) return "Questions";
+        if (haystack.contains("note")) return "Notes";
+        return "Resource";
+    }
+
+    private String buildDescription(CourseResource resource) {
+        String type = detectResourceType(resource);
+        String dept = resource.getDepartment() != null ? resource.getDepartment() : "General";
+        String sem = resource.getSemester() != null ? resource.getSemester() : "-";
+        if (resource.getDriveLink() != null && !resource.getDriveLink().isBlank()) {
+            return type + " for " + dept + " semester " + sem + " with an attached Drive link.";
+        }
+        return type + " for " + dept + " semester " + sem + ". No external link attached yet.";
     }
 }

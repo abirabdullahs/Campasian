@@ -10,24 +10,25 @@
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.ResourceAddModalController"
-      styleClass="modal-root"
-      stylesheets="@../styles/style.css,@../styles/app.css"
-      prefWidth="420" prefHeight="360">
-    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
-    <VBox spacing="4">
-        <Label text="Add Resource" styleClass="cc-headline"/>
-        <Label text="Share a Drive link or resource title." styleClass="cc-description" wrapText="true"/>
+      styleClass="resource-modal-root"
+      stylesheets="@../styles/app.css,@../styles/resource.css"
+      spacing="14"
+      prefWidth="460" prefHeight="420">
+    <padding><Insets top="26" right="26" bottom="26" left="26"/></padding>
+    <VBox spacing="6">
+        <Label text="Add Resource" styleClass="resource-modal-title"/>
+        <Label text="Upload a title and Drive link, then tag it by department and semester so others can find it quickly." styleClass="resource-modal-subtitle" wrapText="true"/>
     </VBox>
-    <Label text="Title" styleClass="profile-label"/>
-    <TextField fx:id="titleField" styleClass="material-input" promptText="Resource title"/>
-    <Label text="Drive Link (optional)" styleClass="profile-label"/>
-    <TextField fx:id="linkField" styleClass="material-input" promptText="https://drive.google.com/..."/>
-    <Label text="Department" styleClass="profile-label"/>
-    <ComboBox fx:id="deptCombo" styleClass="material-input" prefWidth="Infinity"/>
-    <Label text="Semester" styleClass="profile-label"/>
-    <ComboBox fx:id="semCombo" styleClass="material-input" prefWidth="Infinity"/>
+    <Label text="Title" styleClass="resource-modal-label"/>
+    <TextField fx:id="titleField" styleClass="resource-modal-input" promptText="Resource title"/>
+    <Label text="Drive Link (optional)" styleClass="resource-modal-label"/>
+    <TextField fx:id="linkField" styleClass="resource-modal-input" promptText="https://drive.google.com/..."/>
+    <Label text="Department" styleClass="resource-modal-label"/>
+    <ComboBox fx:id="deptCombo" styleClass="resource-modal-input resource-modal-combo" prefWidth="Infinity"/>
+    <Label text="Semester" styleClass="resource-modal-label"/>
+    <ComboBox fx:id="semCombo" styleClass="resource-modal-input resource-modal-combo" prefWidth="Infinity"/>
     <HBox spacing="12" alignment="CENTER_RIGHT">
-        <Button text="Cancel" styleClass="btn-secondary" onAction="#onCancel"/>
-        <Button text="Add" styleClass="btn-primary" onAction="#onAdd"/>
+        <Button text="Cancel" styleClass="resource-modal-secondary-btn" onAction="#onCancel"/>
+        <Button text="Add Resource" styleClass="resource-modal-primary-btn" onAction="#onAdd"/>
     </HBox>
 </VBox>
