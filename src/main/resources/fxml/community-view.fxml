@@ -1,75 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Priority?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="communityRoot" prefHeight="760.0" prefWidth="1200.0" styleClass="dashboard-main community-root" stylesheets="@../styles/app.css,@../styles/community.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.campasian.controller.CommunityController">
-
-    <left>
-        <VBox prefWidth="320.0" styleClass="community-sidebar" BorderPane.alignment="CENTER">
-            <padding>
-                <Insets bottom="24.0" left="24.0" right="20.0" top="24.0" />
-            </padding>
-            <children>
-                <Label styleClass="community-sidebar-title" text="Communities" />
-                <Label styleClass="community-sidebar-subtitle" text="Verified student rooms built from university identity and department membership." wrapText="true" />
-                <VBox spacing="6" styleClass="community-sidebar-card">
-                    <Label styleClass="community-sidebar-card-title" text="Campus Rooms" />
-                    <Label styleClass="community-sidebar-card-body" text="Auto-joined general rooms, department lounges, and your own custom communities live here." wrapText="true" />
-                </VBox>
-                <ListView fx:id="communityListView" styleClass="community-room-list" VBox.vgrow="ALWAYS" />
-            </children>
-        </VBox>
-    </left>
+<BorderPane fx:id="communityRoot"
+            prefHeight="760.0"
+            prefWidth="1200.0"
+            styleClass="dashboard-main community-root"
+            stylesheets="@../styles/app.css,@../styles/community.css"
+            xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="com.campasian.controller.CommunityController">
 
     <center>
-        <SplitPane fx:id="communitySplitPane" dividerPositions="0.5" styleClass="community-split-pane">
+        <SplitPane fx:id="communitySplitPane" dividerPositions="0.24,0.78" styleClass="community-split-pane">
             <items>
-                <VBox spacing="18.0" styleClass="community-main">
+                <VBox prefWidth="320.0" styleClass="community-sidebar">
                     <padding>
-                        <Insets bottom="24.0" left="24.0" right="16.0" top="24.0" />
+                        <Insets top="24" right="18" bottom="24" left="24"/>
                     </padding>
                     <children>
-                        <HBox alignment="CENTER_LEFT" spacing="12" />
+                        <VBox spacing="6">
+                            <Label text="Communities" styleClass="community-sidebar-title"/>
+                            <Label text="Verified student rooms, department spaces, and custom communities." styleClass="community-sidebar-subtitle" wrapText="true"/>
+                        </VBox>
 
-                        <Separator />
+                        <VBox spacing="8" styleClass="community-sidebar-card">
+                            <Label text="Campus Rooms" styleClass="community-sidebar-card-title"/>
+                            <Label text="Rooms update automatically and open the latest discussion without reloading the page." styleClass="community-sidebar-card-body" wrapText="true"/>
+                        </VBox>
 
-                        <VBox spacing="10.0" styleClass="community-composer-card">
-                            <Label fx:id="communityHintLabel" styleClass="community-hint" text="Auto-join is triggered from signup; use ObservableList to refresh the room instantly." wrapText="true" />
-                            <HBox alignment="CENTER_LEFT" spacing="12.0">
-                                <TextField fx:id="messageField" promptText="Write to your university community..." styleClass="community-input" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="sendButton" onAction="#onSendClick" styleClass="community-send-btn" text="Send" />
+                        <ListView fx:id="communityListView"
+                                  VBox.vgrow="ALWAYS"
+                                  styleClass="community-room-list"/>
+                    </children>
+                </VBox>
+
+                <VBox spacing="16" styleClass="community-main">
+                    <padding>
+                        <Insets top="24" right="16" bottom="24" left="18"/>
+                    </padding>
+                    <children>
+                        <VBox spacing="12" styleClass="community-header">
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label fx:id="titleLabel" text="Community" styleClass="community-title"/>
+                                    <Label fx:id="subtitleLabel" text="Pick a room to start reading and writing messages." styleClass="community-subtitle" wrapText="true"/>
+                                </VBox>
+                                <Button fx:id="panelToggleButton"
+                                        text="Hide Panel"
+                                        styleClass="community-side-toggle"
+                                        onAction="#onTogglePanelClick"/>
+                            </HBox>
+
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label fx:id="verificationLabel" text="Verification unavailable" styleClass="community-pill"/>
+                                <Label fx:id="memberCountLabel" text="0 students" styleClass="community-pill community-pill-secondary"/>
+                            </HBox>
+                        </VBox>
+
+                        <ListView fx:id="messageListView"
+                                  VBox.vgrow="ALWAYS"
+                                  styleClass="community-message-list"/>
+
+                        <VBox spacing="10" styleClass="community-composer-card">
+                            <Label fx:id="communityHintLabel"
+                                   text="Choose a room and join the conversation."
+                                   styleClass="community-hint"
+                                   wrapText="true"/>
+                            <HBox alignment="CENTER_LEFT" spacing="12">
+                                <TextField fx:id="messageField"
+                                           promptText="Write a message..."
+                                           styleClass="community-input"
+                                           HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="sendButton"
+                                        onAction="#onSendClick"
+                                        styleClass="community-send-btn"
+                                        text="Send"/>
                             </HBox>
                         </VBox>
                     </children>
                 </VBox>
 
-                <VBox fx:id="communityRightPanel" spacing="16.0" styleClass="community-right-panel">
+                <VBox fx:id="communityRightPanel" spacing="16" styleClass="community-right-panel">
                     <padding>
-                        <Insets bottom="24.0" left="16.0" right="24.0" top="24.0" />
+                        <Insets top="24" right="24" bottom="24" left="16"/>
                     </padding>
                     <children>
                         <VBox spacing="10" styleClass="community-editor-card">
-                            <Label fx:id="communityEditorLabel" styleClass="community-editor-title" text="Create a new custom community" />
-                            <Label styleClass="community-editor-subtitle" text="Build department clubs, project rooms, or student-led discussion spaces." wrapText="true" />
-                            <TextField fx:id="communityNameField" promptText="Community name" styleClass="community-input" />
-                            <TextArea fx:id="communityDescriptionField" prefRowCount="4" promptText="Short description" styleClass="community-textarea" wrapText="true" />
+                            <Label fx:id="communityEditorLabel" text="Create a new custom community" styleClass="community-editor-title"/>
+                            <Label text="Build a focused room for projects, clubs, and student-led discussions." styleClass="community-editor-subtitle" wrapText="true"/>
+                            <TextField fx:id="communityNameField" promptText="Community name" styleClass="community-input"/>
+                            <TextArea fx:id="communityDescriptionField"
+                                      prefRowCount="4"
+                                      promptText="Short description"
+                                      styleClass="community-textarea"
+                                      wrapText="true"/>
                             <HBox spacing="8">
-                                <Button fx:id="createCommunityButton" onAction="#onCreateCommunityClick" styleClass="community-send-btn" text="Create" />
-                                <Button fx:id="saveCommunityButton" onAction="#onSaveCommunityClick" styleClass="community-secondary-btn" text="Save" />
-                                <Button fx:id="deleteCommunityButton" onAction="#onDeleteCommunityClick" styleClass="community-danger-btn" text="Delete" />
+                                <Button fx:id="createCommunityButton" text="Create" styleClass="community-send-btn" onAction="#onCreateCommunityClick"/>
+                                <Button fx:id="saveCommunityButton" text="Save" styleClass="community-secondary-btn" onAction="#onSaveCommunityClick"/>
+                                <Button fx:id="deleteCommunityButton" text="Delete" styleClass="community-danger-btn" onAction="#onDeleteCommunityClick"/>
                             </HBox>
                         </VBox>
 
-                        <VBox spacing="8" styleClass="community-editor-card">
-                            <Label styleClass="community-editor-title" text="Panel controls" />
-                            <Label styleClass="community-editor-subtitle" text="Drag the divider to resize this panel. Use Hide Panel to collapse it and Show Panel to bring it back." wrapText="true" />
+                        <VBox spacing="10" styleClass="community-editor-card">
+                            <Label text="Room Notes" styleClass="community-editor-title"/>
+                            <Label text="General rooms are built from verified profile data. Custom rooms can be managed by their creator." styleClass="community-editor-subtitle" wrapText="true"/>
                         </VBox>
 
-                        <VBox spacing="8" styleClass="community-editor-card community-accent-card">
-                            <Label styleClass="community-editor-title" text="Live sync" />
-                            <Label styleClass="community-editor-subtitle" text="Community rooms and messages refresh automatically, so new messages from other students appear without reloading the page." wrapText="true" />
+                        <VBox spacing="10" styleClass="community-editor-card">
+                            <Label text="Live Refresh" styleClass="community-editor-title"/>
+                            <Label text="Messages refresh in the background so recent discussion stays visible while you browse." styleClass="community-editor-subtitle" wrapText="true"/>
                         </VBox>
                     </children>
                 </VBox>
