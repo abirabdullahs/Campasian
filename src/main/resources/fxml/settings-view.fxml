@@ -1,24 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.SettingsController"
-      styleClass="dashboard-main"
-      stylesheets="@../styles/style.css"
-      spacing="24" maxWidth="Infinity" maxHeight="Infinity">
-    <padding>
-        <Insets top="24" right="24" bottom="24" left="24"/>
-    </padding>
-    <!-- Page header -->
-    <VBox styleClass="cc-header" spacing="4">
-        <Label text="Settings" styleClass="cc-headline"/>
-        <Label text="Manage preferences and account options. Personalize your CampusConnect experience." styleClass="cc-description" wrapText="true"/>
-    </VBox>
-    <VBox styleClass="profile-card" spacing="16" maxWidth="600">
-        <Label text="Preferences" styleClass="profile-card-title"/>
-        <Label text="More features coming soon. Check back later!" styleClass="profile-label"/>
-    </VBox>
+      styleClass="settings-root"
+      stylesheets="@../styles/settings.css"
+      spacing="0" maxWidth="Infinity" maxHeight="Infinity">
+
+    <HBox styleClass="settings-topbar" alignment="CENTER_LEFT" spacing="14">
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+            <Label text="Settings" styleClass="settings-title"/>
+            <Label text="Tune the account experience, privacy defaults, and interface preferences." styleClass="settings-subtitle" wrapText="true"/>
+        </VBox>
+        <Label text="LIVE" styleClass="settings-live-pill"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" styleClass="settings-scroll" VBox.vgrow="ALWAYS">
+        <VBox spacing="18" styleClass="settings-body">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <HBox spacing="18">
+                <VBox styleClass="settings-hero-card" spacing="10" HBox.hgrow="ALWAYS">
+                    <Label text="Account Surface" styleClass="settings-card-label"/>
+                    <Label fx:id="accountNameLabel" text="Campus account" styleClass="settings-hero-title"/>
+                    <Label fx:id="accountUniLabel" text="Preferences for your current account" styleClass="settings-hero-subtitle" wrapText="true"/>
+                </VBox>
+                <VBox styleClass="settings-mini-card" spacing="8">
+                    <Label text="Sync" styleClass="settings-card-label"/>
+                    <Label text="Connected" styleClass="settings-mini-value"/>
+                    <Label text="Preferences stay local for now." styleClass="settings-mini-sub"/>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="18">
+                <VBox styleClass="settings-card" spacing="14" HBox.hgrow="ALWAYS">
+                    <Label text="Experience" styleClass="settings-section-title"/>
+
+                    <HBox styleClass="settings-row" alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label text="Dark interface" styleClass="settings-row-title"/>
+                            <Label text="Keep the current high-contrast dark look across the app." styleClass="settings-row-subtitle" wrapText="true"/>
+                        </VBox>
+                        <CheckBox fx:id="darkModeToggle" text="Enabled" styleClass="settings-toggle"/>
+                    </HBox>
+
+                    <Separator styleClass="settings-divider"/>
+
+                    <HBox styleClass="settings-row" alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label text="Compact layout" styleClass="settings-row-title"/>
+                            <Label text="Reduce spacing for denser cards, lists, and content grids." styleClass="settings-row-subtitle" wrapText="true"/>
+                        </VBox>
+                        <CheckBox fx:id="compactModeToggle" text="Enabled" styleClass="settings-toggle"/>
+                    </HBox>
+
+                    <Separator styleClass="settings-divider"/>
+
+                    <HBox styleClass="settings-row" alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label text="Notification nudges" styleClass="settings-row-title"/>
+                            <Label text="Keep status prompts and in-app activity reminders visible." styleClass="settings-row-subtitle" wrapText="true"/>
+                        </VBox>
+                        <CheckBox fx:id="notificationsToggle" text="Enabled" styleClass="settings-toggle"/>
+                    </HBox>
+                </VBox>
+
+                <VBox styleClass="settings-card" spacing="14" HBox.hgrow="ALWAYS">
+                    <Label text="Privacy" styleClass="settings-section-title"/>
+
+                    <HBox styleClass="settings-row" alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="3" HBox.hgrow="ALWAYS">
+                            <Label text="Show online status" styleClass="settings-row-title"/>
+                            <Label text="Let friends see whether you are available for chat." styleClass="settings-row-subtitle" wrapText="true"/>
+                        </VBox>
+                        <CheckBox fx:id="showOnlineStatusToggle" text="Visible" styleClass="settings-toggle"/>
+                    </HBox>
+
+                    <Separator styleClass="settings-divider"/>
+
+                    <VBox spacing="8" styleClass="settings-note-box">
+                        <Label text="Safety note" styleClass="settings-note-title"/>
+                        <Label text="Profile visibility, post controls, and data export can be added next if you want the page to become fully functional." styleClass="settings-note-body" wrapText="true"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button text="Save Preferences" styleClass="settings-primary-btn"/>
+                <Button text="Reset View Defaults" styleClass="settings-secondary-btn"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Local UI settings preview" styleClass="settings-footer-note"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
 </VBox>

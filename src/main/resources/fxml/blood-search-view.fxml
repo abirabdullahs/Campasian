@@ -16,7 +16,7 @@
 
     <VBox styleClass="page-header" spacing="4">
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="+" styleClass="blood-search-icon"/>
+            <Label text="B+" styleClass="blood-search-icon"/>
             <Label text="Blood Donation Hub" styleClass="page-title"/>
         </HBox>
         <Label text="Find blood donors by blood group during emergencies." styleClass="page-subtitle" wrapText="true"/>

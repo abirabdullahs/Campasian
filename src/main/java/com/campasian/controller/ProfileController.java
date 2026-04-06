@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -235,13 +236,16 @@ public class ProfileController implements Initializable {
         content.getStyleClass().add("post-content");
         content.setWrapText(true);
 
-        javafx.scene.image.ImageView postImageView = null;
+        StackPane postImageFrame = null;
         if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
             try {
-                postImageView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(post.getImageUrl(), true));
-                postImageView.setFitWidth(400);
-                postImageView.setFitHeight(300);
+                javafx.scene.image.ImageView postImageView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(post.getImageUrl(), true));
+                postImageView.setFitWidth(520);
+                postImageView.setFitHeight(340);
                 postImageView.setPreserveRatio(true);
+                postImageView.getStyleClass().add("post-image");
+                postImageFrame = new StackPane(postImageView);
+                postImageFrame.getStyleClass().add("post-image-frame");
             } catch (Exception ignored) {
             }
         }
@@ -342,7 +346,7 @@ public class ProfileController implements Initializable {
         card.getStyleClass().add("post-card");
         card.getChildren().add(meta);
         card.getChildren().add(content);
-        if (postImageView != null) card.getChildren().add(postImageView);
+        if (postImageFrame != null) card.getChildren().add(postImageFrame);
         card.getChildren().addAll(actions, commentsContainer);
         return card;
     }

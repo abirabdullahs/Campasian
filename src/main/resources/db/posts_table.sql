@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
     user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     user_name   TEXT NOT NULL,
     content     TEXT NOT NULL,
+    image_url   TEXT,
     university  TEXT,
     created_at  TIMESTAMPTZ DEFAULT now()
 );

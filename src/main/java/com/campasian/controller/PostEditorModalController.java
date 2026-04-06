@@ -2,14 +2,14 @@ package com.campasian.controller;
 
 import com.campasian.service.ApiException;
 import com.campasian.service.ApiService;
+import com.campasian.util.ImageSelectionSupport;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.stage.FileChooser;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.nio.file.Files;
 
 /**
  * Controller for the post editor modal. Supports text and one optional image.
@@ -18,10 +18,14 @@ public class PostEditorModalController {
 
     @FXML private TextArea contentArea;
     @FXML private Label imageLabel;
+    @FXML private VBox imagePreviewBox;
+    @FXML private ImageView imagePreview;
+    @FXML private Button removeImageBtn;
 
     private Stage stage;
     private Runnable onPostSuccess;
     private byte[] imageBytes;
+    private String imageExtension = "png";
     private String imageContentType = "image/png";
 
     /**
@@ -40,33 +44,45 @@ public class PostEditorModalController {
 
     @FXML
     protected void onAttachImage() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select Image");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp"));
-        File f = chooser.showOpenDialog(stage);
-        if (f != null) {
-            try {
-                imageBytes = Files.readAllBytes(f.toPath());
-                String name = f.getName().toLowerCase();
-                imageContentType = name.endsWith(".jpg") || name.endsWith(".jpeg") ? "image/jpeg" :
-                    name.endsWith(".gif") ? "image/gif" : name.endsWith(".webp") ? "image/webp" : "image/png";
-                if (imageLabel != null) imageLabel.setText(f.getName());
-            } catch (Exception ignored) {}
+        ImageSelectionSupport.SelectedImage selected = ImageSelectionSupport.chooseImage(stage, "Select Post Image");
+        if (selected != null) {
+            imageBytes = selected.getBytes();
+            imageExtension = selected.getExtension();
+            imageContentType = selected.getContentType();
+            if (imageLabel != null) imageLabel.setText(selected.getFileName());
+            if (imagePreview != null) imagePreview.setImage(selected.getPreview());
+            if (imagePreviewBox != null) {
+                imagePreviewBox.setVisible(true);
+                imagePreviewBox.setManaged(true);
+            }
+        }
+    }
+
+    @FXML
+    protected void onRemoveImage() {
+        imageBytes = null;
+        imageExtension = "png";
+        imageContentType = "image/png";
+        if (imageLabel != null) imageLabel.setText("");
+        if (imagePreview != null) imagePreview.setImage(null);
+        if (imagePreviewBox != null) {
+            imagePreviewBox.setVisible(false);
+            imagePreviewBox.setManaged(false);
         }
     }
 
     @FXML
     protected void onPostClick() {
         String content = contentArea != null ? contentArea.getText() : null;
-        if (content == null || content.isBlank()) return;
+        if ((content == null || content.isBlank()) && (imageBytes == null || imageBytes.length == 0)) return;
 
         try {
             String imageUrl = null;
             if (imageBytes != null && imageBytes.length > 0) {
-                String path = ApiService.getInstance().getCurrentUserId() + "/" + System.currentTimeMillis() + ".png";
+                String path = ImageSelectionSupport.buildStoragePath(ApiService.getInstance().getCurrentUserId(), imageExtension);
                 imageUrl = ApiService.getInstance().uploadToStorage("post-images", path, imageBytes, imageContentType);
             }
-            ApiService.getInstance().sendPost(content.trim(), imageUrl);
+            ApiService.getInstance().sendPost(content != null ? content.trim() : "", imageUrl);
             if (onPostSuccess != null) onPostSuccess.run();
             close();
         } catch (ApiException e) {

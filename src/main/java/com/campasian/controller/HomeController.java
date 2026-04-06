@@ -36,7 +36,6 @@ public class HomeController implements Initializable {
     @FXML private Button eventsBtn;
     @FXML private Button studyPartnerBtn;
     @FXML private Button facultyBtn;
-    @FXML private Button profileBtn;
     @FXML private Button notificationsBtn;
     @FXML private Button chatBtn;
     @FXML private Button settingsBtn;
@@ -137,13 +136,6 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    protected void onProfileClick() {
-        NavigationContext.clearViewingProfile();
-        loadView(ViewPaths.PROFILE_VIEW);
-        updateSidebarActive(profileBtn);
-    }
-
-    @FXML
     protected void onNotificationsClick() {
         loadView(ViewPaths.NOTIFICATIONS_VIEW);
         updateSidebarActive(notificationsBtn);
@@ -185,7 +177,7 @@ public class HomeController implements Initializable {
     public void loadProfileView(String userId) {
         NavigationContext.setViewingProfileUserId(userId);
         loadView(ViewPaths.PROFILE_VIEW);
-        updateSidebarActive(profileBtn);
+        clearSidebarActive();
     }
 
     /** Loads chat view with a pre-selected partner (from Study Partner Message). */
@@ -207,7 +199,6 @@ public class HomeController implements Initializable {
         if (eventsBtn != null) eventsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (studyPartnerBtn != null) studyPartnerBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (facultyBtn != null) facultyBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
-        if (profileBtn != null) profileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (notificationsBtn != null) notificationsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (settingsBtn != null) settingsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);

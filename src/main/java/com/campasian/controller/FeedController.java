@@ -18,6 +18,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -127,13 +128,16 @@ public class FeedController implements Initializable {
         content.getStyleClass().add("post-content");
         content.setWrapText(true);
 
-        javafx.scene.image.ImageView postImageView = null;
+        StackPane postImageFrame = null;
         if (post.getImageUrl() != null && !post.getImageUrl().isBlank()) {
             try {
-                postImageView = new ImageView(new Image(post.getImageUrl(), true));
-                postImageView.setFitWidth(400);
-                postImageView.setFitHeight(300);
+                ImageView postImageView = new ImageView(new Image(post.getImageUrl(), true));
+                postImageView.setFitWidth(520);
+                postImageView.setFitHeight(340);
                 postImageView.setPreserveRatio(true);
+                postImageView.getStyleClass().add("post-image");
+                postImageFrame = new StackPane(postImageView);
+                postImageFrame.getStyleClass().add("post-image-frame");
             } catch (Exception ignored) {}
         }
 
@@ -203,7 +207,7 @@ public class FeedController implements Initializable {
         card.setUserData(post);
         card.getChildren().add(meta);
         card.getChildren().add(content);
-        if (postImageView != null) card.getChildren().add(postImageView);
+        if (postImageFrame != null) card.getChildren().add(postImageFrame);
         card.getChildren().addAll(actions, commentsContainer);
         return card;
     }

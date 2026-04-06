@@ -16,6 +16,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -36,6 +38,8 @@ public class MarketplaceController implements Initializable {
     @FXML private Button electronicsBtn;
     @FXML private Button stationeryBtn;
     @FXML private VBox itemsVBox;
+    @FXML private Label resultsLabel;
+    @FXML private Label spotlightLabel;
 
     private String currentFilter;
     private final PauseTransition debouncer = new PauseTransition(Duration.millis(300));
@@ -120,12 +124,20 @@ public class MarketplaceController implements Initializable {
                 Platform.runLater(() -> {
                     if (itemsVBox == null) return;
                     itemsVBox.getChildren().clear();
+                    if (resultsLabel != null) {
+                        resultsLabel.setText(finalItems.size() + (finalItems.size() == 1 ? " item live" : " items live"));
+                    }
+                    if (spotlightLabel != null) {
+                        spotlightLabel.setText(finalItems.isEmpty()
+                            ? "No active listings right now"
+                            : "Latest drop: " + (finalItems.get(0).getTitle() != null ? finalItems.get(0).getTitle() : "Fresh listing"));
+                    }
                     for (MarketplaceItem item : finalItems) {
                         itemsVBox.getChildren().add(buildItemCard(item));
                     }
                     if (finalItems.isEmpty()) {
                         Label empty = new Label("No items found.");
-                        empty.getStyleClass().add("profile-label");
+                        empty.getStyleClass().add("marketplace-empty-text");
                         itemsVBox.getChildren().add(empty);
                     }
                 });
@@ -133,7 +145,7 @@ public class MarketplaceController implements Initializable {
                 Platform.runLater(() -> {
                     if (itemsVBox != null) {
                         Label err = new Label("Unable to load marketplace.");
-                        err.getStyleClass().add("profile-label");
+                        err.getStyleClass().add("marketplace-empty-text");
                         itemsVBox.getChildren().add(err);
                     }
                 });
@@ -148,8 +160,14 @@ public class MarketplaceController implements Initializable {
         Label category = new Label(item.getCategory() != null ? item.getCategory() : "General");
         category.getStyleClass().add("marketplace-chip");
 
+        Label price = new Label(item.getPrice() != null && !item.getPrice().isBlank() ? item.getPrice() : "Price on request");
+        price.getStyleClass().add("marketplace-price");
+
+        VBox sellerBlock = new VBox(4, seller, category);
         HBox topRow = new HBox(10);
-        topRow.getChildren().addAll(seller, category);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        topRow.getChildren().addAll(sellerBlock, spacer, price);
 
         Label title = new Label(item.getTitle() != null ? item.getTitle() : "Untitled");
         title.getStyleClass().add("marketplace-card-title");
@@ -158,10 +176,7 @@ public class MarketplaceController implements Initializable {
         title.setOnMouseClicked(e -> AppRouter.navigateToProfile(item.getUserId()));
 
         Label meta = new Label("Listed " + formatTime(item.getCreatedAt()));
-        meta.getStyleClass().add("post-meta");
-
-        Label price = new Label(item.getPrice() != null ? item.getPrice() : "");
-        price.getStyleClass().add("marketplace-price");
+        meta.getStyleClass().add("marketplace-meta");
 
         Label condition = new Label("Condition: " + (item.getCondition() != null ? item.getCondition() : "-"));
         condition.getStyleClass().add("marketplace-condition");
@@ -170,9 +185,13 @@ public class MarketplaceController implements Initializable {
         desc.getStyleClass().add("marketplace-description");
         desc.setWrapText(true);
 
+        Button contactBtn = new Button("Open Seller Profile");
+        contactBtn.getStyleClass().add("marketplace-contact-btn");
+        contactBtn.setOnAction(e -> AppRouter.navigateToProfile(item.getUserId()));
+
         VBox card = new VBox(8);
-        card.getStyleClass().addAll("marketplace-card", "content-card");
-        card.getChildren().addAll(topRow, title, meta, price, condition, desc);
+        card.getStyleClass().add("marketplace-card");
+        card.getChildren().addAll(topRow, title, meta, condition, desc, contactBtn);
         return card;
     }
 

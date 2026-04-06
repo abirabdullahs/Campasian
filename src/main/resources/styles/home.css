@@ -163,11 +163,6 @@ VBox > .sidebar-divider {
     -fx-text-fill:  #52525b;
     -fx-font-size:  11px;
     -fx-font-family: 'Poppins', 'Segoe UI', sans-serif;
-    -fx-cursor:     hand;
-}
-
-.sidebar-user-sub:hover {
-    -fx-text-fill: #a1a1aa;
 }
 
 /* Logout */

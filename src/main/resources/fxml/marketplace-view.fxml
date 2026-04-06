@@ -6,35 +6,47 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.MarketplaceController"
       styleClass="marketplace-root"
-      stylesheets="@../styles/marketplace.css,@../styles/app.css"
+      stylesheets="@../styles/marketplace.css"
       maxWidth="Infinity" maxHeight="Infinity">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
 
-    <VBox styleClass="page-header" spacing="4">
-        <Label text="Campus Marketplace" styleClass="page-title"/>
-        <Label text="Buy and sell books, electronics, and stationery with fellow students." styleClass="page-subtitle" wrapText="true"/>
+    <HBox styleClass="marketplace-hero" spacing="18" alignment="CENTER_LEFT">
+        <VBox spacing="6" HBox.hgrow="ALWAYS">
+            <Label text="Campus Marketplace" styleClass="marketplace-title"/>
+            <Label text="Student-to-student listings for books, electronics, and everyday campus gear." styleClass="marketplace-subtitle" wrapText="true"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="resultsLabel" text="0 items live" styleClass="marketplace-stat-chip"/>
+                <Label fx:id="spotlightLabel" text="Latest drop: waiting for new listings" styleClass="marketplace-stat-chip marketplace-stat-chip-muted"/>
+            </HBox>
+        </VBox>
+        <Button fx:id="sellBtn" text="+ Sell Item" styleClass="marketplace-sell-btn" onAction="#onSellItemClick"/>
+    </HBox>
+
+    <VBox styleClass="marketplace-toolbar" spacing="14">
+        <TextField fx:id="searchField" promptText="Search by title or description..." styleClass="marketplace-search" prefWidth="320"/>
+
+        <FlowPane hgap="8" vgap="8">
+            <Button fx:id="allBtn" text="All Listings" styleClass="marketplace-filter-btn marketplace-filter-btn-active" onAction="#onFilterAll"/>
+            <Button fx:id="booksBtn" text="Books" styleClass="marketplace-filter-btn" onAction="#onFilterBooks"/>
+            <Button fx:id="electronicsBtn" text="Electronics" styleClass="marketplace-filter-btn" onAction="#onFilterElectronics"/>
+            <Button fx:id="stationeryBtn" text="Stationery" styleClass="marketplace-filter-btn" onAction="#onFilterStationery"/>
+        </FlowPane>
     </VBox>
 
-    <FlowPane hgap="12" vgap="12" prefWrapLength="720">
-        <TextField fx:id="searchField" promptText="Search items..." styleClass="material-input" prefWidth="280"/>
-        <Button fx:id="sellBtn" text="+ Sell Item" styleClass="btn-primary" onAction="#onSellItemClick"/>
-    </FlowPane>
-
-    <FlowPane hgap="8" vgap="8" prefWrapLength="720" style="-fx-padding: 12 0 12 0;">
-        <Button fx:id="allBtn" text="All" styleClass="marketplace-filter-btn marketplace-filter-btn-active" onAction="#onFilterAll"/>
-        <Button fx:id="booksBtn" text="Books" styleClass="marketplace-filter-btn" onAction="#onFilterBooks"/>
-        <Button fx:id="electronicsBtn" text="Electronics" styleClass="marketplace-filter-btn" onAction="#onFilterElectronics"/>
-        <Button fx:id="stationeryBtn" text="Stationery" styleClass="marketplace-filter-btn" onAction="#onFilterStationery"/>
-    </FlowPane>
-
-    <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS">
-        <VBox fx:id="itemsVBox" spacing="12" styleClass="feed-container"/>
+    <ScrollPane fitToWidth="true" styleClass="marketplace-scroll" VBox.vgrow="ALWAYS">
+        <VBox fx:id="itemsVBox" spacing="14" styleClass="marketplace-feed">
+            <padding>
+                <Insets top="8" right="0" bottom="12" left="0"/>
+            </padding>
+        </VBox>
     </ScrollPane>
 </VBox>

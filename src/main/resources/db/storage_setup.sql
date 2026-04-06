@@ -4,6 +4,7 @@
 -- STEP 1: Dashboard -> Storage -> New bucket
 --   - "avatars" (Public)
 --   - "post-images" (Public)
+--   - "chat-images" (Public)
 --
 -- STEP 2: Run policies below. Drop first if re-running.
 -- =============================================================================
@@ -11,8 +12,10 @@
 DROP POLICY IF EXISTS "Users can upload own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated can upload post images" ON storage.objects;
+DROP POLICY IF EXISTS "Authenticated can upload chat images" ON storage.objects;
 DROP POLICY IF EXISTS "Public read avatars" ON storage.objects;
 DROP POLICY IF EXISTS "Public read post-images" ON storage.objects;
+DROP POLICY IF EXISTS "Public read chat-images" ON storage.objects;
 
 CREATE POLICY "Users can upload own avatar"
 ON storage.objects FOR INSERT TO authenticated
@@ -26,6 +29,10 @@ CREATE POLICY "Authenticated can upload post images"
 ON storage.objects FOR INSERT TO authenticated
 WITH CHECK (bucket_id = 'post-images');
 
+CREATE POLICY "Authenticated can upload chat images"
+ON storage.objects FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'chat-images');
+
 -- Allow public read (for public buckets)
 CREATE POLICY "Public read avatars"
 ON storage.objects FOR SELECT TO public
@@ -34,3 +41,7 @@ USING (bucket_id = 'avatars');
 CREATE POLICY "Public read post-images"
 ON storage.objects FOR SELECT TO public
 USING (bucket_id = 'post-images');
+
+CREATE POLICY "Public read chat-images"
+ON storage.objects FOR SELECT TO public
+USING (bucket_id = 'chat-images');

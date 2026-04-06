@@ -228,6 +228,11 @@ public final class ApiService {
         if (userId == null || userId.isBlank()) {
             throw new ApiException(-1, "Not logged in", null, null, null);
         }
+        boolean hasContent = content != null && !content.isBlank();
+        boolean hasImage = imageUrl != null && !imageUrl.isBlank();
+        if (!hasContent && !hasImage) {
+            throw new ApiException(-1, "Post cannot be empty", null, null, null);
+        }
         UserProfile profile = getProfile(userId);
         String userName = profile != null && profile.getFullName() != null ? profile.getFullName() : "Anonymous";
         String university = profile != null && profile.getUniversityName() != null ? profile.getUniversityName() : "";
@@ -1000,6 +1005,7 @@ public final class ApiService {
                     m.setSenderId(asString(o.get("sender_id")));
                     m.setReceiverId(asString(o.get("receiver_id")));
                     m.setContent(asString(o.get("content")));
+                    m.setImageUrl(asString(o.get("image_url")));
                     m.setCreatedAt(asString(o.get("created_at")));
                     list.add(m);
                 }
@@ -1015,16 +1021,49 @@ public final class ApiService {
     /**
      * Sends a message to another user.
      */
-    public void sendMessage(String receiverId, String content) throws ApiException {
+    public void sendMessage(String receiverId, String content, String imageUrl) throws ApiException {
         if (receiverId == null || receiverId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
             throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        boolean hasContent = content != null && !content.isBlank();
+        boolean hasImage = imageUrl != null && !imageUrl.isBlank();
+        if (!hasContent && !hasImage) {
+            throw new ApiException(-1, "Message cannot be empty", null, null, null);
         }
         JsonObject payload = new JsonObject();
         payload.addProperty("sender_id", currentUserId);
         payload.addProperty("receiver_id", receiverId);
         payload.addProperty("content", content != null ? content : "");
+        if (hasImage) payload.addProperty("image_url", imageUrl);
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         postJsonWithAuth(restUrl("/messages"), payload, token);
+    }
+
+    public void sendMessage(String receiverId, String content) throws ApiException {
+        sendMessage(receiverId, content, null);
+    }
+
+    public void updateMessage(String messageId, String content) throws ApiException {
+        if (messageId == null || messageId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        if (content == null || content.isBlank()) {
+            throw new ApiException(-1, "Message cannot be empty", null, null, null);
+        }
+        JsonObject payload = new JsonObject();
+        payload.addProperty("content", content.trim());
+        String url = restUrl("/messages?id=eq." + encodeQueryValue(messageId) + "&sender_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        patchJsonWithAuth(url, payload, token);
+    }
+
+    public void deleteMessage(String messageId) throws ApiException {
+        if (messageId == null || messageId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String url = restUrl("/messages?id=eq." + encodeQueryValue(messageId) + "&sender_id=eq." + currentUserId);
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        deleteWithAuth(url, token);
     }
 
     /**

@@ -4,16 +4,25 @@ import com.campasian.model.Message;
 import com.campasian.model.UserProfile;
 import com.campasian.service.ApiService;
 import com.campasian.service.ApiException;
-import com.campasian.view.AppRouter;
+import com.campasian.util.ImageSelectionSupport;
 import com.campasian.view.NavigationContext;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.time.Duration;
@@ -35,6 +44,13 @@ public class ChatController implements Initializable {
     @FXML private ScrollPane messagesScroll;
     @FXML private VBox messagesVBox;
     @FXML private TextField messageField;
+    @FXML private VBox messagePreviewBox;
+    @FXML private ImageView messagePreviewImage;
+    @FXML private Label messagePreviewLabel;
+
+    private byte[] pendingImageBytes;
+    private String pendingImageExtension = "png";
+    private String pendingImageContentType = "image/png";
 
     private String selectedPartnerId;
     private final ScheduledExecutorService pollExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -93,7 +109,11 @@ public class ChatController implements Initializable {
     }
 
     private void loadMessages() {
-        if (messagesVBox == null || selectedPartnerId == null) return;
+        if (messagesVBox == null) return;
+        if (selectedPartnerId == null) {
+            Platform.runLater(this::showEmptyConversationState);
+            return;
+        }
         new Thread(() -> {
             try {
                 List<Message> msgs = ApiService.getInstance().getMessages(selectedPartnerId);
@@ -105,6 +125,9 @@ public class ChatController implements Initializable {
                         boolean fromMe = currentId != null && currentId.equals(m.getSenderId());
                         HBox bubble = buildMessageBubble(m, fromMe);
                         messagesVBox.getChildren().add(bubble);
+                    }
+                    if (msgs.isEmpty()) {
+                        messagesVBox.getChildren().add(buildNoMessagesCard());
                     }
                     scrollToBottom();
                 });
@@ -150,43 +173,131 @@ public class ChatController implements Initializable {
 
 
     private HBox buildMessageBubble(Message m, boolean fromMe) {
-        // 1. Message Text Content
-        Label content = new Label(m.getContent() != null ? m.getContent() : "");
-        content.setWrapText(true);
-        content.setMaxWidth(350);
+        VBox bubble = new VBox(8);
+        bubble.getStyleClass().add(fromMe ? "sent-bubble" : "received-bubble");
+        bubble.setMaxWidth(360);
 
-        // 2. Timestamp
+        String text = m.getContent() != null ? m.getContent().trim() : "";
+        if (!text.isEmpty()) {
+            Label content = new Label(text);
+            content.setWrapText(true);
+            content.setMaxWidth(320);
+            content.getStyleClass().add("chat-message-text");
+            bubble.getChildren().add(content);
+        }
+
+        if (m.getImageUrl() != null && !m.getImageUrl().isBlank()) {
+            try {
+                ImageView imageView = new ImageView(new Image(m.getImageUrl(), true));
+                imageView.setFitWidth(280);
+                imageView.setFitHeight(220);
+                imageView.setPreserveRatio(true);
+                imageView.getStyleClass().add("chat-message-image");
+
+                StackPane imageFrame = new StackPane(imageView);
+                imageFrame.getStyleClass().add("chat-image-frame");
+                bubble.getChildren().add(imageFrame);
+            } catch (Exception ignored) {
+            }
+        }
+
         Label time = new Label(formatTime(m.getCreatedAt()));
         time.getStyleClass().add("chat-partner-status");
-        time.setStyle("-fx-font-size: 9px; -fx-text-fill: #71717a;"); // Muted color
-
-        // 3. Message Bubble Container
-        VBox bubble = new VBox(2);
-        bubble.getChildren().addAll(content, time);
-
-        // --- DESIGN CHANGE START ---
+        time.getStyleClass().add("chat-message-time");
         if (fromMe) {
-            // Jodi ami pathai: Bubble hobe Messenger Blue/White r alignment hobe Right
-            content.getStyleClass().add("sent-bubble");
-            bubble.setAlignment(javafx.geometry.Pos.TOP_RIGHT);
-        } else {
-            // Jodi friend pathay: Bubble hobe Dark Gray r alignment hobe Left
-            content.getStyleClass().add("received-bubble");
-            bubble.setAlignment(javafx.geometry.Pos.TOP_LEFT);
-        }
-        // --- DESIGN CHANGE END ---
+            HBox footer = new HBox(8);
+            footer.setAlignment(Pos.CENTER_RIGHT);
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // 4. Main Container (HBox) to handle Left/Right alignment
+            if (text != null && !text.isBlank()) {
+                Button editBtn = new Button("Edit");
+                editBtn.getStyleClass().add("chat-message-action");
+                editBtn.setOnAction(e -> onEditMessage(m));
+                footer.getChildren().add(editBtn);
+            }
+
+            Button deleteBtn = new Button("Delete");
+            deleteBtn.getStyleClass().add("chat-message-action");
+            deleteBtn.getStyleClass().add("chat-message-delete");
+            deleteBtn.setOnAction(e -> onDeleteMessage(m));
+            footer.getChildren().add(deleteBtn);
+            footer.getChildren().add(time);
+            bubble.getChildren().add(footer);
+        } else {
+            bubble.getChildren().add(time);
+        }
+        bubble.setAlignment(fromMe ? Pos.TOP_RIGHT : Pos.TOP_LEFT);
+
         HBox container = new HBox();
         container.getChildren().add(bubble);
-
-        if (fromMe) {
-            container.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
-        } else {
-            container.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        }
-
+        container.setAlignment(fromMe ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
         return container;
+    }
+
+    private VBox buildNoMessagesCard() {
+        VBox card = new VBox(8);
+        card.getStyleClass().add("chat-empty-card");
+        card.setAlignment(Pos.CENTER_LEFT);
+
+        Label title = new Label("No messages yet");
+        title.getStyleClass().add("chat-empty-title");
+
+        Label body = new Label("Send the first message to get this conversation started.");
+        body.getStyleClass().add("chat-empty-subtitle");
+        body.setWrapText(true);
+
+        card.getChildren().addAll(title, body);
+        return card;
+    }
+
+    private void showEmptyConversationState() {
+        if (messagesVBox == null) return;
+        messagesVBox.getChildren().clear();
+
+        VBox hero = new VBox(12);
+        hero.getStyleClass().add("chat-empty-hero");
+        hero.setAlignment(Pos.CENTER);
+        hero.setFillWidth(true);
+
+        Label badge = new Label("CHAT");
+        badge.getStyleClass().add("chat-empty-badge");
+
+        Label title = new Label("Start a conversation");
+        title.getStyleClass().add("chat-empty-title");
+
+        Label body = new Label("Pick a friend from the left to open your messages, share an image, or continue an existing chat.");
+        body.getStyleClass().add("chat-empty-subtitle");
+        body.setWrapText(true);
+        body.setMaxWidth(360);
+
+        hero.getChildren().addAll(badge, title, body);
+        messagesVBox.getChildren().add(hero);
+    }
+
+    private void onEditMessage(Message message) {
+        if (message == null || message.getId() == null || message.getId().isBlank()) return;
+        TextInputDialog dialog = new TextInputDialog(message.getContent());
+        dialog.setTitle("Edit message");
+        dialog.setHeaderText("Update your message");
+        dialog.setContentText("Message");
+        dialog.showAndWait().ifPresent(updated -> {
+            if (updated == null || updated.isBlank() || updated.equals(message.getContent())) return;
+            try {
+                ApiService.getInstance().updateMessage(message.getId(), updated);
+                loadMessages();
+            } catch (ApiException ignored) {
+            }
+        });
+    }
+
+    private void onDeleteMessage(Message message) {
+        if (message == null || message.getId() == null || message.getId().isBlank()) return;
+        try {
+            ApiService.getInstance().deleteMessage(message.getId());
+            loadMessages();
+        } catch (ApiException ignored) {
+        }
     }
 
 
@@ -195,12 +306,56 @@ public class ChatController implements Initializable {
     protected void onSendMessage() {
         if (selectedPartnerId == null || messageField == null) return;
         String text = messageField.getText();
-        if (text == null || text.isBlank()) return;
+        boolean hasText = text != null && !text.isBlank();
+        boolean hasImage = pendingImageBytes != null && pendingImageBytes.length > 0;
+        if (!hasText && !hasImage) return;
         try {
-            ApiService.getInstance().sendMessage(selectedPartnerId, text.trim());
+            String imageUrl = null;
+            if (hasImage) {
+                String path = ImageSelectionSupport.buildStoragePath(ApiService.getInstance().getCurrentUserId(), pendingImageExtension);
+                imageUrl = ApiService.getInstance().uploadToStorage("chat-images", path, pendingImageBytes, pendingImageContentType);
+            }
+            ApiService.getInstance().sendMessage(selectedPartnerId, hasText ? text.trim() : "", imageUrl);
             messageField.clear();
+            clearPendingImage();
             loadMessages();
         } catch (ApiException ignored) {}
+    }
+
+    @FXML
+    protected void onAttachImage() {
+        Stage stage = messagesVBox != null && messagesVBox.getScene() != null
+            ? (Stage) messagesVBox.getScene().getWindow()
+            : null;
+        ImageSelectionSupport.SelectedImage selected = ImageSelectionSupport.chooseImage(stage, "Select Chat Image");
+        if (selected == null) return;
+
+        pendingImageBytes = selected.getBytes();
+        pendingImageExtension = selected.getExtension();
+        pendingImageContentType = selected.getContentType();
+        if (messagePreviewImage != null) messagePreviewImage.setImage(selected.getPreview());
+        if (messagePreviewLabel != null) messagePreviewLabel.setText(selected.getFileName());
+        if (messagePreviewBox != null) {
+            messagePreviewBox.setManaged(true);
+            messagePreviewBox.setVisible(true);
+        }
+    }
+
+    @FXML
+    protected void onRemoveImage() {
+        clearPendingImage();
+    }
+
+    private void clearPendingImage() {
+        pendingImageBytes = null;
+        pendingImageExtension = "png";
+        pendingImageContentType = "image/png";
+        if (messagePreviewImage != null) messagePreviewImage.setImage(null);
+        if (messagePreviewLabel != null) messagePreviewLabel.setText("");
+        if (messagePreviewBox != null) {
+            messagePreviewBox.setManaged(false);
+            messagePreviewBox.setVisible(false);
+        }
     }
 
     private void scrollToBottom() {

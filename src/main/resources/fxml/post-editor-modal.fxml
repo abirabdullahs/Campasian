@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
@@ -66,6 +67,25 @@
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="JPG, PNG · Max 5 MB" styleClass="post-attach-hint"/>
         </HBox>
+
+        <VBox fx:id="imagePreviewBox"
+              spacing="10"
+              visible="false"
+              managed="false"
+              styleClass="post-image-preview-box">
+            <ImageView fx:id="imagePreview"
+                       fitWidth="420"
+                       fitHeight="280"
+                       preserveRatio="true"
+                       smooth="true"
+                       styleClass="post-image-preview"/>
+            <HBox alignment="CENTER_RIGHT">
+                <Button fx:id="removeImageBtn"
+                        text="Remove image"
+                        styleClass="btn-ghost"
+                        onAction="#onRemoveImage"/>
+            </HBox>
+        </VBox>
     </VBox>
 
     <Separator styleClass="post-divider"/>

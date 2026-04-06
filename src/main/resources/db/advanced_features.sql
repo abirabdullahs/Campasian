@@ -8,6 +8,7 @@
 -- -----------------------------------------------------------------------------
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE public.posts ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- -----------------------------------------------------------------------------
 -- 2. NOTIFICATIONS: Add read_at for Mark as Read, extend types
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS public.messages (
     sender_id   UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     receiver_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     content     TEXT NOT NULL,
+    image_url   TEXT,
     created_at  TIMESTAMPTZ DEFAULT now()
 );
 
@@ -87,11 +89,24 @@ CREATE POLICY "Users can send messages"
     ON public.messages FOR INSERT TO authenticated
     WITH CHECK (auth.uid() = sender_id);
 
+DROP POLICY IF EXISTS "Users can update own messages" ON public.messages;
+CREATE POLICY "Users can update own messages"
+    ON public.messages FOR UPDATE TO authenticated
+    USING (auth.uid() = sender_id)
+    WITH CHECK (auth.uid() = sender_id);
+
+DROP POLICY IF EXISTS "Users can delete own messages" ON public.messages;
+CREATE POLICY "Users can delete own messages"
+    ON public.messages FOR DELETE TO authenticated
+    USING (auth.uid() = sender_id);
+
 -- -----------------------------------------------------------------------------
 -- STORAGE BUCKETS (Supabase Dashboard: Storage -> New bucket)
 -- 1. Create bucket "avatars" - Public
 -- 2. Create bucket "post-images" - Public
--- 3. RLS Policies (Storage): Allow authenticated to upload/update/delete own files
+-- 3. Create bucket "chat-images" - Public
+-- 4. RLS Policies (Storage): Allow authenticated to upload/update/delete own files
 --    avatars: (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)
 --    post-images: (bucket_id = 'post-images' AND auth.role() = 'authenticated')
+--    chat-images: (bucket_id = 'chat-images' AND auth.role() = 'authenticated')
 -- -----------------------------------------------------------------------------
