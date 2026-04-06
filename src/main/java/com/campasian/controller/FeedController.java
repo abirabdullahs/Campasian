@@ -284,16 +284,35 @@ public class FeedController implements Initializable {
                 commentBtn.setText("💬 " + (comments.size() > 0 ? String.valueOf(comments.size()) : ""));
             }
             for (Comment c : comments) {
-                String line = (c.getUserName() != null ? c.getUserName() : "Anonymous") + ": "
-                    + (c.getContent() != null ? c.getContent() : "");
-                Label lbl = new Label(line);
-                lbl.getStyleClass().add("comment-text");
-                lbl.setWrapText(true);
-                Label time = new Label(formatCreatedAt(c.getCreatedAt()));
-                time.getStyleClass().add("post-meta");
-                VBox commentCard = new VBox(2);
+                String userName = c.getUserName() != null ? c.getUserName() : "Anonymous";
+                String content = c.getContent() != null ? c.getContent() : "";
+                String timeStr = formatCreatedAt(c.getCreatedAt());
+
+                String avatarText = userName.isBlank() ? "?" : userName.substring(0, 1).toUpperCase();
+                Label avatarLabel = new Label(avatarText);
+                avatarLabel.getStyleClass().add("comment-avatar");
+                avatarLabel.setMinSize(32, 32);
+                avatarLabel.setPrefSize(32, 32);
+                avatarLabel.setMaxSize(32, 32);
+                avatarLabel.setAlignment(javafx.geometry.Pos.CENTER);
+
+                Label userLabel = new Label(userName);
+                userLabel.getStyleClass().add("comment-author");
+
+                Label timeLabel = new Label(timeStr);
+                timeLabel.getStyleClass().addAll("comment-time", "post-meta");
+
+                HBox headerRow = new HBox(8);
+                headerRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                headerRow.getChildren().addAll(avatarLabel, userLabel, timeLabel);
+
+                Label textLabel = new Label(content);
+                textLabel.getStyleClass().add("comment-text");
+                textLabel.setWrapText(true);
+
+                VBox commentCard = new VBox(6);
                 commentCard.getStyleClass().add("comment-card");
-                commentCard.getChildren().addAll(lbl, time);
+                commentCard.getChildren().addAll(headerRow, textLabel);
                 container.getChildren().add(commentCard);
             }
         } catch (ApiException e) {

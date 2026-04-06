@@ -419,6 +419,27 @@
     -fx-padding: 10 12;
 }
 
+.comment-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #667eea, #4f46e5);
+    -fx-background-radius: 999px;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(79, 70, 229, 0.24), 6, 0.12, 0, 2);
+}
+
+.comment-author {
+    -fx-text-fill: #111827;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.comment-time {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 11px;
+}
+
 .comment-text {
     -fx-font-size: 13px;
     -fx-text-fill: #111827;
