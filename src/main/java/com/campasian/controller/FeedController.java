@@ -29,6 +29,8 @@ import java.net.URL;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -95,11 +97,26 @@ public class FeedController implements Initializable {
         new Thread(() -> {
             try {
                 List<Post> posts = ApiService.getInstance().getFeed(feedFollowingOnly);
+                
+                // Sort posts by date (newest first) then shuffle within groups for variety
+                posts.sort((p1, p2) -> {
+                    try {
+                        OffsetDateTime d1 = OffsetDateTime.parse(p1.getCreatedAt());
+                        OffsetDateTime d2 = OffsetDateTime.parse(p2.getCreatedAt());
+                        return d2.compareTo(d1); // Newest first
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                });
+                
+                // Shuffle posts in groups to add variety while keeping new posts visible
+                List<Post> shuffledPosts = shufflePostsWithPriority(posts);
+                
                 Platform.runLater(() -> {
                     if (feedVBox == null) return;
                     feedVBox.getChildren().clear();
                     int postCount = 0;
-                    for (Post post : posts) {
+                    for (Post post : shuffledPosts) {
                         feedVBox.getChildren().add(buildPostCard(post));
                         postCount++;
                         // Add user suggestions every 20-25 posts
@@ -122,6 +139,52 @@ public class FeedController implements Initializable {
                 });
             }
         }).start();
+    }
+
+    private List<Post> shufflePostsWithPriority(List<Post> posts) {
+        if (posts.size() <= 1) return posts;
+        
+        List<Post> result = new ArrayList<>();
+        
+        // Divide posts into groups: newest (first 30%), middle (next 40%), older (last 30%)
+        int newSize = Math.max(1, posts.size() / 3);
+        int middleSize = Math.max(1, (posts.size() * 2) / 3) - newSize;
+        
+        List<Post> newest = new ArrayList<>(posts.subList(0, newSize));
+        List<Post> middle = new ArrayList<>(posts.subList(newSize, newSize + middleSize));
+        List<Post> older = new ArrayList<>(posts.subList(newSize + middleSize, posts.size()));
+        
+        // Shuffle middle and older, but keep newest mostly in order
+        Collections.shuffle(middle);
+        Collections.shuffle(older);
+        
+        // Interleave: 2 newest, 1-2 middle, 1 older, repeat
+        int newestIdx = 0, middleIdx = 0, olderIdx = 0;
+        
+        while (newestIdx < newest.size() || middleIdx < middle.size() || olderIdx < older.size()) {
+            // Add 2 newest posts
+            if (newestIdx < newest.size()) {
+                result.add(newest.get(newestIdx++));
+            }
+            if (newestIdx < newest.size()) {
+                result.add(newest.get(newestIdx++));
+            }
+            
+            // Add 1-2 middle posts
+            if (middleIdx < middle.size()) {
+                result.add(middle.get(middleIdx++));
+            }
+            if (middleIdx < middle.size() && Math.random() > 0.5) {
+                result.add(middle.get(middleIdx++));
+            }
+            
+            // Add 1 older post
+            if (olderIdx < older.size()) {
+                result.add(older.get(olderIdx++));
+            }
+        }
+        
+        return result;
     }
 
     private VBox buildPostCard(Post post) {
