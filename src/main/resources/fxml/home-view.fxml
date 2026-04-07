@@ -44,6 +44,13 @@
 
                 <Button fx:id="feedBtn" text="Feed" styleClass="sidebar-btn" onAction="#onFeedClick" maxWidth="Infinity"/>
                 <Button fx:id="peopleBtn" text="People" styleClass="sidebar-btn" onAction="#onPeopleClick" maxWidth="Infinity"/>
+                <Button fx:id="friendListBtn" text="Friends" styleClass="sidebar-btn" onAction="#onFriendListClick" maxWidth="Infinity"/>
+                
+                <StackPane maxWidth="Infinity">
+                    <Button fx:id="friendRequestsBtn" text="Friend Requests" styleClass="sidebar-btn" onAction="#onFriendRequestsClick" maxWidth="Infinity"/>
+                    <Label fx:id="friendRequestBadge" text="●" styleClass="sidebar-badge" alignment="TOP_RIGHT"
+                           visible="false" managed="false"/>
+                </StackPane>
                 <Button fx:id="communityBtn" text="Community" styleClass="sidebar-btn" onAction="#onCommunityClick" maxWidth="Infinity"/>
                 <Button fx:id="marketplaceBtn" text="Marketplace" styleClass="sidebar-btn" onAction="#onMarketplaceClick" maxWidth="Infinity"/>
                 <Button fx:id="lostFoundBtn" text="Lost &amp; Found" styleClass="sidebar-btn" onAction="#onLostFoundClick" maxWidth="Infinity"/>
@@ -53,8 +60,19 @@
                 <Button fx:id="eventsBtn" text="Events" styleClass="sidebar-btn" onAction="#onEventsClick" maxWidth="Infinity"/>
                 <Button fx:id="studyPartnerBtn" text="Study Partner" styleClass="sidebar-btn" onAction="#onStudyPartnerClick" maxWidth="Infinity"/>
                 <Button fx:id="facultyBtn" text="Faculty" styleClass="sidebar-btn" onAction="#onFacultyClick" maxWidth="Infinity"/>
-                <Button fx:id="notificationsBtn" text="Notifications" styleClass="sidebar-btn" onAction="#onNotificationsClick" maxWidth="Infinity"/>
-                <Button fx:id="chatBtn" text="Messages" styleClass="sidebar-btn" onAction="#onChatClick" maxWidth="Infinity"/>
+                
+                <StackPane maxWidth="Infinity">
+                    <Button fx:id="notificationsBtn" text="Notifications" styleClass="sidebar-btn" onAction="#onNotificationsClick" maxWidth="Infinity"/>
+                    <Label fx:id="notificationBadge" text="●" styleClass="sidebar-badge" alignment="TOP_RIGHT"
+                           visible="false" managed="false"/>
+                </StackPane>
+                
+                <StackPane maxWidth="Infinity">
+                    <Button fx:id="chatBtn" text="Messages" styleClass="sidebar-btn" onAction="#onChatClick" maxWidth="Infinity"/>
+                    <Label fx:id="messageBadge" text="●" styleClass="sidebar-badge" alignment="TOP_RIGHT"
+                           visible="false" managed="false"/>
+                </StackPane>
+                
                 <Button fx:id="myProfileBtn" text="My Profile" styleClass="sidebar-btn" onAction="#onMyProfileClick" maxWidth="Infinity"/>
 
                 <Separator styleClass="sidebar-divider"/>

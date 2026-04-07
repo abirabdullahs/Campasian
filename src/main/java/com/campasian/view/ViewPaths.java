@@ -15,6 +15,8 @@ public final class ViewPaths {
     /** Sub-views loaded into Home content area */
     public static final String FEED_VIEW = "/fxml/feed-view.fxml";
     public static final String PEOPLE_VIEW = "/fxml/people-view.fxml";
+    public static final String FRIEND_LIST_VIEW = "/fxml/friend-list-view.fxml";
+    public static final String FRIEND_REQUESTS_VIEW = "/fxml/friend-requests-view.fxml";
     public static final String PROFILE_VIEW = "/fxml/profile-view.fxml";
     public static final String NOTIFICATIONS_VIEW = "/fxml/notifications-view.fxml";
     public static final String CHAT_VIEW = "/fxml/chat-view.fxml";

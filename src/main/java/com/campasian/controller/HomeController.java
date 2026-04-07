@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.StackPane;
 
@@ -28,6 +29,8 @@ public class HomeController implements Initializable {
     @FXML private VBox loadingOverlay;
     @FXML private Button feedBtn;
     @FXML private Button peopleBtn;
+    @FXML private Button friendListBtn;
+    @FXML private Button friendRequestsBtn;
     @FXML private Button communityBtn;
     @FXML private Button marketplaceBtn;
     @FXML private Button lostFoundBtn;
@@ -41,6 +44,9 @@ public class HomeController implements Initializable {
     @FXML private Button chatBtn;
     @FXML private Button myProfileBtn;
     @FXML private Button settingsBtn;
+    @FXML private Label messageBadge;
+    @FXML private Label notificationBadge;
+    @FXML private Label friendRequestBadge;
 
     private static final String SIDEBAR_ACTIVE = "sidebar-btn-active";
 
@@ -81,6 +87,19 @@ public class HomeController implements Initializable {
     protected void onPeopleClick() {
         loadView(ViewPaths.PEOPLE_VIEW);
         updateSidebarActive(peopleBtn);
+    }
+
+    @FXML
+    protected void onFriendListClick() {
+        loadView(ViewPaths.FRIEND_LIST_VIEW);
+        updateSidebarActive(friendListBtn);
+    }
+
+    @FXML
+    protected void onFriendRequestsClick() {
+        loadView(ViewPaths.FRIEND_REQUESTS_VIEW);
+        updateSidebarActive(friendRequestsBtn);
+        hideFriendRequestBadge();
     }
 
     @FXML
@@ -198,6 +217,8 @@ public class HomeController implements Initializable {
     private void clearSidebarActive() {
         if (feedBtn != null) feedBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (peopleBtn != null) peopleBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (friendListBtn != null) friendListBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+        if (friendRequestsBtn != null) friendRequestsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (communityBtn != null) communityBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (marketplaceBtn != null) marketplaceBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (lostFoundBtn != null) lostFoundBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
@@ -211,5 +232,47 @@ public class HomeController implements Initializable {
         if (chatBtn != null) chatBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (myProfileBtn != null) myProfileBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
         if (settingsBtn != null) settingsBtn.getStyleClass().remove(SIDEBAR_ACTIVE);
+    }
+
+    public void showMessageBadge() {
+        if (messageBadge != null) {
+            messageBadge.setVisible(true);
+            messageBadge.setManaged(true);
+        }
+    }
+
+    public void hideMessageBadge() {
+        if (messageBadge != null) {
+            messageBadge.setVisible(false);
+            messageBadge.setManaged(false);
+        }
+    }
+
+    public void showNotificationBadge() {
+        if (notificationBadge != null) {
+            notificationBadge.setVisible(true);
+            notificationBadge.setManaged(true);
+        }
+    }
+
+    public void hideNotificationBadge() {
+        if (notificationBadge != null) {
+            notificationBadge.setVisible(false);
+            notificationBadge.setManaged(false);
+        }
+    }
+
+    public void showFriendRequestBadge() {
+        if (friendRequestBadge != null) {
+            friendRequestBadge.setVisible(true);
+            friendRequestBadge.setManaged(true);
+        }
+    }
+
+    public void hideFriendRequestBadge() {
+        if (friendRequestBadge != null) {
+            friendRequestBadge.setVisible(false);
+            friendRequestBadge.setManaged(false);
+        }
     }
 }

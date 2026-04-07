@@ -159,6 +159,14 @@ VBox > .sidebar-divider {
     -fx-text-fill:        #f87171;
 }
 
+/* Notification badge styles */
+.sidebar-badge {
+    -fx-font-size: 16;
+    -fx-text-fill: #ef4444;
+    -fx-padding: 4 8 0 0;
+    -fx-font-weight: bold;
+}
+
 /* ════════════════════
    MAIN CONTENT AREA
 ════════════════════ */
