@@ -653,20 +653,7 @@ docs: Update README with examples
 4.  Push to branch (`git push origin feature/amazing-feature`)
 5.  Open a Pull Request
 
----
 
-##  Documentation
-
-###  User Guide
-See [USERGUIDE.md](./USERGUIDE.md) for detailed user documentation.
-
-###  Developer Guide
-See [DEVGUIDE.md](./DEVGUIDE.md) for API and architecture details.
-
-###  Design System
-See [DESIGN.md](./DESIGN.md) for UI/UX specifications.
-
----
 
 ##  Known Issues
 
@@ -683,9 +670,9 @@ See [DESIGN.md](./DESIGN.md) for UI/UX specifications.
 ##  Support & Feedback
 
 ###  Getting Help
-- Email: support@campasian.com
+- Email: contact@abirabdullah.me
 - Discord: [Join our community](https://discord.gg/campasian)
-- Issues: [GitHub Issues](https://github.com/yourusername/campasian/issues)
+- Issues: [GitHub Issues](https://github.com/abirabdullahs/campasian)
 
 ### Feature Requests
 Have an idea? [Submit a feature request](https://github.com/yourusername/campasian/discussions)
