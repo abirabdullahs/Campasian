@@ -1,4 +1,4 @@
-# 🎓 Campasian - Campus Social Network
+# Campasian - Campus Social Network
 
 <div align="center">
 
@@ -17,39 +17,39 @@ A modern, high-fidelity desktop application for campus social networking, built 
 
 ---
 
-## ✨ Overview
+## Overview
 
 Campasian is a sophisticated desktop application that transforms campus connectivity through a clean, professional social networking platform. Built for students to create posts, follow peers, engage in discussions, and stay updated with campus life—all in a beautiful, Modern interface inspired by leading design systems.
 
-### 🎯 Vision
+### Vision
 Create a thriving campus community where students can:
-- **Share** academic proposals and campus insights
-- **Connect** with peers across departments  
-- **Engage** through likes, comments, and discussions
-- **Stay Informed** with real-time notifications
-- **Discover** trending campus topics
+- Share academic proposals and campus insights
+- Connect with peers across departments  
+- Engage through likes, comments, and discussions
+- Stay Informed with real-time notifications
+- Discover trending campus topics
 
 ---
 
 ## 🚀 Features
 
-### 📱 Core Features
-- ✅ **User Authentication** - Secure sign-up and login with email verification
-- ✅ **Feed & Timeline** - Global and personalized feed with infinite scroll
-- ✅ **Post Creation** - Beautiful modal for sharing thoughts and proposals
-- ✅ **Social Interactions** - Like, comment, and engage with community posts
-- ✅ **User Profiles** - Complete profile management with university info
-- ✅ **Follow System** - Build your network by following peers
-- ✅ **Notifications** - Real-time alerts for engagement and interactions
-- ✅ **University Directory** - Search and connect with students from any university
+### Core Features
+- User Authentication - Secure sign-up and login with email verification
+- Feed & Timeline - Global and personalized feed with infinite scroll
+- Post Creation - Beautiful modal for sharing thoughts and proposals
+- Social Interactions - Like, comment, and engage with community posts
+- User Profiles - Complete profile management with university info
+- Follow System - Build your network by following peers
+- Notifications - Real-time alerts for engagement and interactions
+- University Directory - Search and connect with students from any university
 
-### 🎨 UI/UX Excellence
-- 🎯 **Shadcn/UI Inspired** - Clean, modern design language
-- 💎 **Professional Aesthetics** - Linear.app style interface
-- 🌍 **Responsive Layout** - Adaptive design for all screen sizes
-- 🎪 **Dark & Light States** - Beautiful empty states and loading states
-- ⚡ **Smooth Interactions** - Subtle animations and hover effects
-- 🎨 **Modern Color Palette** - Electric blue accents with soft backgrounds
+### UI/UX Excellence
+- Shadcn/UI Inspired - Clean, modern design language
+- Professional Aesthetics - Linear.app style interface
+- Responsive Layout - Adaptive design for all screen sizes
+- Beautiful States - Empty states and loading states
+- Smooth Interactions - Subtle animations and hover effects
+- Modern Color Palette - Electric blue accents with soft backgrounds
 
 ---
 
@@ -59,14 +59,14 @@ Create a thriving campus community where students can:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Campasian Stack                    │
+│              Campasian Tech Stack                  │
 ├─────────────────────────────────────────────────────┤
-│  Frontend       │ JavaFX 21 + FXML                  │
-│  Styling        │ CSS (Shadcn-inspired)             │
-│  Backend        │ Supabase / PostgreSQL             │
-│  Authentication │ Supabase Auth                     │
-│  Build Tool     │ Gradle                            │
-│  Java Version   │ Java 21+                          │
+│  Frontend       │ JavaFX 21 + FXML              │
+│  Styling        │ CSS (Shadcn-inspired)         │
+│  Backend        │ Supabase / PostgreSQL         │
+│  Authentication │ Supabase Auth                 │
+│  Build Tool     │ Gradle                        │
+│  Java Version   │ Java 21+                      │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -114,7 +114,7 @@ demo/
 
 ### Design System
 
-#### **Color Palette**
+#### Color Palette
 ```
 Primary Background    #F9FAFB    (Soft Gray)
 Surface              #FFFFFF    (Clean White)
@@ -125,34 +125,34 @@ Border Color         #E4E4E7    (Light Gray)
 Error Color          #EF4444    (Red)
 ```
 
-#### **Typography**
-- **Font Stack**: Inter, Poppins, Segoe UI, system-ui, sans-serif
-- **Headings**: 700 weight bold (28px-20px)
-- **Body**: 400 weight regular (14px)
-- **Labels**: 500 weight medium (12px-13px)
+#### Typography
+- Font Stack: Inter, Poppins, Segoe UI, system-ui, sans-serif
+- Headings: 700 weight bold (28px-20px)
+- Body: 400 weight regular (14px)
+- Labels: 500 weight medium (12px-13px)
 
-#### **Component Design**
+#### Component Design
 
-**Cards & Containers**
+Cards & Containers
 - Border Radius: 8px
 - Padding: 20px
 - Box Shadow: `0 0 rgba(0,0,0,0.08) 4px blur`
 - Hover Effect: Enhanced shadow on interaction
 
-**Buttons**
+Buttons
 - Primary: Deep black (#18181B) with white text
 - Secondary: Transparent border with hover background
 - Border Radius: 8px
 - Padding: 11px 24px
 - Focus State: Blue glow effect
 
-**Inputs & TextAreas**
+Inputs & TextAreas
 - Border Color: #E4E4E7
 - Focus Border: #3B82F6 with electric glow
 - Border Radius: 8px
 - Padding: 12px 16px
 
-**Sidebar Navigation**
+Sidebar Navigation
 - Background: #FFFFFF
 - Active State: 2px left border with light background
 - User Card: Circular avatar with name below
@@ -160,45 +160,45 @@ Error Color          #EF4444    (Red)
 
 ---
 
-## 📋 Key Pages & Features
+## Key Pages & Features
 
-### 🏠 **Home**
+### Home
 - Clean sidebar navigation with user profile mini-card
 - Dynamic content area for sub-views
 - Floating user profile at bottom of sidebar
 
-### 📰 **Feed**
+### Feed
 - Create post button with beautiful modal
 - Global/Following filter tabs with active state underline
 - Trending Topics sidebar (right panel)
 - Post cards with engagement metrics
 - Smooth scrolling experience
 
-### 👤 **Profile**
+### Profile
 - Cover photo section (140px hero image)
 - Profile stats (Followers, Following)
 - University & student information
 - Editable user details
 
-### 🔔 **Notifications**
+### Notifications
 - Beautiful empty state: "All caught up!"
 - Notification cards with metadata
 - Smooth transitions
 - Clear visual hierarchy
 
-### 🎯 **Community**
+### Community
 - Campus groups and communities
 - Easy discovery interface
 - Future expansion ready
 
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
-- **Java 21** or higher
-- **Gradle 8.0+**
-- **Git** (for version control)
+- Java 21 or higher
+- Gradle 8.0+
+- Git (for version control)
 
 ### Clone the Repository
 ```bash
@@ -229,24 +229,24 @@ Or execute the main class directly:
 
 ---
 
-## 📝 Usage Guide
+## Usage Guide
 
 ### Getting Started
 
-1. **Launch Application**
+1. Launch Application
    - Run the app and login screen appears
    - Create an account or sign in with credentials
 
-2. **Complete Your Profile**
+2. Complete Your Profile
    - Fill in full name, university, student ID
    - Add profile picture (avatar auto-generated with initials)
 
-3. **Explore the Feed**
+3. Explore the Feed
    - View global posts or switch to following feed
    - Create posts using the "What's on your mind?" button
    - Like and comment on posts you find interesting
 
-4. **Connect with Others**
+4. Connect with Others
    - Visit profiles to see user details
    - Follow/unfollow users
    - Check notifications for new interactions
@@ -258,29 +258,29 @@ Or execute the main class directly:
 
 ---
 
-## 🎯 Design Inspiration
+## Design Inspiration
 
 Campasian draws design inspiration from:
-- **[Shadcn/UI](https://ui.shadcn.com/)** - Component architecture and styling patterns
-- **[Linear.app](https://linear.app/)** - Professional minimalism and polish
-- **Modern Web Design** - Clean aesthetics adapted for desktop
+- Shadcn/UI - Component architecture and styling patterns
+- Linear.app - Professional minimalism and polish
+- Modern Web Design - Clean aesthetics adapted for desktop
 
-### Design Goals Achieved ✅
-- ✓ Clean sans-serif typography throughout
-- ✓ Consistent color palette implementation
-- ✓ Subtle box shadows (0 1px 3px rgba)
-- ✓ Active state indicators with 2px borders
-- ✓ User profile mini-card in sidebar
-- ✓ Trending topics sidebar on feed
-- ✓ Cover photo section in profile
-- ✓ Beautiful empty state messaging
-- ✓ Rounded corners (8px) on all components
-- ✓ Focus/hover effects with smooth transitions
-- ✓ Proper spacing and alignment grid (8px)
+### Design Goals Achieved
+- Clean sans-serif typography throughout
+- Consistent color palette implementation
+- Subtle box shadows (0 1px 3px rgba)
+- Active state indicators with 2px borders
+- User profile mini-card in sidebar
+- Trending topics sidebar on feed
+- Cover photo section in profile
+- Beautiful empty state messaging
+- Rounded corners (8px) on all components
+- Focus/hover effects with smooth transitions
+- Proper spacing and alignment grid (8px)
 
 ---
 
-## 🔐 Security & Data
+## Security & Data
 
 ### Authentication
 - Email-based user authentication
@@ -296,7 +296,9 @@ Campasian draws design inspiration from:
 
 ---
 
-## 📊 Database Schema
+---
+
+## Database Schema
 
 ```sql
 -- Users Table
@@ -359,7 +361,7 @@ notifications {
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Tests
 ```bash
@@ -373,17 +375,17 @@ notifications {
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how:
 
-### Code Style
-- Follow Google Java Style Guide
-- Use meaningful variable names
-- Add JavaDoc comments for public methods
-- Keep methods focused and testable
+###  Code Style
+-  Follow Google Java Style Guide
+-  Use meaningful variable names
+-  Add JavaDoc comments for public methods
+-  Keep methods focused and testable
 
-### Commit Messages
+###  Commit Messages
 ```
 feat: Add trending topics sidebar
 fix: Correct empty state display logic
@@ -391,81 +393,60 @@ refactor: Simplify profile card styling
 docs: Update README with examples
 ```
 
-### Pull Request Process
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+###  Pull Request Process
+1.  Fork the repository
+2.  Create a feature branch (`git checkout -b feature/amazing-feature`)
+3.  Commit changes (`git commit -m 'Add amazing feature'`)
+4.  Push to branch (`git push origin feature/amazing-feature`)
+5.  Open a Pull Request
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
-### User Guide
+###  User Guide
 See [USERGUIDE.md](./USERGUIDE.md) for detailed user documentation.
 
-### Developer Guide
+###  Developer Guide
 See [DEVGUIDE.md](./DEVGUIDE.md) for API and architecture details.
 
-### Design System
+###  Design System
 See [DESIGN.md](./DESIGN.md) for UI/UX specifications.
 
 ---
 
-## 🐛 Known Issues
+##  Known Issues
 
-| Issue | Status | Notes |
+|  Issue | Status |  Notes |
 |-------|--------|-------|
-| Community page coming soon | Planned | Full implementation in v1.1 |
-| Settings page partial | In Progress | Will add user preferences |
-| Image uploads | Planned | Including profile & post images |
-| Real-time notifications | Planned | WebSocket integration |
+|  Community page coming soon |  Planned | Full implementation in v1.1 |
+|  Settings page partial |  In Progress | Will add user preferences |
+|  Image uploads |  Planned | Including profile & post images |
+|  Real-time notifications |  Planned | WebSocket integration |
 
 ---
 
-## 📈 Roadmap
 
-### v1.1 (Next Quarter)
-- [ ] Community groups feature
-- [ ] Advanced search & filtering
-- [ ] Direct messaging
-- [ ] Media uploads
+##  Support & Feedback
 
-### v1.2
-- [ ] Dark mode toggle
-- [ ] User preferences & settings
-- [ ] Post scheduling
-- [ ] Analytics dashboard
-
-### v2.0
-- [ ] Mobile app (iOS/Android)
-- [ ] Web version
-- [ ] Advanced recommendation engine
-- [ ] Event management system
-
----
-
-## 📞 Support & Feedback
-
-### Getting Help
-- 📧 Email: support@campasian.com
-- 💬 Discord: [Join our community](https://discord.gg/campasian)
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/campasian/issues)
+###  Getting Help
+- Email: support@campasian.com
+- Discord: [Join our community](https://discord.gg/campasian)
+- Issues: [GitHub Issues](https://github.com/yourusername/campasian/issues)
 
 ### Feature Requests
 Have an idea? [Submit a feature request](https://github.com/yourusername/campasian/discussions)
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License** - see [LICENSE](LICENSE) file for details.
 
 ```
-MIT License
+MIT License ©️
 
-Copyright (c) 2026 Campasian Contributors
+Copyright (c) 2026 Campasian Contributors 🎓
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files...
@@ -473,7 +454,7 @@ of this software and associated documentation files...
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **JavaFX Community** - For the excellent framework
 - **Supabase** - Backend services
@@ -482,15 +463,15 @@ of this software and associated documentation files...
 
 ---
 
-## 👨‍💻 Authors
+## Authors
 
--[@Abir Abdullah](https://github.com/abirabdullahs) - Initial work
+[Abir Abdullah](https://github.com/abirabdullahs) - Initial work
 
 ---
 
 <div align="center">
 
-### Made with ❤️ for the Campus Community
+### Made with Java-FX for the Campus Community
 
 ⭐ **Star this repo** if you find it helpful!
 
