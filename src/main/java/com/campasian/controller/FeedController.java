@@ -46,6 +46,10 @@ public class FeedController implements Initializable {
     private static final String FEED_FILTER_ACTIVE = "feed-filter-active";
     private boolean feedFollowingOnly = false;
 
+    private static final int POSTS_PER_PAGE = 30;
+    private List<Post> cachedPosts = new ArrayList<>();
+    private int postsLoaded = 0;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadFeed();
@@ -93,41 +97,30 @@ public class FeedController implements Initializable {
     public void loadFeed() {
         if (feedVBox == null) return;
         feedVBox.getChildren().clear();
+        postsLoaded = 0;
+        cachedPosts.clear();
 
         new Thread(() -> {
             try {
                 List<Post> posts = ApiService.getInstance().getFeed(feedFollowingOnly);
                 
-                // Sort posts by date (newest first) then shuffle within groups for variety
+                // Sort by date (newest first)
                 posts.sort((p1, p2) -> {
                     try {
                         OffsetDateTime d1 = OffsetDateTime.parse(p1.getCreatedAt());
                         OffsetDateTime d2 = OffsetDateTime.parse(p2.getCreatedAt());
-                        return d2.compareTo(d1); // Newest first
+                        return d2.compareTo(d1);
                     } catch (Exception e) {
                         return 0;
                     }
                 });
                 
-                // Shuffle posts in groups to add variety while keeping new posts visible
-                List<Post> shuffledPosts = shufflePostsWithPriority(posts);
+                // Shuffle with priority
+                cachedPosts = shufflePostsWithPriority(posts);
                 
-                Platform.runLater(() -> {
-                    if (feedVBox == null) return;
-                    feedVBox.getChildren().clear();
-                    int postCount = 0;
-                    for (Post post : shuffledPosts) {
-                        feedVBox.getChildren().add(buildPostCard(post));
-                        postCount++;
-                        // Add user suggestions every 20-25 posts
-                        if (postCount % 25 == 0) {
-                            VBox suggestionCard = buildUserSuggestionCard();
-                            if (suggestionCard != null) {
-                                feedVBox.getChildren().add(suggestionCard);
-                            }
-                        }
-                    }
-                });
+                // Show first page immediately
+                displayPostsPage(0, POSTS_PER_PAGE);
+                
             } catch (ApiException e) {
                 Platform.runLater(() -> {
                     if (feedVBox != null) {
@@ -140,7 +133,37 @@ public class FeedController implements Initializable {
             }
         }).start();
     }
-
+    
+    private void displayPostsPage(int startIdx, int pageSize) {
+        Platform.runLater(() -> {
+            if (feedVBox == null) return;
+            
+            int endIdx = Math.min(startIdx + pageSize, cachedPosts.size());
+            int postCount = startIdx;
+            
+            for (int i = startIdx; i < endIdx; i++) {
+                feedVBox.getChildren().add(buildPostCard(cachedPosts.get(i)));
+                postCount++;
+                
+                // Add suggestion every 25 posts
+                if (postCount % 25 == 0 && i < endIdx - 1) {
+                    VBox suggestionCard = buildUserSuggestionCard();
+                    if (suggestionCard != null) {
+                        feedVBox.getChildren().add(suggestionCard);
+                    }
+                }
+            }
+            
+            postsLoaded = endIdx;
+        });
+    }
+    
+    public void loadMorePosts() {
+        if (postsLoaded < cachedPosts.size()) {
+            displayPostsPage(postsLoaded, POSTS_PER_PAGE);
+        }
+    }
+    
     private List<Post> shufflePostsWithPriority(List<Post> posts) {
         if (posts.size() <= 1) return posts;
         

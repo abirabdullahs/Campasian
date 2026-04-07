@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Minimal Supabase REST client for authentication.
@@ -53,6 +54,13 @@ public final class ApiService {
         .build();
 
     private static final ApiService INSTANCE = new ApiService();
+
+    // Caching for better performance
+    private final Map<String, UserProfile> profileCache = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> followingCache = new ConcurrentHashMap<>();
+    private final Map<String, String> friendStatusCache = new ConcurrentHashMap<>();
+    private static final long CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+    private final Map<String, Long> cacheTimestamp = new ConcurrentHashMap<>();
 
     private ApiService() {}
     private final Gson gson = new Gson();
@@ -130,13 +138,25 @@ public final class ApiService {
 
     /**
      * Fetches profile from /rest/v1/profiles?id=eq.{userId}.
-     * Returns null if not found or error.
+     * Returns null if not found or error. Uses caching for performance.
      */
     public UserProfile getProfile(String userId) throws ApiException {
         if (userId == null || userId.isBlank()) return null;
+
+        // Check cache first
+        if (isCacheValid(userId)) {
+            UserProfile cached = profileCache.get(userId);
+            if (cached != null) return cached;
+        }
+
         String url = restUrl("/profiles?id=eq." + userId);
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
-        return getJsonWithAuth(url, token);
+        UserProfile profile = getJsonWithAuth(url, token);
+        if (profile != null) {
+            profileCache.put(userId, profile);
+            cacheTimestamp.put(userId, System.currentTimeMillis());
+        }
+        return profile;
     }
 
     private UserProfile getJsonWithAuth(String url, String bearerToken) throws ApiException {
@@ -172,6 +192,13 @@ public final class ApiService {
                         p.setSession(asString(obj.get("session")));
                         p.setBatch(asString(obj.get("batch")));
                         p.setDepartment(asString(obj.get("department")));
+                        
+                        // Cache the profile
+                        if (p.getId() != null) {
+                            profileCache.put(p.getId(), p);
+                            cacheTimestamp.put(p.getId(), System.currentTimeMillis());
+                        }
+                        
                         return p;
                     }
                 }
@@ -2228,5 +2255,19 @@ public final class ApiService {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    // Cache utility methods
+    private boolean isCacheValid(String key) {
+        Long timestamp = cacheTimestamp.get(key);
+        if (timestamp == null) return false;
+        return (System.currentTimeMillis() - timestamp) < CACHE_DURATION;
+    }
+    
+    public void clearCache() {
+        profileCache.clear();
+        followingCache.clear();
+        friendStatusCache.clear();
+        cacheTimestamp.clear();
     }
 }
