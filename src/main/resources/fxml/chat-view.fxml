@@ -45,7 +45,7 @@
 
             <Separator styleClass="chat-divider"/>
 
-            <Label text="FRIENDS" styleClass="chat-section-label"/>
+            <Label text="CHATS" styleClass="chat-section-label"/>
 
             <ScrollPane fitToWidth="true"
                         styleClass="chat-scroll"

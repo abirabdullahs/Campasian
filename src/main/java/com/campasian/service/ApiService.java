@@ -34,8 +34,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -1183,6 +1185,41 @@ public final class ApiService {
         String url = restUrl("/messages?id=eq." + encodeQueryValue(messageId) + "&sender_id=eq." + currentUserId);
         String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
         patchJsonWithAuth(url, payload, token);
+    }
+
+    /**
+     * Fetches all users with whom the current user has exchanged messages.
+     */
+    public List<UserProfile> getChatPartners() throws ApiException {
+        if (currentUserId == null || currentUserId.isBlank()) return Collections.emptyList();
+        String url = restUrl("/messages?or=(sender_id.eq." + currentUserId + ",receiver_id.eq." + currentUserId + ")&select=sender_id,receiver_id");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return Collections.emptyList();
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return Collections.emptyList();
+            Set<String> partnerIds = new HashSet<>();
+            for (JsonElement el : parsed.getAsJsonArray()) {
+                if (el != null && el.isJsonObject()) {
+                    JsonObject o = el.getAsJsonObject();
+                    String sender = asString(o.get("sender_id"));
+                    String receiver = asString(o.get("receiver_id"));
+                    if (sender != null && !sender.equals(currentUserId)) partnerIds.add(sender);
+                    if (receiver != null && !receiver.equals(currentUserId)) partnerIds.add(receiver);
+                }
+            }
+            List<UserProfile> partners = new ArrayList<>();
+            for (String pid : partnerIds) {
+                UserProfile p = getProfile(pid);
+                if (p != null) partners.add(p);
+            }
+            return partners;
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            return Collections.emptyList();
+        }
     }
 
     public void deleteMessage(String messageId) throws ApiException {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="modalRoot"
+            prefHeight="500.0"
+            prefWidth="600.0"
+            styleClass="modal-container"
+            stylesheets="@../styles/app.css,@../styles/community.css"
+            xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="com.campasian.controller.CreateRoomModalController">
+
+    <center>
+        <VBox spacing="16" styleClass="modal-content">
+            <padding>
+                <Insets top="24" right="24" bottom="24" left="24"/>
+            </padding>
+            
+            <Label text="Create a New Community Room" styleClass="community-editor-title"/>
+            <Label text="Build a focused room for projects, clubs, and student-led discussions." 
+                   styleClass="community-editor-subtitle" 
+                   wrapText="true"/>
+
+            <VBox spacing="8">
+                <Label text="Room Name" styleClass="form-label"/>
+                <TextField fx:id="communityNameField" 
+                          promptText="Enter room name" 
+                          styleClass="community-input"/>
+            </VBox>
+
+            <VBox spacing="8" VBox.vgrow="ALWAYS">
+                <Label text="Description" styleClass="form-label"/>
+                <TextArea fx:id="communityDescriptionField"
+                         prefRowCount="6"
+                         promptText="Short description of the room"
+                         styleClass="community-textarea"
+                         wrapText="true"
+                         VBox.vgrow="ALWAYS"/>
+            </VBox>
+
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <Button fx:id="createCommunityButton" 
+                       text="Create Room" 
+                       styleClass="community-send-btn" 
+                       onAction="#onCreateRoomConfirm"/>
+                <Button fx:id="cancelButton" 
+                       text="Cancel" 
+                       styleClass="community-secondary-btn" 
+                       onAction="#onCancel"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

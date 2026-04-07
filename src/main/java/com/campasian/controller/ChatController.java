@@ -91,7 +91,7 @@ public class ChatController implements Initializable {
         hideCallOverlay();
         updateComposerState(false);
         showEmptyConversationState();
-        loadFriends();
+        loadChatPartners();
         pollExecutor.scheduleAtFixedRate(this::pollMessages, 2, 2, TimeUnit.SECONDS);
         String partnerId = NavigationContext.getChatPartnerUserId();
         String partnerName = NavigationContext.getChatPartnerName();
@@ -106,28 +106,28 @@ public class ChatController implements Initializable {
         );
     }
 
-    private void loadFriends() {
+    private void loadChatPartners() {
         if (friendsList == null) return;
         friendsList.getChildren().clear();
         new Thread(() -> {
             try {
-                List<UserProfile> friends = ApiService.getInstance().getFriends();
+                List<UserProfile> partners = ApiService.getInstance().getChatPartners();
                 Platform.runLater(() -> {
                     if (friendsList == null) return;
                     friendsList.getChildren().clear();
-                    for (UserProfile f : friends) {
-                        Label lbl = new Label(f.getFullName() != null ? f.getFullName() : "Unknown");
+                    for (UserProfile p : partners) {
+                        Label lbl = new Label(p.getFullName() != null ? p.getFullName() : "Unknown");
                         lbl.getStyleClass().add("chat-friend-item");
                         lbl.setWrapText(true);
                         lbl.setCursor(javafx.scene.Cursor.HAND);
                         lbl.setMaxWidth(Double.MAX_VALUE);
                         lbl.setAlignment(Pos.CENTER_LEFT);
-                        lbl.setUserData(f.getId());
-                        lbl.setOnMouseClicked(e -> selectPartner(f.getId(), f.getFullName()));
+                        lbl.setUserData(p.getId());
+                        lbl.setOnMouseClicked(e -> selectPartner(p.getId(), p.getFullName()));
                         friendsList.getChildren().add(lbl);
                     }
-                    if (friends.isEmpty()) {
-                        Label empty = new Label("No friends yet. Accept friend requests to chat.");
+                    if (partners.isEmpty()) {
+                        Label empty = new Label("No conversations yet. Start chatting with someone.");
                         empty.setWrapText(true);
                         friendsList.getChildren().add(empty);
                     }

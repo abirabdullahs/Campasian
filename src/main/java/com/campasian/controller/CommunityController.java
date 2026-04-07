@@ -14,9 +14,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -32,6 +34,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -49,8 +52,7 @@ public class CommunityController implements Initializable {
 
     @FXML private BorderPane communityRoot;
     @FXML private SplitPane communitySplitPane;
-    @FXML private VBox communityRightPanel;
-    @FXML private Button panelToggleButton;
+    @FXML private Button createRoomButton;
     @FXML private ListView<CommunityRoom> communityListView;
     @FXML private ListView<CommunityMessage> messageListView;
     @FXML private Label titleLabel;
@@ -61,12 +63,6 @@ public class CommunityController implements Initializable {
     @FXML private TextField messageField;
     @FXML private Button attachImageBtn;
     @FXML private Button sendButton;
-    @FXML private TextField communityNameField;
-    @FXML private TextArea communityDescriptionField;
-    @FXML private Label communityEditorLabel;
-    @FXML private Button createCommunityButton;
-    @FXML private Button saveCommunityButton;
-    @FXML private Button deleteCommunityButton;
 
     private byte[] pendingImageBytes;
     private String pendingImageExtension = "png";
@@ -79,7 +75,6 @@ public class CommunityController implements Initializable {
     private UserProfile currentUserProfile;
     private String currentUserId;
     private CommunityRoom selectedRoom;
-    private boolean rightPanelCollapsed;
     private boolean suppressSelectionHandler;
     private volatile boolean refreshInFlight;
     private Timeline refreshTimeline;
@@ -87,7 +82,7 @@ public class CommunityController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         if (communitySplitPane != null) {
-            communitySplitPane.setDividerPositions(0.24, 0.78);
+            communitySplitPane.setDividerPositions(0.24);
         }
         if (communityListView != null) {
             communityListView.setItems(availableRooms);
@@ -119,7 +114,6 @@ public class CommunityController implements Initializable {
                 }
             });
         }
-        resetCommunityEditor();
         loadCommunityData();
     }
 
@@ -148,6 +142,7 @@ public class CommunityController implements Initializable {
 
     @FXML
     protected void onSendClick() {
+        // ...existing send click logic...
         if (selectedRoom == null || currentUserProfile == null || messageField == null) return;
         String content = messageField.getText();
         boolean hasText = content != null && !content.isBlank();
@@ -182,70 +177,36 @@ public class CommunityController implements Initializable {
     }
 
     @FXML
-    protected void onCreateCommunityClick() {
-        if (currentUserProfile == null || communityNameField == null || communityDescriptionField == null) return;
-        String roomName = communityNameField.getText();
-        String description = communityDescriptionField.getText();
-        if (roomName == null || roomName.isBlank()) return;
+    protected void onCreateRoomClick() {
         try {
-            CommunityRoom room = communityService.createCustomRoom(
-                currentUserId,
-                currentUserProfile.getUniversityName(),
-                roomName.trim(),
-                description != null ? description.trim() : "",
-                approximateCommunitySize()
-            );
-            reloadRooms(room.getId());
-            resetCommunityEditor();
-        } catch (ApiException ignored) {
-        }
-    }
-
-    @FXML
-    protected void onSaveCommunityClick() {
-        if (selectedRoom == null || !communityService.canManage(selectedRoom, currentUserId)) return;
-        try {
-            CommunityRoom updated = communityService.updateCustomRoom(
-                selectedRoom.getId(),
-                currentUserId,
-                communityNameField != null ? communityNameField.getText() : null,
-                communityDescriptionField != null ? communityDescriptionField.getText() : null
-            );
-            if (updated != null) {
-                selectedRoom = updated;
-                reloadRooms(updated.getId());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/create-room-modal.fxml"));
+            BorderPane modalRoot = loader.load();
+            CreateRoomModalController controller = loader.getController();
+            
+            // Set callback to reload rooms when a new room is created
+            controller.setOnRoomCreated(this::reloadRoomsOnCreation);
+            
+            Scene modalScene = new Scene(modalRoot);
+            Stage modalStage = new Stage(StageStyle.DECORATED);
+            modalStage.setTitle("Create New Room");
+            modalStage.setScene(modalScene);
+            modalStage.setResizable(false);
+            
+            Stage mainStage = (Stage) communityRoot.getScene().getWindow();
+            if (mainStage != null) {
+                modalStage.initOwner(mainStage);
             }
-        } catch (ApiException ignored) {
+            
+            modalStage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Failed to load create room modal: " + e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
-    @FXML
-    protected void onDeleteCommunityClick() {
-        if (selectedRoom == null) return;
-        try {
-            if (communityService.deleteCustomRoom(selectedRoom.getId(), currentUserId)) {
-                selectedRoom = null;
-                resetCommunityEditor();
-                visibleMessages.clear();
-                reloadRooms(null);
-            }
-        } catch (ApiException ignored) {
-        }
-    }
-
-    @FXML
-    protected void onTogglePanelClick() {
-        rightPanelCollapsed = !rightPanelCollapsed;
-        if (communityRightPanel != null) {
-            communityRightPanel.setManaged(!rightPanelCollapsed);
-            communityRightPanel.setVisible(!rightPanelCollapsed);
-        }
-        if (communitySplitPane != null) {
-            communitySplitPane.setDividerPositions(rightPanelCollapsed ? 0.98 : 0.78);
-        }
-        if (panelToggleButton != null) {
-            panelToggleButton.setText(rightPanelCollapsed ? "Show Panel" : "Hide Panel");
-        }
+    private void reloadRoomsOnCreation() {
+        loadCommunityData();
     }
 
     @FXML
@@ -366,9 +327,6 @@ public class CommunityController implements Initializable {
                 ? "Custom community created by a student. You can edit or delete your own rooms."
                 : "Joined from your verified university and department profile.");
         if (sendButton != null) sendButton.setDisable(false);
-        if (updateEditor) {
-            populateCommunityEditor(room);
-        }
     }
 
     private void loadMessagesAsync(CommunityRoom room, boolean preserveScrollPosition) {
@@ -404,36 +362,6 @@ public class CommunityController implements Initializable {
             }
         }
         return false;
-    }
-
-    private void populateCommunityEditor(CommunityRoom room) {
-        if (communityNameField == null || communityDescriptionField == null) return;
-        boolean canManage = communityService.canManage(room, currentUserId);
-        if (room != null && room.isCustom()) {
-            communityNameField.setText(room.getName());
-            communityDescriptionField.setText(room.getDescription());
-        } else if (room == null || !room.isCustom()) {
-            communityNameField.clear();
-            communityDescriptionField.clear();
-        }
-        communityNameField.setDisable(!canManage && room != null && room.isCustom());
-        communityDescriptionField.setDisable(!canManage && room != null && room.isCustom());
-        if (communityEditorLabel != null) {
-            communityEditorLabel.setText(room != null && room.isCustom()
-                ? (canManage ? "Edit your custom community" : "Custom community details")
-                : "Create a new custom community");
-        }
-        if (saveCommunityButton != null) saveCommunityButton.setDisable(room == null || !canManage);
-        if (deleteCommunityButton != null) deleteCommunityButton.setDisable(room == null || !canManage);
-        if (createCommunityButton != null) createCommunityButton.setDisable(false);
-    }
-
-    private void resetCommunityEditor() {
-        if (communityNameField != null) communityNameField.clear();
-        if (communityDescriptionField != null) communityDescriptionField.clear();
-        if (communityEditorLabel != null) communityEditorLabel.setText("Create a new custom community");
-        if (saveCommunityButton != null) saveCommunityButton.setDisable(true);
-        if (deleteCommunityButton != null) deleteCommunityButton.setDisable(true);
     }
 
     private int approximateCommunitySize() {
