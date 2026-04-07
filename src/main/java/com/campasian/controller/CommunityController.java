@@ -105,6 +105,7 @@ public class CommunityController implements Initializable {
         }
         if (messageField != null) {
             messageField.setOnAction(event -> onSendClick());
+            messageField.textProperty().addListener((obs, oldText, newText) -> updateSendButtonState());
         }
         if (sendButton != null) {
             sendButton.setDisable(true);
@@ -142,6 +143,7 @@ public class CommunityController implements Initializable {
         selectedRoom = room;
         renderRoomDetails(room, true);
         loadMessagesAsync(room, false);
+        updateSendButtonState();
     }
 
     @FXML
@@ -173,6 +175,7 @@ public class CommunityController implements Initializable {
             visibleMessages.add(sent);
             messageField.clear();
             pendingImageBytes = null;
+            updateSendButtonState();
             scrollMessagesToBottom();
         } catch (ApiException ignored) {
         }
@@ -256,6 +259,7 @@ public class CommunityController implements Initializable {
         pendingImageBytes = selected.getBytes();
         pendingImageExtension = selected.getExtension();
         pendingImageContentType = selected.getContentType();
+        updateSendButtonState();
     }
 
     private void applyRooms(UserProfile profile, List<CommunityRoom> rooms, String roomIdToSelect) {
@@ -346,6 +350,7 @@ public class CommunityController implements Initializable {
             }
         } finally {
             suppressSelectionHandler = false;
+            updateSendButtonState();
         }
     }
 
@@ -512,6 +517,15 @@ public class CommunityController implements Initializable {
         }
     }
 
+    private void updateSendButtonState() {
+        boolean hasText = messageField != null && messageField.getText() != null && !messageField.getText().isBlank();
+        boolean hasImage = pendingImageBytes != null && pendingImageBytes.length > 0;
+        boolean canSend = selectedRoom != null && currentUserProfile != null && (hasText || hasImage);
+        if (sendButton != null) {
+            sendButton.setDisable(!canSend);
+        }
+    }
+
     private final class CommunityRoomCell extends ListCell<CommunityRoom> {
         @Override
         protected void updateItem(CommunityRoom room, boolean empty) {
@@ -556,11 +570,18 @@ public class CommunityController implements Initializable {
 
             boolean fromCurrentUser = currentUserId != null && currentUserId.equals(message.getSenderId());
 
+            String text = message.getContent() != null ? message.getContent().trim() : "";
+
             VBox bubble = new VBox(8);
             bubble.getStyleClass().add(fromCurrentUser ? "sent-bubble" : "received-bubble");
             bubble.setMaxWidth(360);
 
-            String text = message.getContent() != null ? message.getContent().trim() : "";
+            if (!text.isEmpty()) {
+                Label sender = new Label(message.getSenderName());
+                sender.getStyleClass().add(fromCurrentUser ? "community-message-sender-me" : "community-message-sender");
+                bubble.getChildren().add(sender);
+            }
+
             if (!text.isEmpty()) {
                 Label content = new Label(text);
                 content.setWrapText(true);
