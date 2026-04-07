@@ -86,3 +86,34 @@
     -fx-font-size: 14px;
     -fx-line-spacing: 3;
 }
+
+/* Confession Modal Styles */
+.modal-root {
+    -fx-background-color: #0b1220;
+    -fx-font-family: "Poppins", "Segoe UI", sans-serif;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+
+.cc-headline {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.cc-description {
+    -fx-text-fill: #a0aec0;
+    -fx-font-size: 13px;
+}
+
+.modal-text-area {
+    -fx-control-inner-background: #1a2332;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-padding: 12;
+    -fx-border-color: #2d3748;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-focus-color: #3b82f6;
+    -fx-faint-focus-color: rgba(59, 130, 246, 0.1);
+}
