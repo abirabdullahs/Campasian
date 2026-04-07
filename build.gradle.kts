@@ -68,6 +68,33 @@ jlink {
     imageZip.set(layout.buildDirectory.file("/distributions/app-${javafx.platform.classifier}.zip"))
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     launcher {
-        name = "app"
+        name = "campasian"
     }
+}
+
+// Custom task for creating Windows executable installer
+tasks.register<Exec>("packageApp") {
+    dependsOn("jlink")
+    
+    val javaHome = System.getProperty("java.home")
+    val jpackagePath = "$javaHome\\bin\\jpackage.exe"
+    val imageDir = "build/jlink/app"
+    val outputDir = "build/distributions"
+    val iconPath = "src/main/resources/images/app-icon.ico"
+    
+    commandLine(
+        jpackagePath,
+        "--app-version", "1.0.0",
+        "--input", imageDir,
+        "--dest", outputDir,
+        "--name", "CampusConnect",
+        "--app-image", imageDir,
+        "--type", "exe",
+        "--icon", iconPath,
+        "--vendor", "CampusConnect",
+        "--win-per-user-install",
+        "--win-menu",
+        "--win-menu-group", "CampusConnect",
+        "--win-shortcut"
+    )
 }
