@@ -75,9 +75,10 @@ public class Splashanimation extends Application {
 
         mainContainer.getChildren().addAll(titleContainer, punchline);
 
-        Scene scene = new Scene(mainContainer, 800, 400);
+        Scene scene = new Scene(mainContainer);
         primaryStage.setTitle("Campasian");
         primaryStage.setScene(scene);
+        primaryStage.setFullScreen(true);
         primaryStage.show();
     }
 
