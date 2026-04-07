@@ -948,6 +948,28 @@ public final class ApiService {
     }
 
     /**
+     * Returns the friend request ID between current user and target (if exists).
+     */
+    public String getFriendRequestId(String targetId) throws ApiException {
+        if (targetId == null || targetId.isBlank() || currentUserId == null || currentUserId.isBlank()) return null;
+        String url = restUrl("/friend_requests?or=(and(from_id.eq." + currentUserId + ",to_id.eq." + targetId + "),and(from_id.eq." + targetId + ",to_id.eq." + currentUserId + "))&select=id,status");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return null;
+            var parsed = JsonParser.parseString(body);
+            if (parsed == null || !parsed.isJsonArray()) return null;
+            var arr = parsed.getAsJsonArray();
+            if (!arr.isEmpty()) {
+                return asString(arr.get(0).getAsJsonObject().get("id"));
+            }
+            return null;
+        } catch (ApiException e) {
+            return null;
+        }
+    }
+
+    /**
      * Fetches incoming friend requests (to_id = current user, status = pending).
      */
     public List<FriendRequest> getIncomingFriendRequests() throws ApiException {
@@ -1029,6 +1051,36 @@ public final class ApiService {
         catch (Exception e) {
             if (e instanceof InterruptedException) Thread.currentThread().interrupt();
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Removes a friend by rejecting/deleting the friend request with that user.
+     */
+    public void removeFriend(String friendId) throws ApiException {
+        if (friendId == null || friendId.isBlank() || currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Invalid request", null, null, null);
+        }
+        String url = restUrl("/friend_requests?or=(and(from_id.eq." + currentUserId + ",to_id.eq." + friendId + ",status.eq.accepted),and(from_id.eq." + friendId + ",to_id.eq." + currentUserId + ",status.eq.accepted))");
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            // First, get the friend request record ID
+            String body = getRawWithAuth(url, token);
+            if (body == null || body.isBlank()) return;
+            var parsed = JsonParser.parseString(body);
+            if (parsed != null && parsed.isJsonArray()) {
+                var arr = parsed.getAsJsonArray();
+                if (arr.size() > 0) {
+                    String requestId = arr.get(0).getAsJsonObject().get("id").getAsString();
+                    // Delete the friend request
+                    String deleteUrl = restUrl("/friend_requests?id=eq." + requestId);
+                    deleteWithAuth(deleteUrl, token);
+                }
+            }
+        } catch (ApiException e) { throw e; }
+        catch (Exception e) {
+            if (e instanceof InterruptedException) Thread.currentThread().interrupt();
+            throw new ApiException(-1, "Remove friend failed: " + e.getMessage(), null, null, null);
         }
     }
 

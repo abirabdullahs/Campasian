@@ -50,6 +50,10 @@ public class ProfileController implements Initializable {
     @FXML private Label followingCountLabel;
     @FXML private Label postCountLabel;
     @FXML private Button editProfileBtn;
+    @FXML private Button addFriendBtn;
+    @FXML private Button cancelRequestBtn;
+    @FXML private Button friendBtn;
+    @FXML private Button messageBtn;
     @FXML private Button followBtn;
     @FXML private Button unfollowBtn;
     @FXML private VBox postsVBox;
@@ -111,6 +115,55 @@ public class ProfileController implements Initializable {
         }
     }
 
+    @FXML
+    protected void onAddFriendClick() {
+        if (viewingUserId == null || viewingUserId.isBlank()) return;
+        new Thread(() -> {
+            try {
+                ApiService.getInstance().sendFriendRequest(viewingUserId);
+                Platform.runLater(this::updateActionButtons);
+            } catch (ApiException ignored) {}
+        }).start();
+    }
+
+    @FXML
+    protected void onCancelRequestClick() {
+        if (viewingUserId == null || viewingUserId.isBlank()) return;
+        new Thread(() -> {
+            try {
+                String requestId = ApiService.getInstance().getFriendRequestId(viewingUserId);
+                if (requestId != null && !requestId.isBlank()) {
+                    ApiService.getInstance().rejectFriendRequest(requestId);
+                    Platform.runLater(this::updateActionButtons);
+                }
+            } catch (ApiException ignored) {}
+        }).start();
+    }
+
+    @FXML
+    protected void onUnfriendClick() {
+        if (viewingUserId == null || viewingUserId.isBlank()) return;
+        new Thread(() -> {
+            try {
+                // Remove friend (unfriend)
+                ApiService.getInstance().removeFriend(viewingUserId);
+                Platform.runLater(this::updateActionButtons);
+            } catch (ApiException ignored) {}
+        }).start();
+    }
+
+    @FXML
+    protected void onMessageClick() {
+        if (viewingUserId == null || viewingUserId.isBlank()) return;
+        try {
+            UserProfile profile = ApiService.getInstance().getProfile(viewingUserId);
+            String partnerName = profile != null && profile.getFullName() != null 
+                ? profile.getFullName() 
+                : "Chat";
+            AppRouter.navigateToChat(viewingUserId, partnerName);
+        } catch (ApiException ignored) {}
+    }
+
     private void updateActionButtons() {
         String currentId = ApiService.getInstance().getCurrentUserId();
         boolean isSelf = viewingUserId != null && viewingUserId.equals(currentId);
@@ -119,6 +172,13 @@ public class ProfileController implements Initializable {
             editProfileBtn.setVisible(isSelf);
             editProfileBtn.setManaged(isSelf);
         }
+        
+        // Show message button only for other users
+        if (messageBtn != null) {
+            messageBtn.setVisible(!isSelf);
+            messageBtn.setManaged(!isSelf);
+        }
+        
         if (followBtn != null) {
             followBtn.setVisible(!isSelf);
             followBtn.setManaged(!isSelf);
@@ -128,17 +188,66 @@ public class ProfileController implements Initializable {
             unfollowBtn.setManaged(!isSelf);
         }
 
-        if (!isSelf && followBtn != null && unfollowBtn != null) {
-            try {
-                boolean following = ApiService.getInstance().isFollowing(viewingUserId);
-                followBtn.setVisible(!following);
-                followBtn.setManaged(!following);
-                unfollowBtn.setVisible(following);
-                unfollowBtn.setManaged(following);
-            } catch (ApiException e) {
-                followBtn.setVisible(true);
-                unfollowBtn.setVisible(false);
+        if (!isSelf) {
+            // Handle friend request status
+            new Thread(() -> {
+                try {
+                    String status = ApiService.getInstance().getFriendRequestStatus(viewingUserId);
+                    Platform.runLater(() -> updateFriendButtons(status));
+                } catch (ApiException ignored) {
+                    Platform.runLater(() -> updateFriendButtons("none"));
+                }
+            }).start();
+            
+            // Handle follow status
+            if (followBtn != null && unfollowBtn != null) {
+                try {
+                    boolean following = ApiService.getInstance().isFollowing(viewingUserId);
+                    followBtn.setVisible(!following);
+                    followBtn.setManaged(!following);
+                    unfollowBtn.setVisible(following);
+                    unfollowBtn.setManaged(following);
+                } catch (ApiException e) {
+                    followBtn.setVisible(true);
+                    unfollowBtn.setVisible(false);
+                }
             }
+        } else {
+            // Hide all friend-related buttons for self
+            if (addFriendBtn != null) {
+                addFriendBtn.setVisible(false);
+                addFriendBtn.setManaged(false);
+            }
+            if (cancelRequestBtn != null) {
+                cancelRequestBtn.setVisible(false);
+                cancelRequestBtn.setManaged(false);
+            }
+            if (friendBtn != null) {
+                friendBtn.setVisible(false);
+                friendBtn.setManaged(false);
+            }
+        }
+    }
+    
+    private void updateFriendButtons(String status) {
+        if (addFriendBtn == null || cancelRequestBtn == null || friendBtn == null) return;
+        
+        addFriendBtn.setVisible(false);
+        addFriendBtn.setManaged(false);
+        cancelRequestBtn.setVisible(false);
+        cancelRequestBtn.setManaged(false);
+        friendBtn.setVisible(false);
+        friendBtn.setManaged(false);
+        
+        if ("pending".equals(status)) {
+            cancelRequestBtn.setVisible(true);
+            cancelRequestBtn.setManaged(true);
+        } else if ("accepted".equals(status)) {
+            friendBtn.setVisible(true);
+            friendBtn.setManaged(true);
+        } else {
+            addFriendBtn.setVisible(true);
+            addFriendBtn.setManaged(true);
         }
     }
 

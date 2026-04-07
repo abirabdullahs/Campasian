@@ -29,6 +29,18 @@
             <Button fx:id="editProfileBtn" text="✎  Edit Profile"
                     styleClass="btn-secondary" onAction="#onEditProfileClick"
                     visible="false" managed="false"/>
+            <Button fx:id="addFriendBtn" text="⊕  Add Friend"
+                    styleClass="btn-primary" onAction="#onAddFriendClick"
+                    visible="false" managed="false"/>
+            <Button fx:id="cancelRequestBtn" text="⊗  Cancel Request"
+                    styleClass="btn-secondary" onAction="#onCancelRequestClick"
+                    visible="false" managed="false"/>
+            <Button fx:id="friendBtn" text="✓  Friend"
+                    styleClass="btn-ghost" onAction="#onUnfriendClick"
+                    visible="false" managed="false"/>
+            <Button fx:id="messageBtn" text="✉  Message"
+                    styleClass="btn-primary" onAction="#onMessageClick"
+                    visible="false" managed="false"/>
             <Button fx:id="followBtn" text="⊕  Follow"
                     styleClass="btn-primary" onAction="#onFollowClick"
                     visible="false" managed="false"/>
