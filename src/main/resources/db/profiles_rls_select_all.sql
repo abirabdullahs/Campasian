@@ -20,5 +20,9 @@ CREATE POLICY "Authenticated can read all profiles"
 -- -----------------------------------------------------------------------------
 -- ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
 
--- If you get "column bio does not exist", run social_extensions.sql first:
--- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT;
+-- If you get "column bio does not exist", run the migrations below:
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS blood_group TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS session TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS batch TEXT;

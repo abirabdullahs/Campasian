@@ -135,16 +135,10 @@
                     </HBox>
                     <Separator styleClass="profile-field-divider"/>
 
-                    <HBox styleClass="profile-field-row" spacing="0">
-                        <Label text="Session" styleClass="profile-field-label" minWidth="140"/>
-                        <Label fx:id="sessionLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
-                    </HBox>
+
                     <Separator styleClass="profile-field-divider"/>
 
-                    <HBox styleClass="profile-field-row" spacing="0">
-                        <Label text="Batch" styleClass="profile-field-label" minWidth="140"/>
-                        <Label fx:id="batchLabel" text="—" styleClass="profile-field-value" HBox.hgrow="ALWAYS"/>
-                    </HBox>
+
 
                 </VBox>
             </VBox>
