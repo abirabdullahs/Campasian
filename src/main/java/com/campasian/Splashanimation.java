@@ -13,6 +13,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
 public class Splashanimation extends Application {
@@ -75,10 +76,13 @@ public class Splashanimation extends Application {
 
         mainContainer.getChildren().addAll(titleContainer, punchline);
 
-        Scene scene = new Scene(mainContainer);
+        var bounds = Screen.getPrimary().getVisualBounds();
+        Scene scene = new Scene(mainContainer, bounds.getWidth(), bounds.getHeight());
         primaryStage.setTitle("Campasian");
         primaryStage.setScene(scene);
         primaryStage.setFullScreen(true);
+        primaryStage.setX(bounds.getMinX());
+        primaryStage.setY(bounds.getMinY());
         primaryStage.show();
     }
 
