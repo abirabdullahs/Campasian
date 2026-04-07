@@ -102,6 +102,16 @@ CREATE POLICY "System inserts notifications" -- via service role or authenticate
     ON public.notifications FOR INSERT TO authenticated
     WITH CHECK (true);
 
+-- Allow authenticated users to send "blood_request" notifications to other users.
+-- This is needed for the Blood Donation Hub feature (client-side insert).
+DROP POLICY IF EXISTS "Users can send blood requests" ON public.notifications;
+CREATE POLICY "Users can send blood requests"
+    ON public.notifications FOR INSERT TO authenticated
+    WITH CHECK (
+        type = 'blood_request'
+        AND actor_id = auth.uid()
+    );
+
 -- -----------------------------------------------------------------------------
 -- 5. TRIGGERS: Create notifications on like, comment, follow
 -- -----------------------------------------------------------------------------
