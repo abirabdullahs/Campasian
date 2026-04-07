@@ -129,6 +129,7 @@ public class NotificationsController implements Initializable {
             case "follow": text = actor + " started following you."; break;
             case "friend_request": text = actor + " sent you a friend request."; break;
             case "friend_accepted": text = actor + " accepted your friend request."; break;
+            case "blood_request": text = actor; break; // actor_name contains full message for this type
             default: text = actor + " interacted with you.";
         }
         Label lbl = new Label(text);

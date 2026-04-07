@@ -29,6 +29,8 @@ public class BloodSearchController implements Initializable {
     private static final String[] BLOOD_GROUPS = { "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-" };
 
     @FXML private HBox bloodGroupPanel;
+    @FXML private Label groupSummaryLabel;
+    @FXML private Button groupRequestButton;
     @FXML private VBox donorsVBox;
     
     private String selectedBloodGroup;
@@ -37,6 +39,7 @@ public class BloodSearchController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         createBloodGroupButtons();
+        updateGroupActionIdle();
     }
 
     private void createBloodGroupButtons() {
@@ -65,6 +68,7 @@ public class BloodSearchController implements Initializable {
             }
         }
         
+        updateGroupActionLoading(group);
         loadDonorsForGroup(group);
     }
 
@@ -83,7 +87,9 @@ public class BloodSearchController implements Initializable {
                         Label empty = new Label("No donors found for " + group + ".");
                         empty.getStyleClass().add("profile-label");
                         donorsVBox.getChildren().add(empty);
+                        updateGroupActionLoaded(group, currentDonors);
                     } else {
+                        updateGroupActionLoaded(group, currentDonors);
                         for (UserProfile profile : currentDonors) {
                             donorsVBox.getChildren().add(buildDonorCard(profile, group));
                         }
@@ -97,6 +103,7 @@ public class BloodSearchController implements Initializable {
                         err.getStyleClass().add("profile-label");
                         donorsVBox.getChildren().add(err);
                     }
+                    updateGroupActionError();
                 });
             }
         }).start();
@@ -134,26 +141,22 @@ public class BloodSearchController implements Initializable {
         Label uniLbl = new Label(uni);
         uniLbl.getStyleClass().add("profile-label");
 
-        // Send Request Button
-        String currentUserId = ApiService.getInstance().getCurrentUserId();
-        Button sendRequestBtn = new Button("Send Request");
-        sendRequestBtn.getStyleClass().addAll("btn-primary");
-        
-        if (currentUserId != null && !currentUserId.equals(profile.getId())) {
-            sendRequestBtn.setOnAction(e -> showContactModal(profile, bloodGroup));
-        } else {
-            sendRequestBtn.setDisable(true);
-        }
-
         // Card
         VBox card = new VBox(8);
         card.getStyleClass().add("blood-donor-card");
-        card.getChildren().addAll(nameLbl, meta, uniLbl, sendRequestBtn);
+        card.getChildren().addAll(nameLbl, meta, uniLbl);
 
         return card;
     }
 
-    private void showContactModal(UserProfile profile, String bloodGroup) {
+    @FXML
+    protected void onGroupRequest() {
+        if (selectedBloodGroup == null || selectedBloodGroup.isBlank()) return;
+        if (currentDonors == null || currentDonors.isEmpty()) return;
+        showContactModal(selectedBloodGroup);
+    }
+
+    private void showContactModal(String bloodGroup) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/blood-request-modal.fxml"));
             Parent root = loader.load();
@@ -173,6 +176,67 @@ public class BloodSearchController implements Initializable {
             modalStage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void updateGroupActionIdle() {
+        if (groupSummaryLabel != null) {
+            groupSummaryLabel.setText("Select a blood group to view donors.");
+        }
+        if (groupRequestButton != null) {
+            groupRequestButton.setText("Send Request");
+            groupRequestButton.setDisable(true);
+        }
+    }
+
+    private void updateGroupActionLoading(String group) {
+        if (groupSummaryLabel != null) {
+            groupSummaryLabel.setText("Loading donors for " + group + "...");
+        }
+        if (groupRequestButton != null) {
+            groupRequestButton.setText("Send Request (" + group + ")");
+            groupRequestButton.setDisable(true);
+        }
+    }
+
+    private void updateGroupActionLoaded(String group, List<UserProfile> donors) {
+        int total = donors != null ? donors.size() : 0;
+        String currentUserId = ApiService.getInstance().getCurrentUserId();
+
+        long eligible = 0;
+        if (donors != null) {
+            for (UserProfile donor : donors) {
+                if (donor == null) continue;
+                String id = donor.getId();
+                if (id == null || id.isBlank()) continue;
+                if (currentUserId != null && currentUserId.equals(id)) continue;
+                eligible++;
+            }
+        }
+
+        if (groupSummaryLabel != null) {
+            if (total <= 0) {
+                groupSummaryLabel.setText("No donors found for " + group + ".");
+            } else if (eligible == total) {
+                groupSummaryLabel.setText("Found " + total + " donors for " + group + ".");
+            } else {
+                groupSummaryLabel.setText("Found " + total + " donors for " + group + " (" + eligible + " available).");
+            }
+        }
+
+        if (groupRequestButton != null) {
+            groupRequestButton.setText("Send Request (" + group + ")");
+            groupRequestButton.setDisable(eligible <= 0);
+        }
+    }
+
+    private void updateGroupActionError() {
+        if (groupSummaryLabel != null) {
+            groupSummaryLabel.setText("Unable to load donors.");
+        }
+        if (groupRequestButton != null) {
+            groupRequestButton.setText("Send Request");
+            groupRequestButton.setDisable(true);
         }
     }
 }

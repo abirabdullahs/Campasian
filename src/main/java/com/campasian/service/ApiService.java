@@ -2272,26 +2272,30 @@ public final class ApiService {
     }
     
     /**
-     * Sends blood request notification to a user with contact number
+     * Sends a "blood_request" notification to a user.
+     *
+     * Important: This uses the existing notifications schema (user_id, type, actor_id, actor_name, post_id, created_at, read_at).
+     * The "message" is stored in actor_name so it can be displayed without requiring schema changes.
      */
-    public void sendBloodRequestNotification(String userId, String message, String contact, String bloodGroup) throws ApiException {
-        if (userId == null || userId.isBlank() || message == null || message.isBlank()) {
+    public void sendBloodRequestNotification(String recipientUserId, String message) throws ApiException {
+        if (recipientUserId == null || recipientUserId.isBlank() || message == null || message.isBlank()) {
             throw new ApiException(-1, "Invalid notification data", null, null, null);
         }
-        
-        JsonObject payload = new JsonObject();
-        payload.addProperty("user_id", userId);
-        payload.addProperty("type", "blood_request");
-        payload.addProperty("content", message);
-        payload.addProperty("contact", contact);
-        payload.addProperty("blood_group", bloodGroup);
-        payload.addProperty("read", false);
-        
-        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
-        try {
-            postJsonWithAuth(restUrl("/notifications"), payload, token);
-        } catch (ApiException e) {
-            throw e;
+        if (currentUserId == null || currentUserId.isBlank()) {
+            throw new ApiException(-1, "Not logged in", null, null, null);
         }
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new ApiException(-1, "Missing access token", null, null, null);
+        }
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", recipientUserId);
+        payload.addProperty("type", "blood_request");
+        payload.addProperty("actor_id", currentUserId);
+
+        // Store full message (including contact) here for backwards compatibility with current schema.
+        payload.addProperty("actor_name", message);
+
+        postJsonWithAuth(restUrl("/notifications"), payload, accessToken);
     }
 }

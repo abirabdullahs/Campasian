@@ -29,6 +29,24 @@
         <HBox fx:id="bloodGroupPanel" spacing="8" styleClass="blood-group-buttons" style="-fx-wrap-text: true;"/>
     </VBox>
 
+    <!-- Group Request Action -->
+    <HBox spacing="12" alignment="CENTER_LEFT" styleClass="blood-action-bar">
+        <VBox.margin>
+            <Insets top="12" />
+        </VBox.margin>
+        <Label fx:id="groupSummaryLabel"
+               text="Select a blood group to view donors."
+               styleClass="profile-label"
+               wrapText="true"
+               maxWidth="Infinity"
+               HBox.hgrow="ALWAYS"/>
+        <Button fx:id="groupRequestButton"
+                text="Send Request"
+                styleClass="btn-primary"
+                disable="true"
+                onAction="#onGroupRequest"/>
+    </HBox>
+
     <!-- Donors List -->
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
         <VBox fx:id="donorsVBox" spacing="12" styleClass="feed-container"/>

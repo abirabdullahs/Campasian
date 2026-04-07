@@ -1,7 +1,7 @@
 package com.campasian.model;
 
 /**
- * Notification for a user (like, comment, follow, friend_request, friend_accepted).
+ * Notification for a user (like, comment, follow, friend_request, friend_accepted, blood_request).
  */
 public class Notification {
     private String id;

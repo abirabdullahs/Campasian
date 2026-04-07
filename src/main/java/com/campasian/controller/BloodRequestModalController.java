@@ -70,21 +70,45 @@ public class BloodRequestModalController {
                 final String senderName = currentUserName != null ? currentUserName : "Someone";
                 
                 // Send notification to all donors in this blood group
+                int attempted = 0;
+                int sent = 0;
+                int failed = 0;
+                ApiException lastApiError = null;
                 if (donors != null) {
                     for (UserProfile donor : donors) {
-                        if (donor.getId() != null && !donor.getId().equals(currentUserId)) {
+                        if (donor == null) continue;
+                        String donorId = donor.getId();
+                        if (donorId == null || donorId.isBlank()) continue;
+                        if (currentUserId != null && donorId.equals(currentUserId)) continue;
+
+                        attempted++;
                             try {
                                 String message = senderName + " needs " + bloodGroup + " blood. Contact: " + contact;
-                                ApiService.getInstance().sendBloodRequestNotification(donor.getId(), message, contact, bloodGroup);
-                            } catch (ApiException ignored) {}
-                        }
+                                ApiService.getInstance().sendBloodRequestNotification(donorId, message);
+                                sent++;
+                            } catch (ApiException ex) {
+                                failed++;
+                                lastApiError = ex;
+                            }
                     }
                 }
+
+                final int finalAttempted = attempted;
+                final int finalSent = sent;
+                final int finalFailed = failed;
+                final ApiException finalLastApiError = lastApiError;
                 
                 Platform.runLater(() -> {
-                    showSuccess("Blood request sent to " + (donors != null ? donors.size() : 0) + " donors!");
-                    if (stage != null) {
-                        stage.close();
+                    if (finalSent > 0) {
+                        String msg = "Blood request sent to " + finalSent + " donor(s) (attempted: " + finalAttempted + ").";
+                        if (finalFailed > 0) msg += " Failed: " + finalFailed + ".";
+                        showSuccess(msg);
+                        if (stage != null) {
+                            stage.close();
+                        }
+                    } else {
+                        String details = finalLastApiError != null ? finalLastApiError.getMessage() : null;
+                        showError("Failed to send blood request" + (details != null && !details.isBlank() ? (": " + details) : "."));
                     }
                 });
                 
