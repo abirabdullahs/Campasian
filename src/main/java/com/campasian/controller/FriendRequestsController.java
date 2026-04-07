@@ -62,7 +62,7 @@ public class FriendRequestsController implements Initializable {
 
     private VBox buildRequestCard(FriendRequest req) {
         VBox card = new VBox(12);
-        card.setStyle("-fx-padding: 16; -fx-border-color: #e4e4e7; -fx-border-radius: 6; -fx-background-color: #fafafa;");
+        card.getStyleClass().add("friend-requests-card");
 
         // Get sender profile
         new Thread(() -> {
@@ -75,14 +75,14 @@ public class FriendRequestsController implements Initializable {
 
                         VBox info = new VBox(4);
                         Label name = new Label(sender.getFullName() != null ? sender.getFullName() : "Unknown");
-                        name.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+                        name.getStyleClass().add("friend-requests-name");
                         Label uni = new Label(sender.getUniversityName() != null ? sender.getUniversityName() : "");
-                        uni.setStyle("-fx-font-size: 12; -fx-text-fill: #71717a;");
+                        uni.getStyleClass().add("friend-requests-info");
                         info.getChildren().addAll(name, uni);
                         HBox.setHgrow(info, Priority.ALWAYS);
 
                         Button viewBtn = new Button("View Profile");
-                        viewBtn.setStyle("-fx-font-size: 12; -fx-padding: 6 12;");
+                        viewBtn.getStyleClass().add("friend-requests-button");
                         viewBtn.setOnAction(e -> AppRouter.navigateToProfile(sender.getId()));
 
                         infoBox.getChildren().addAll(info, viewBtn);
@@ -96,11 +96,13 @@ public class FriendRequestsController implements Initializable {
         actionsBox.setAlignment(Pos.CENTER_RIGHT);
 
         Button acceptBtn = new Button("✓ Accept");
-        acceptBtn.setStyle("-fx-font-size: 12; -fx-padding: 6 12; -fx-text-fill: white; -fx-background-color: #22c55e;");
+        acceptBtn.getStyleClass().add("friend-requests-button");
+        acceptBtn.getStyleClass().add("friend-requests-accept");
         acceptBtn.setOnAction(e -> acceptRequest(req));
 
         Button rejectBtn = new Button("✕ Reject");
-        rejectBtn.setStyle("-fx-font-size: 12; -fx-padding: 6 12; -fx-text-fill: white; -fx-background-color: #ef4444;");
+        rejectBtn.getStyleClass().add("friend-requests-button");
+        rejectBtn.getStyleClass().add("friend-requests-reject");
         rejectBtn.setOnAction(e -> rejectRequest(req));
 
         actionsBox.getChildren().addAll(acceptBtn, rejectBtn);
