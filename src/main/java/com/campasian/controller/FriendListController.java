@@ -60,23 +60,24 @@ public class FriendListController implements Initializable {
 
     private HBox buildFriendCard(UserProfile friend) {
         HBox card = new HBox(16);
-        card.setStyle("-fx-padding: 12; -fx-border-color: #e4e4e7; -fx-border-radius: 6; -fx-background-color: #fafafa;");
+        card.getStyleClass().add("friends-card");
         card.setAlignment(Pos.CENTER_LEFT);
 
         VBox info = new VBox(4);
         Label name = new Label(friend.getFullName() != null ? friend.getFullName() : "Unknown");
-        name.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+        name.getStyleClass().add("friends-name");
         Label uni = new Label(friend.getUniversityName() != null ? friend.getUniversityName() : "");
-        uni.setStyle("-fx-font-size: 12; -fx-text-fill: #71717a;");
+        uni.getStyleClass().add("friends-info");
         info.getChildren().addAll(name, uni);
         HBox.setHgrow(info, Priority.ALWAYS);
 
         javafx.scene.control.Button viewBtn = new javafx.scene.control.Button("View");
-        viewBtn.setStyle("-fx-font-size: 12; -fx-padding: 6 12;");
+        viewBtn.getStyleClass().add("friends-button");
         viewBtn.setOnAction(e -> AppRouter.navigateToProfile(friend.getId()));
 
         javafx.scene.control.Button msgBtn = new javafx.scene.control.Button("Message");
-        msgBtn.setStyle("-fx-font-size: 12; -fx-padding: 6 12;");
+        msgBtn.getStyleClass().add("friends-button");
+        msgBtn.getStyleClass().add("friends-button-primary");
         msgBtn.setOnAction(e -> AppRouter.navigateToChat(friend.getId(), friend.getFullName()));
 
         card.getChildren().addAll(info, viewBtn, msgBtn);

@@ -15,6 +15,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.campasian.controller.FriendListController"
       styleClass="friends-root"
+      stylesheets="@../styles/app.css,@../styles/friends.css"
       spacing="0" maxWidth="Infinity" maxHeight="Infinity">
 
     <!-- Top Bar -->
