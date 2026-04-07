@@ -2270,4 +2270,28 @@ public final class ApiService {
         friendStatusCache.clear();
         cacheTimestamp.clear();
     }
+    
+    /**
+     * Sends blood request notification to a user with contact number
+     */
+    public void sendBloodRequestNotification(String userId, String message, String contact, String bloodGroup) throws ApiException {
+        if (userId == null || userId.isBlank() || message == null || message.isBlank()) {
+            throw new ApiException(-1, "Invalid notification data", null, null, null);
+        }
+        
+        JsonObject payload = new JsonObject();
+        payload.addProperty("user_id", userId);
+        payload.addProperty("type", "blood_request");
+        payload.addProperty("content", message);
+        payload.addProperty("contact", contact);
+        payload.addProperty("blood_group", bloodGroup);
+        payload.addProperty("read", false);
+        
+        String token = accessToken != null && !accessToken.isBlank() ? accessToken : SupabaseConfig.getAnonKey();
+        try {
+            postJsonWithAuth(restUrl("/notifications"), payload, token);
+        } catch (ApiException e) {
+            throw e;
+        }
+    }
 }

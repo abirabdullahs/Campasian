@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
@@ -14,19 +14,22 @@
       maxWidth="Infinity" maxHeight="Infinity">
     <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 
+    <!-- Header -->
     <VBox styleClass="page-header" spacing="4">
         <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="B+" styleClass="blood-search-icon"/>
+            <Label text="🩸" styleClass="blood-search-icon"/>
             <Label text="Blood Donation Hub" styleClass="page-title"/>
         </HBox>
-        <Label text="Find blood donors by blood group during emergencies." styleClass="page-subtitle" wrapText="true"/>
+        <Label text="Select your blood group to find and request blood donors." styleClass="page-subtitle" wrapText="true"/>
     </VBox>
 
-    <VBox spacing="8" styleClass="blood-filter-card">
-        <Label text="Blood Group" styleClass="profile-label"/>
-        <ComboBox fx:id="bloodGroupCombo" styleClass="material-input blood-filter-combo" prefWidth="220" onAction="#onBloodGroupChanged"/>
+    <!-- Blood Group Selection -->
+    <VBox spacing="12" styleClass="blood-group-section">
+        <Label text="Select Blood Group" styleClass="profile-label"/>
+        <HBox fx:id="bloodGroupPanel" spacing="8" styleClass="blood-group-buttons" style="-fx-wrap-text: true;"/>
     </VBox>
 
+    <!-- Donors List -->
     <ScrollPane fitToWidth="true" styleClass="feed-scroll" VBox.vgrow="ALWAYS" style="-fx-padding: 16 0 0 0;">
         <VBox fx:id="donorsVBox" spacing="12" styleClass="feed-container"/>
     </ScrollPane>
