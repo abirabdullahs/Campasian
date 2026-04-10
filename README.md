@@ -53,6 +53,48 @@ Create a thriving campus community where students can:
 
 ---
 
+## ⚙️ Installation
+
+Follow these steps to get Campasian running locally.
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/abirabdullahs/Campasian.git
+cd Campasian
+```
+
+2. Build the project using the Gradle wrapper:
+
+```bash
+./gradlew build
+```
+
+On Windows, use:
+
+```powershell
+gradlew.bat build
+```
+
+3. Run the application:
+
+```bash
+./gradlew run
+```
+
+Or on Windows:
+
+```powershell
+gradlew.bat run
+```
+
+### Requirements
+- Java 21 or newer
+- Gradle wrapper is included in the repository
+- Internet access to download dependencies on first build
+
+---
+
 ## 🏗️ Architecture
 
 ### Technology Stack
